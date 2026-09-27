@@ -8,7 +8,7 @@ destructive operations without the user's explicit approval.
 
 ## Latest checkpoint — mobile companies preview route
 
-Branch: `satno/mobile-companies-preview-20260927`, feature commit
+Draft PR #15: `satno/mobile-companies-preview-20260927`, feature commit
 `2fa425da3b51509efb27a1bad622fc382a77d4aa`, stacked on Draft PR #14 at
 `ae1b3bdaa699826b0fd0ca750984b1557fc8d378`.
 
@@ -31,8 +31,8 @@ Branch: `satno/mobile-companies-preview-20260927`, feature commit
   stale Browserslist warnings. This package does not establish real Supabase
   persistence/RLS acceptance and does not fix the separate mobile deals route.
 
-Next priority: publish this branch as a stacked Draft PR, then fix the mobile
-deals route in a separate reversible package and repeat mobile visual QA.
+Next priority: check PR #15 CI/status, then fix the mobile deals route in a
+separate reversible package and repeat mobile visual QA.
 
 ## Latest checkpoint — desktop tasks preview route
 
