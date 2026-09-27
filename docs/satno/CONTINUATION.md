@@ -6,6 +6,35 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — executable Supabase acceptance contract
+
+Draft PR #18: `satno/supabase-acceptance-contract-20260928`, published at
+`ae4664ed75ab40a38574aeb2f0dcb2a1d4b3f9ed` and stacked on Draft PR #17 at
+`7fcb69cbe64571702a5a85435c97fe02c55c01d8`.
+
+- Live reconciliation confirmed PR #17 is open, Draft, unmerged, conflict-free
+  and has zero GitHub checks. `main` and `satno-development` remain at `dce557e`;
+  upstream remains `d00fdf3` and the Persian reference remains `85fc400`.
+- Added a dedicated database-backed acceptance spec for anonymous RLS isolation,
+  authenticated persistence across a new session, company/contact/deal/task
+  relationship integrity, trigger-populated `sales_id`, and administrator-only
+  configuration writes. This is separate from FakeRest UI evidence.
+- Added a browser-bundle gate that rejects service-role secret names or values.
+  TypeScript, targeted ESLint, Prettier, build and this bundle gate must pass
+  locally before publication.
+- The real database spec cannot run in this execution environment: Supabase CLI
+  `2.118.0` is present, but `make start-supabase-e2e` fails because neither
+  Docker nor Podman is installed. Do not report the DB/RLS contract as passed
+  until it runs in a Docker-capable disposable environment.
+- GitHub Actions settings allow all actions, but the Actions page explicitly
+  says workflows are disabled because this is a fork. The repository-level
+  "enable workflows" control was not changed without explicit user approval;
+  this is the confirmed reason PRs have zero workflow runs.
+
+Next priority: after explicit approval, enable workflows for this fork and run
+PR #18's database contract on GitHub's Docker-capable runner. No production
+Supabase project or secret is needed.
+
 ## Latest checkpoint — Persian core UI and initial route matrix
 
 Draft PR #17: `satno/initial-preview-route-matrix-20260927`, published at
