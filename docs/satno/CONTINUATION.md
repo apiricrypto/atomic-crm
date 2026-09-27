@@ -8,8 +8,9 @@ destructive operations without the user's explicit approval.
 
 ## Latest checkpoint — executable Supabase acceptance contract
 
-Branch: `satno/supabase-acceptance-contract-20260928`, stacked on Draft PR #17
-at `7fcb69cbe64571702a5a85435c97fe02c55c01d8`.
+Draft PR #18: `satno/supabase-acceptance-contract-20260928`, published at
+`ae4664ed75ab40a38574aeb2f0dcb2a1d4b3f9ed` and stacked on Draft PR #17 at
+`7fcb69cbe64571702a5a85435c97fe02c55c01d8`.
 
 - Live reconciliation confirmed PR #17 is open, Draft, unmerged, conflict-free
   and has zero GitHub checks. `main` and `satno-development` remain at `dce557e`;
@@ -26,9 +27,9 @@ at `7fcb69cbe64571702a5a85435c97fe02c55c01d8`.
   Docker nor Podman is installed. Do not report the DB/RLS contract as passed
   until it runs in a Docker-capable disposable environment.
 
-Next priority: publish this reversible package as a Draft PR, inspect GitHub
-Actions availability, and execute `npm run test:e2e:db-contract` against the
-disposable e2e stack. No production Supabase project or secret is needed.
+Next priority: inspect PR #18 CI/status and execute
+`npm run test:e2e:db-contract` against the disposable e2e stack in a
+Docker-capable environment. No production Supabase project or secret is needed.
 
 ## Latest checkpoint — Persian core UI and initial route matrix
 
