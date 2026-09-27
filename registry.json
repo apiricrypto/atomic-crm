@@ -290,6 +290,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/projects.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/index.ts",
           "type": "registry:component"
         },
@@ -355,6 +359,18 @@
         },
         {
           "path": "src/components/atomic-crm/providers/commons/activity.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/projects/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/projects/costing.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/projects/ProjectList.tsx",
           "type": "registry:component"
         },
         {

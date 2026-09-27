@@ -226,6 +226,26 @@ export const farsiCrmMessages = {
       },
       invalid_date: "تاریخ نامعتبر",
     },
+    projects: {
+      name: "پروژه |||| پروژه‌ها",
+      forcedCaseName: "پروژه",
+      costing_subtitle: "کنترل ارزش قرارداد، هزینه و حاشیه پیش‌بینی‌شده",
+      count: "%{smart_count} پروژه |||| %{smart_count} پروژه",
+      empty: "هنوز پروژه‌ای از معامله برنده‌شده ایجاد نشده است.",
+      fields: {
+        contract_amount: "ارزش قرارداد",
+        planned_cost: "هزینه برنامه‌ای",
+        actual_cost: "هزینه واقعی",
+        forecast_margin: "حاشیه پیش‌بینی‌شده",
+      },
+      status: {
+        planned: "برنامه‌ریزی",
+        active: "در حال اجرا",
+        on_hold: "متوقف",
+        completed: "تکمیل‌شده",
+        cancelled: "لغوشده",
+      },
+    },
     notes: {
       name: "یادداشت |||| یادداشتها",
       forcedCaseName: "یادداشت",

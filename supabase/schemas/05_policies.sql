@@ -9,6 +9,8 @@ alter table public.contacts enable row level security;
 alter table public.contact_notes enable row level security;
 alter table public.deals enable row level security;
 alter table public.deal_notes enable row level security;
+alter table public.projects enable row level security;
+alter table public.project_cost_items enable row level security;
 alter table public.sales enable row level security;
 alter table public.tags enable row level security;
 alter table public.tasks enable row level security;
@@ -44,6 +46,18 @@ create policy "Enable read access for authenticated users" on public.deal_notes 
 create policy "Enable insert for authenticated users only" on public.deal_notes for insert to authenticated with check (true);
 create policy "Deal Notes Update Policy" on public.deal_notes for update to authenticated using (true);
 create policy "Deal Notes Delete Policy" on public.deal_notes for delete to authenticated using (true);
+
+-- Projects
+create policy "Enable project read for authenticated" on public.projects for select to authenticated using (true);
+create policy "Enable project insert for authenticated" on public.projects for insert to authenticated with check (true);
+create policy "Enable project update for authenticated" on public.projects for update to authenticated using (true) with check (true);
+create policy "Enable project delete for authenticated" on public.projects for delete to authenticated using (true);
+
+-- Project cost items
+create policy "Enable project cost read for authenticated" on public.project_cost_items for select to authenticated using (true);
+create policy "Enable project cost insert for authenticated" on public.project_cost_items for insert to authenticated with check (true);
+create policy "Enable project cost update for authenticated" on public.project_cost_items for update to authenticated using (true) with check (true);
+create policy "Enable project cost delete for authenticated" on public.project_cost_items for delete to authenticated using (true);
 
 -- Sales
 create policy "Enable read access for authenticated users" on public.sales for select to authenticated using (true);

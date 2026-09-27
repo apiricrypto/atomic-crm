@@ -141,6 +141,59 @@ export type DealNote = {
   status?: undefined;
 } & Pick<RaRecord, "id">;
 
+export type ProjectStatus =
+  | "planned"
+  | "active"
+  | "on_hold"
+  | "completed"
+  | "cancelled";
+
+/**
+ * A delivery project created from exactly one won deal.
+ *
+ * `contract_amount` is an immutable commercial snapshot used for costing. It
+ * is not a finance transaction and must never be added to deal revenue totals.
+ */
+export type Project = {
+  name: string;
+  code: string;
+  deal_id: Identifier;
+  company_id: Identifier;
+  status: ProjectStatus;
+  contract_amount: number;
+  currency: string;
+  start_date?: string | null;
+  target_end_date?: string | null;
+  completed_at?: string | null;
+  created_at: string;
+  updated_at: string;
+  sales_id?: Identifier;
+} & Pick<RaRecord, "id">;
+
+export type ProjectCostCategory =
+  | "equipment"
+  | "labor"
+  | "subcontract"
+  | "transport"
+  | "permit"
+  | "other";
+
+/**
+ * One cost line keeps planned and actual values side-by-side. This prevents
+ * the same cost from being counted twice when it moves from plan to actual.
+ */
+export type ProjectCostItem = {
+  project_id: Identifier;
+  category: ProjectCostCategory;
+  description: string;
+  planned_amount: number;
+  actual_amount: number;
+  currency: string;
+  created_at: string;
+  updated_at: string;
+  sales_id?: Identifier;
+} & Pick<RaRecord, "id">;
+
 export type Tag = {
   id: number;
   name: string;

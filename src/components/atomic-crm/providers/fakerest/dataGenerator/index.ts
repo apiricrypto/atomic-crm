@@ -3,6 +3,7 @@ import { generateContactNotes } from "./contactNotes";
 import { generateContacts } from "./contacts";
 import { generateDealNotes } from "./dealNotes";
 import { generateDeals } from "./deals";
+import { generateProjectCostItems, generateProjects } from "./projects";
 import { finalize } from "./finalize";
 import { generateSales } from "./sales";
 import { generateTags } from "./tags";
@@ -18,6 +19,8 @@ export default (): Db => {
   db.contact_notes = generateContactNotes(db);
   db.deals = generateDeals(db);
   db.deal_notes = generateDealNotes(db);
+  db.projects = generateProjects(db);
+  db.project_cost_items = generateProjectCostItems(db);
   db.tasks = generateTasks(db);
   db.configuration = [
     {
