@@ -13,6 +13,5 @@ export const getLanguageCode = (locale?: string | null): string => {
 export const isRtlLocale = (locale?: string | null): boolean =>
   RTL_LANGUAGE_CODES.has(getLanguageCode(locale));
 
-export const getTextDirection = (
-  locale?: string | null,
-): TextDirection => (isRtlLocale(locale) ? "rtl" : "ltr");
+export const getTextDirection = (locale?: string | null): TextDirection =>
+  isRtlLocale(locale) ? "rtl" : "ltr";
