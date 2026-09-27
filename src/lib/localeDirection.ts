@@ -1,5 +1,7 @@
 export type TextDirection = "ltr" | "rtl";
 
+export type LocaleDocumentElement = Pick<HTMLElement, "dir" | "lang">;
+
 const RTL_LANGUAGE_CODES = new Set(["ar", "fa", "he", "ur"]);
 
 export const normalizeLocale = (locale?: string | null): string =>
@@ -15,3 +17,20 @@ export const isRtlLocale = (locale?: string | null): boolean =>
 
 export const getTextDirection = (locale?: string | null): TextDirection =>
   isRtlLocale(locale) ? "rtl" : "ltr";
+
+export const syncDocumentLocale = (
+  locale?: string | null,
+  root: LocaleDocumentElement | null = typeof document === "undefined"
+    ? null
+    : document.documentElement,
+): TextDirection => {
+  const normalizedLocale = normalizeLocale(locale) || "en";
+  const direction = getTextDirection(normalizedLocale);
+
+  if (root) {
+    root.lang = normalizedLocale;
+    root.dir = direction;
+  }
+
+  return direction;
+};
