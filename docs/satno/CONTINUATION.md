@@ -6,10 +6,38 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — mobile companies preview route
+
+Branch: `satno/mobile-companies-preview-20260927`, feature commit
+`6be17018f4aa47441d50645c1c8f0f05e13715b5`, stacked on Draft PR #14 at
+`ae1b3bdaa699826b0fd0ca750984b1557fc8d378`.
+
+- Live GitHub reconciliation superseded the stale #14 SHA in this document:
+  PR #14 is open, Draft and points at `ae1b3bd`; `main` and
+  `satno-development` remain at `dce557e`. Upstream remains `d00fdf3` and the
+  Persian reference remains `85fc400`. No newer overlapping branch or PR was
+  observed.
+- The mobile Admin now registers a real company list route instead of only a
+  company show route. `/companies` renders existing company cards in a mobile
+  header/content shell with infinite pagination; the loading grid is responsive
+  rather than fixed at 1008 pixels wide.
+- A real Chromium 153 test at 390x844 exercised the registered `/companies`
+  route, rendered a company and verified the document has no horizontal
+  overflow. The targeted Persian/i18n group passed 20 tests. TypeScript,
+  production build, targeted ESLint and Prettier passed. Registry output was
+  regenerated and now also contains the previously integrated desktop tasks
+  and money helper dependencies.
+- The build retains the existing FieldTitle circular-chunk, large-bundle and
+  stale Browserslist warnings. This package does not establish real Supabase
+  persistence/RLS acceptance and does not fix the separate mobile deals route.
+
+Next priority: publish this branch as a stacked Draft PR, then fix the mobile
+deals route in a separate reversible package and repeat mobile visual QA.
+
 ## Latest checkpoint — desktop tasks preview route
 
 Draft PR #14: `satno/desktop-tasks-preview-20260927`, commit
-`feaba2e369870b0027e1aa0abec01eda75c377b0`, based on Draft PR #13 at
+`ae1b3bdaa699826b0fd0ca750984b1557fc8d378`, based on Draft PR #13 at
 `a3e8f94c835eca14f95c8cc1514262ea9275534e`.
 
 - Live reconciliation superseded the older #11 automation handoff: PR #13 is
