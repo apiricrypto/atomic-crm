@@ -8,8 +8,9 @@ destructive operations without the user's explicit approval.
 
 ## Latest checkpoint — Persian core UI and initial route matrix
 
-Branch: `satno/initial-preview-route-matrix-20260927`, stacked on Draft PR #16
-at `7c1383658becd159fca1859a3dba8516bbb6bcc4`.
+Draft PR #17: `satno/initial-preview-route-matrix-20260927`, published at
+`fa88916105d8e4b21a574236432626831a99b840` and stacked on Draft PR #16 at
+`7c1383658becd159fca1859a3dba8516bbb6bcc4`.
 
 - Live reconciliation confirmed PR #16 is open, Draft, unmerged and mergeable;
   `main` and `satno-development` remain at `dce557e`. Upstream remains
@@ -34,9 +35,9 @@ at `7c1383658becd159fca1859a3dba8516bbb6bcc4`.
   establish real Supabase persistence, RLS, OTP or production deployment
   acceptance. No database migration, secret change, merge or deployment.
 
-Next priority: publish this package as a Draft PR, then prepare and execute the
-real Supabase persistence/RLS acceptance queue in an environment with a usable
-Supabase stack. Keep FakeRest demo evidence explicitly separate from DB evidence.
+Next priority: check PR #17 CI/status, then prepare and execute the real Supabase
+persistence/RLS acceptance queue in an environment with a usable Supabase stack.
+Keep FakeRest demo evidence explicitly separate from DB evidence.
 
 ## Latest checkpoint — mobile deals preview route
 
