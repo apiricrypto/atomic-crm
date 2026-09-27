@@ -9,7 +9,7 @@ destructive operations without the user's explicit approval.
 ## Latest checkpoint — mobile companies preview route
 
 Branch: `satno/mobile-companies-preview-20260927`, feature commit
-`6be17018f4aa47441d50645c1c8f0f05e13715b5`, stacked on Draft PR #14 at
+`2fa425da3b51509efb27a1bad622fc382a77d4aa`, stacked on Draft PR #14 at
 `ae1b3bdaa699826b0fd0ca750984b1557fc8d378`.
 
 - Live GitHub reconciliation superseded the stale #14 SHA in this document:
