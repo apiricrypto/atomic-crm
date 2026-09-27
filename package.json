@@ -76,6 +76,7 @@
     "ra-data-fakerest": "^5.10.0",
     "ra-i18n-polyglot": "^5.14.7",
     "ra-language-english": "^5.14.7",
+    "ra-language-farsi": "^5.2.2",
     "ra-supabase-core": "^3.5.2",
     "ra-supabase-language-english": "^3.5.0",
     "radix-ui": "^1.5.0",
