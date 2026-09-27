@@ -26,10 +26,14 @@ Draft PR #18: `satno/supabase-acceptance-contract-20260928`, published at
   `2.118.0` is present, but `make start-supabase-e2e` fails because neither
   Docker nor Podman is installed. Do not report the DB/RLS contract as passed
   until it runs in a Docker-capable disposable environment.
+- GitHub Actions settings allow all actions, but the Actions page explicitly
+  says workflows are disabled because this is a fork. The repository-level
+  "enable workflows" control was not changed without explicit user approval;
+  this is the confirmed reason PRs have zero workflow runs.
 
-Next priority: inspect PR #18 CI/status and execute
-`npm run test:e2e:db-contract` against the disposable e2e stack in a
-Docker-capable environment. No production Supabase project or secret is needed.
+Next priority: after explicit approval, enable workflows for this fork and run
+PR #18's database contract on GitHub's Docker-capable runner. No production
+Supabase project or secret is needed.
 
 ## Latest checkpoint — Persian core UI and initial route matrix
 
