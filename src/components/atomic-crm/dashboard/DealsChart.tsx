@@ -6,6 +6,7 @@ import { memo, useMemo } from "react";
 
 import { findDealLabel } from "../deals/dealUtils";
 import { useConfigurationContext } from "../root/ConfigurationContext";
+import { useFormatMoney } from "../root/useFormatMoney";
 import type { Deal } from "../types";
 
 const multiplier = {
@@ -19,14 +20,10 @@ const threeMonthsAgo = new Date(
   new Date().setMonth(new Date().getMonth() - 6),
 ).toISOString();
 
-const DEFAULT_LOCALE = "en-US";
-
 export const DealsChart = memo(() => {
   const translate = useTranslate();
-  const { dealStages, currency } = useConfigurationContext();
-  const acceptedLanguages = navigator
-    ? navigator.languages || [navigator.language]
-    : [DEFAULT_LOCALE];
+  const { dealStages } = useConfigurationContext();
+  const formatMoney = useFormatMoney();
   const wonLabel = findDealLabel(dealStages, "won") ?? "Won";
   const lostLabel = findDealLabel(dealStages, "lost") ?? "Lost";
 
@@ -118,10 +115,7 @@ export const DealsChart = memo(() => {
           tooltip={({ value, indexValue }) => (
             <div className="p-2 bg-secondary rounded shadow inline-flex items-center gap-1 text-secondary-foreground">
               <strong>{indexValue}: </strong>&nbsp;{value > 0 ? "+" : ""}
-              {value.toLocaleString(acceptedLanguages.at(0) ?? DEFAULT_LOCALE, {
-                style: "currency",
-                currency,
-              })}
+              {formatMoney(value)}
             </div>
           )}
           axisTop={{
@@ -160,7 +154,11 @@ export const DealsChart = memo(() => {
           }}
           axisLeft={null}
           axisRight={{
-            format: (v: any) => `${Math.abs(v / 1000)}k`,
+            format: (value: number) =>
+              formatMoney(Math.abs(value), {
+                notation: "compact",
+                maximumFractionDigits: 1,
+              }),
             tickValues: 8,
             style: {
               ticks: {

@@ -1,6 +1,7 @@
 import { Droppable } from "@hello-pangea/dnd";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
+import { useFormatMoney } from "../root/useFormatMoney";
 import type { Deal } from "../types";
 import { findDealLabel } from "./dealUtils";
 import { DealCard } from "./DealCard";
@@ -13,7 +14,8 @@ export const DealColumn = ({
   deals: Deal[];
 }) => {
   const totalAmount = deals.reduce((sum, deal) => sum + deal.amount, 0);
-  const { dealStages, currency } = useConfigurationContext();
+  const { dealStages } = useConfigurationContext();
+  const formatMoney = useFormatMoney();
   return (
     <div className="w-80 max-w-[calc(100vw-2rem)] shrink-0 pb-8">
       <div className="flex flex-col items-center">
@@ -21,10 +23,8 @@ export const DealColumn = ({
           {findDealLabel(dealStages, stage)}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {totalAmount.toLocaleString("en-US", {
+          {formatMoney(totalAmount, {
             notation: "compact",
-            style: "currency",
-            currency,
             currencyDisplay: "narrowSymbol",
             minimumSignificantDigits: 3,
           })}
