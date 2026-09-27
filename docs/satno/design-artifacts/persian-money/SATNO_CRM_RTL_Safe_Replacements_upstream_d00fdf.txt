@@ -1,0 +1,56 @@
+SATNO CRM — Safe RTL replacements for upstream d00fdf
+
+1) src/index.css
+   right: 0.75rem;
+   -> inset-inline-end: 0.75rem;
+
+2) src/components/atomic-crm/settings/ProfilePage.tsx
+   h-4 w-4 ml-2
+   -> h-4 w-4 ms-2
+   (2 occurrences)
+
+3) src/components/ui/dialog.tsx
+   absolute top-4 right-4
+   -> absolute top-4 end-4
+
+   sm:text-left
+   -> sm:text-start
+
+4) src/components/ui/sheet.tsx
+   absolute top-4 right-4
+   -> absolute top-4 end-4
+
+5) src/components/ui/dropdown-menu.tsx
+   data-[inset]:pl-8
+   -> data-[inset]:ps-8
+
+   pr-2 pl-8
+   -> pe-2 ps-8
+
+   absolute left-2
+   -> absolute start-2
+
+   ml-auto
+   -> ms-auto
+
+   ChevronRightIcon class:
+   "ml-auto size-4"
+   -> "ms-auto size-4 rtl:rotate-180"
+
+6) src/components/ui/select.tsx
+   py-1.5 pr-8 pl-2
+   -> py-1.5 pe-8 ps-2
+
+   absolute right-2
+   -> absolute end-2
+
+7) src/components/atomic-crm/misc/ResponsiveFilters.tsx
+   -right-1
+   -> -end-1
+
+DO NOT mass-replace:
+- centered left-[50%] dialog geometry
+- Sheet side="left"/"right" physical API
+- symmetric left-0 right-0
+- all Lucide arrows/chevrons globally
+- currency formatting with fa-IR/Toman
