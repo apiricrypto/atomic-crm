@@ -330,10 +330,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/atomic-crm/providers/commons/frenchCrmMessages.ts",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/atomic-crm/providers/commons/farsiCrmMessages.ts",
           "type": "registry:component"
         },
