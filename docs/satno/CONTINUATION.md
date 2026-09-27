@@ -6,6 +6,39 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — reversible user-test baseline
+
+Branch: `satno/user-test-baseline-20260927`, based on PR #12 at
+`f311fb45ec320b2614fef4f486a605ec24f73996`.
+
+- Fresh reconciliation: PRs #2–#12 remain open, Draft and unmerged. `main` and
+  `satno-development` remain at `dce557e`; upstream remains at `d00fdf3`; the
+  Persian reference remains at `85fc400`. PR #12 has no Actions workflow runs.
+- Combined the already reviewed histories from money PR #3 and RTL PRs #7–#9
+  on top of the Persian-primary checkpoint. The cherry-picks applied without
+  conflict. This is a reversible integration branch, not a merge to the
+  integration or main branch.
+- 45/45 browser tests passed for Persian catalogs/providers, document/Radix
+  direction, Supabase message overlay and money semantics. A second baseline
+  group passed 76 tests with one existing skip across contacts, deals, tasks and
+  the FakeRest/Supabase-filter adapter. TypeScript, production build, targeted
+  ESLint and Prettier passed. Existing FieldTitle circular-chunk, large-bundle
+  and stale Browserslist warnings remain.
+- The local demo and component behavior are now covered on a single combined
+  tree. This does not establish real Supabase persistence, RLS or full E2E
+  acceptance. Docker is unavailable in the current execution environment, so
+  the repository's local Supabase stack cannot be started here.
+- A new current acceptance document (not a recovered historical artifact) is
+  recorded at `docs/satno/USER_TEST_BASELINE.md`. It separates FakeRest demo
+  checks from the real-database gate and defines login, contacts, companies,
+  deals and tasks as the first user-test scope.
+
+Next priority: publish this branch as a Draft PR, then make the combined UI
+available for visual desktop/mobile QA. In parallel, prepare a real Supabase
+test environment and execute persistence/RLS/E2E acceptance. Connect the money
+formatter to selected UI consumers only after each stored monetary field's unit
+is explicit; do not infer Toman or mutate stored amounts.
+
 ## Latest checkpoint — Persian as the product language
 
 Branch: `satno/persian-primary-20260927`, stacked on #11 at
