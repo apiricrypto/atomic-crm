@@ -1,6 +1,8 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
+import englishMessages from "ra-language-english";
+import polyglotI18nProvider from "ra-i18n-polyglot";
 import { createPortal } from "react-dom";
 import { memoryStore, useLocaleState, useTranslate } from "ra-core";
 import { Direction } from "radix-ui";
@@ -8,17 +10,31 @@ import { Admin } from "./admin";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { i18nProvider } from "@/components/atomic-crm/providers/commons/i18nProvider";
 
+// Generic Admin supports arbitrary providers; SATNO itself only offers Persian.
+const directionTestProvider = polyglotI18nProvider(
+  (locale) => ({
+    ...englishMessages,
+    crm: { language: locale === "fa" ? "زبان" : "Language" },
+  }),
+  "en",
+  [
+    { locale: "en", name: "English" },
+    { locale: "fa", name: "فارسی" },
+  ],
+);
+
 function LocaleControls() {
-  const [, setLocale] = useLocaleState();
+  const [locale, setLocale] = useLocaleState();
   const translate = useTranslate();
   const direction = Direction.useDirection();
   return (
     <>
-      {(["en", "fa", "fr"] as const).map((locale) => (
+      {(["en", "fa"] as const).map((locale) => (
         <button key={locale} onClick={() => setLocale(locale)}>
           {locale}
         </button>
       ))}
+      <p data-testid="stored-locale">{locale}</p>
       <p data-testid="translation">{translate("crm.language")}</p>
       <Tabs defaultValue="one" data-testid="direction-tabs">
         <TabsList aria-label="Direction test">
@@ -37,10 +53,10 @@ function LocaleControls() {
   );
 }
 
-const renderAdmin = (locale?: string) =>
+const renderAdmin = (locale?: string, provider = directionTestProvider) =>
   render(
     <Admin
-      i18nProvider={i18nProvider}
+      i18nProvider={provider}
       store={memoryStore(locale ? { locale } : {})}
       ready={LocaleControls}
       disableTelemetry
@@ -48,7 +64,7 @@ const renderAdmin = (locale?: string) =>
   );
 
 beforeEach(async () => {
-  await i18nProvider.changeLocale("en");
+  await directionTestProvider.changeLocale("en");
   document.documentElement.setAttribute("lang", "en");
   document.documentElement.setAttribute("dir", "ltr");
 });
@@ -57,7 +73,7 @@ afterEach(() => vi.restoreAllMocks());
 
 describe("Admin locale direction integration", () => {
   it("uses the provider default on the unauthenticated ready screen", async () => {
-    await i18nProvider.changeLocale("fa");
+    await directionTestProvider.changeLocale("fa");
     const screen = await renderAdmin();
     await expect
       .element(screen.getByTestId("translation"))
@@ -83,11 +99,10 @@ describe("Admin locale direction integration", () => {
     ).toBe("rtl");
   });
 
-  it("switches Persian, French and English with matching document direction", async () => {
+  it("switches Persian and English with matching document direction", async () => {
     const screen = await renderAdmin();
     for (const [locale, label, dir] of [
       ["fa", "زبان", "rtl"],
-      ["fr", "Langue", "ltr"],
       ["en", "Language", "ltr"],
     ]) {
       await screen.getByRole("button", { name: locale, exact: true }).click();
@@ -126,7 +141,9 @@ describe("Admin locale direction integration", () => {
       .element(screen.getByTestId("translation"))
       .toHaveTextContent("Language");
     const failure = new Error("Locale loading failed");
-    vi.spyOn(i18nProvider, "changeLocale").mockRejectedValueOnce(failure);
+    vi.spyOn(directionTestProvider, "changeLocale").mockRejectedValueOnce(
+      failure,
+    );
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
     await screen.getByRole("button", { name: "fa", exact: true }).click();
     await vi.waitFor(() => expect(log).toHaveBeenCalledWith(failure));
@@ -145,4 +162,24 @@ describe("Admin locale direction integration", () => {
     expect(document.documentElement.getAttribute("lang")).toBe("de");
     expect(document.documentElement.hasAttribute("dir")).toBe(false);
   });
+});
+
+describe("SATNO production language integration", () => {
+  it.each([undefined, "fr", "en", "es"])(
+    "renders Persian/RTL with stored locale %s",
+    async (locale) => {
+      const screen = await renderAdmin(locale, i18nProvider);
+      await expect
+        .element(screen.getByTestId("translation"))
+        .toHaveTextContent("زبان");
+      await expect
+        .element(screen.getByTestId("stored-locale"))
+        .toHaveTextContent("fa");
+      expect(document.documentElement.lang).toBe("fa");
+      expect(document.documentElement.dir).toBe("rtl");
+      await expect
+        .element(screen.getByTestId("direction-tabs"))
+        .toHaveAttribute("dir", "rtl");
+    },
+  );
 });

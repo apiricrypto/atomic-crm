@@ -6,7 +6,39 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
-## Latest checkpoint — Persian Supabase messages
+## Latest checkpoint — Persian as the product language
+
+Branch: `satno/persian-primary-20260927`, stacked on #11 at
+`ebf3a3066c3c4a48fe2dcdec92c3d66dace3a725`.
+
+- Fresh reconciliation: PRs #2–#11 remain open/unmerged; no overlapping newer PR
+  or branch observed. Main/integration, upstream and Persian reference retain the
+  SHAs listed below. #11 has no reported workflow runs or status contexts.
+- Ahmad's new language decision supersedes older en/fa/fr requirements below:
+  Persian is the sole product language and default, independent of browser locale.
+  English is retained as the translation fallback/reference and isolated test provider.
+  French CRM catalog, both French-only packages, lock entries and registry entry removed.
+- Legacy stored en/fr/unsupported locales resolve to Persian. The direction provider
+  also normalizes the stored locale for single-language providers so date/number
+  consumers agree with translations and document/Radix direction. Generic Admin
+  multi-language behavior remains tested with an isolated en/fa fixture.
+- 38 real Chromium tests passed (13 provider, 10 Admin integration, 9 direction
+  helpers, 3 catalog and 3 Supabase overlay); TypeScript, production build and targeted
+  ESLint passed. Prettier checked before publication. Existing build warnings for
+  circular FieldTitle chunks, large bundles and stale Browserslist remain.
+- Tests reused the temporary external Chromium 153 binary; the local launcher is
+  not shipped. Package/lock changes remove only the two French language packages.
+- Historical-source search returned no additional verifiable original artifact.
+  Recovery ledger remains open. No database migration or production deployment.
+
+Next priority: prepare a separate reversible user-test integration branch combining
+this checkpoint with the existing RTL #7–#9 and money #3 work, without merging to
+main/satno-development. Keep money storage units explicit. Validate baseline login,
+contacts, companies, deals and tasks; distinguish FakeRest demo checks from real
+Supabase persistence/RLS/E2E acceptance. No user-test URL or full completion
+percentage is claimed yet. Do not recreate prior helpers/catalogs or recovered overlay.
+
+## Previous checkpoint — Persian Supabase messages
 
 Branch: `satno/persian-supabase-messages-20260927`, based on #10 at
 `f69ba238257c51d6011ddff429cd775ea49e396d`. Read this branch's checkpoint for
@@ -119,6 +151,9 @@ recovery. `SATNO_Claude_Code_Handoff.zip`, inspected in the previous reconciliat
 contains website SEO handoff materials and is not a CRM artifact bundle.
 
 ## Remaining backlog
+
+The latest checkpoint and Persian-only decision above take priority over historical language requirements.
+User-test integration of the baseline CRM is the immediate delivery priority.
 
 1. Review and validate this locale-direction integration and its #4/#5/#6 dependencies.
 2. Review the Persian Supabase overlay on the latest checkpoint branch; integration

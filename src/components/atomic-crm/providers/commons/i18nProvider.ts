@@ -1,27 +1,15 @@
 import { mergeTranslations } from "ra-core";
 import polyglotI18nProvider from "ra-i18n-polyglot";
 import englishMessages from "ra-language-english";
-import frenchMessages from "ra-language-french";
 import { raSupabaseEnglishMessages } from "ra-supabase-language-english";
-import { raSupabaseFrenchMessages } from "ra-supabase-language-french";
 import { englishCrmMessages } from "./englishCrmMessages";
 import { farsiCrmMessages } from "./farsiCrmMessages";
-import { frenchCrmMessages } from "./frenchCrmMessages";
 import { raSupabaseFarsiMessages } from "./raSupabaseFarsiMessages";
 
 const raSupabaseEnglishMessagesOverride = {
   "ra-supabase": {
     auth: {
       password_reset: "Check your emails for a Reset Password message.",
-    },
-  },
-};
-
-const raSupabaseFrenchMessagesOverride = {
-  "ra-supabase": {
-    auth: {
-      password_reset:
-        "Consultez vos emails pour trouver le message de reinitialisation du mot de passe.",
     },
   },
 };
@@ -33,54 +21,28 @@ const englishCatalog = mergeTranslations(
   englishCrmMessages,
 );
 
-const frenchCatalog = mergeTranslations(
-  englishCatalog,
-  frenchMessages,
-  raSupabaseFrenchMessages,
-  raSupabaseFrenchMessagesOverride,
-  frenchCrmMessages,
-);
-
 const farsiCatalog = mergeTranslations(
   englishCatalog,
   farsiCrmMessages,
   raSupabaseFarsiMessages,
 );
 
-export const getInitialLocale = (): "en" | "fa" | "fr" => {
-  if (typeof navigator === "undefined") {
-    return "en";
-  }
+// SATNO is Persian-first regardless of the browser or an old stored locale.
+export const getInitialLocale = (): "fa" => "fa";
 
-  const browserLocale = navigator.languages?.[0] ?? navigator.language;
-  if (browserLocale?.toLowerCase().startsWith("fr")) {
-    return "fr";
-  }
-  if (browserLocale?.toLowerCase().startsWith("fa")) {
-    return "fa";
-  }
-
-  return "en";
-};
-
-export const i18nProvider = polyglotI18nProvider(
-  (locale) => {
-    if (locale === "fr") {
-      return frenchCatalog;
-    }
-    if (locale === "fa") {
-      return farsiCatalog;
-    }
-    return englishCatalog;
-  },
+const persianProvider = polyglotI18nProvider(
+  () => farsiCatalog,
   getInitialLocale(),
-  [
-    { locale: "en", name: "English" },
-    { locale: "fr", name: "Français" },
-    { locale: "fa", name: "فارسی" },
-  ],
+  [{ locale: "fa", name: "فارسی" }],
   { allowMissing: true },
 );
+
+export const i18nProvider = {
+  ...persianProvider,
+  // Legacy en/fr preferences must not restore a removed product language.
+  // English remains the catalog fallback and the isolated test/reference provider.
+  changeLocale: (_locale: string) => persianProvider.changeLocale("fa"),
+};
 
 export const testI18nProvider = polyglotI18nProvider(
   () => englishCatalog,
