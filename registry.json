@@ -86,6 +86,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/tasks/DesktopTasksList.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/tasks/AddTask.tsx",
           "type": "registry:component"
         },
@@ -939,6 +943,10 @@
         },
         {
           "path": "src/lib/localeDirection.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/formatMoney.ts",
           "type": "registry:lib"
         },
         {
