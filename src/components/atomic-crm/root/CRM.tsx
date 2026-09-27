@@ -19,7 +19,7 @@ import companies from "../companies";
 import contacts from "../contacts";
 import { Dashboard } from "../dashboard/Dashboard";
 import { MobileDashboard } from "../dashboard/MobileDashboard";
-import deals from "../deals";
+import deals, { DealListMobile } from "../deals";
 import { Layout } from "../layout/Layout";
 import { MobileLayout } from "../layout/MobileLayout";
 import { SignupPage } from "../login/SignupPage";
@@ -341,6 +341,7 @@ const MobileAdmin = (
           list={CompanyListMobile}
           show={CompanyShow}
         />
+        <Resource name="deals" list={DealListMobile} />
         <Resource name="tasks" list={MobileTasksList} />
       </Admin>
     </PersistQueryClientProvider>

@@ -72,14 +72,16 @@ export const DealListContent = () => {
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex gap-4">
-        {dealStages.map((stage) => (
-          <DealColumn
-            stage={stage.value}
-            deals={dealsByStage[stage.value]}
-            key={stage.value}
-          />
-        ))}
+      <div className="w-full max-w-full overflow-x-auto pb-2">
+        <div className="flex min-w-max gap-4">
+          {dealStages.map((stage) => (
+            <DealColumn
+              stage={stage.value}
+              deals={dealsByStage[stage.value]}
+              key={stage.value}
+            />
+          ))}
+        </div>
       </div>
     </DragDropContext>
   );

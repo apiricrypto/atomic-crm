@@ -6,6 +6,36 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — mobile deals preview route
+
+Draft PR #16: `satno/mobile-deals-preview-20260927`, feature commit
+`775ed63d5f2ce0dacc8825a16050b416d7cd0839`, stacked on Draft PR #15 at
+`ef6396db4fc730118929e28e1418eceb20073840`.
+
+- Live GitHub reconciliation confirmed PR #15 is open, Draft, unmerged and
+  mergeable at `ef6396d`; `main` and `satno-development` remain at `dce557e`.
+  Upstream remains `d00fdf3` and the Persian reference remains `85fc400`.
+  No overlapping mobile-deals branch or PR was present before this package.
+- The mobile Admin now registers `/deals` instead of returning Not Found. The
+  shared deal list has a Persian/RTL mobile header and constrained content shell;
+  actions wrap, Kanban overflow stays inside its horizontal scroller, and stage
+  columns use a stable responsive width without changing deal persistence or
+  drag-and-drop semantics.
+- Chromium 153 visual QA at 390x844 rendered the Persian/RTL deals route with
+  `scrollWidth=clientWidth=390`. A dedicated route regression test plus the
+  targeted Persian/i18n/mobile group passed 42 tests. TypeScript, production
+  build, targeted ESLint, Prettier, registry generation and `git diff --check`
+  passed. The published feature tree `65a9772d11e519c594e49d40ae67e05ff682ab6f`
+  exactly matches the locally tested tree.
+- FakeRest visual QA is still distinct from real Supabase persistence/RLS
+  acceptance. External avatar requests remain blocked in this restricted
+  runtime. Existing FieldTitle circular-chunk, large-bundle and stale
+  Browserslist warnings remain.
+
+Next priority: re-run the combined desktop/mobile user-test route matrix, then
+prepare the real Supabase persistence/RLS test queue without deploying or
+merging automatically.
+
 ## Latest checkpoint — mobile companies preview route
 
 Draft PR #15: `satno/mobile-companies-preview-20260927`, feature commit
