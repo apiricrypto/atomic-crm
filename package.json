@@ -6,6 +6,8 @@
     "test:unit:app": "vitest --config vitest.config.ts",
     "test:unit:claude": "vitest --config vitest.config.ts --project claude",
     "test:unit:functions": "vitest --config vitest.config.ts --project functions",
+    "test:e2e:db-contract": "playwright test --project=chromium e2e/satnoSupabaseAcceptance.spec.ts",
+    "test:security:bundle": "node ./scripts/assert-no-server-secrets-in-dist.mjs",
     "dev": "vite --force",
     "dev:demo": "vite --config vite.demo.config --force",
     "build": "tsc && vite build",

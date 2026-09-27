@@ -73,6 +73,27 @@ Acceptance:
   accepted. The current execution environment has no Docker runtime, so it cannot
   start the repository's local Supabase/Postgres stack.
 
+## Executable real-database contract
+
+`e2e/satnoSupabaseAcceptance.spec.ts` is the isolated real-Supabase gate for
+this baseline. It verifies anonymous isolation, persistence across a fresh auth
+session, company/contact/deal/task relationships, trigger-populated ownership,
+and administrator-only configuration writes. It runs once in desktop Chromium;
+the separate UI matrix remains responsible for desktop/mobile rendering.
+
+Run it only against the repository's disposable e2e stack:
+
+```bash
+make start-supabase-e2e
+npm run test:e2e:db-contract
+make stop-supabase-e2e
+```
+
+After an e2e-mode browser build, `npm run test:security:bundle` also fails if a
+service-role secret name or value is present in `dist`. A successful TypeScript
+or lint run proves only that the gate is well-formed; real Supabase acceptance
+requires the database-backed test itself to pass.
+
 ## Release rule
 
 Passing the demo baseline permits a visual user preview only. A production or

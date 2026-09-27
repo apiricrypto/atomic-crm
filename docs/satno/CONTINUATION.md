@@ -6,6 +6,30 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — executable Supabase acceptance contract
+
+Branch: `satno/supabase-acceptance-contract-20260928`, stacked on Draft PR #17
+at `7fcb69cbe64571702a5a85435c97fe02c55c01d8`.
+
+- Live reconciliation confirmed PR #17 is open, Draft, unmerged, conflict-free
+  and has zero GitHub checks. `main` and `satno-development` remain at `dce557e`;
+  upstream remains `d00fdf3` and the Persian reference remains `85fc400`.
+- Added a dedicated database-backed acceptance spec for anonymous RLS isolation,
+  authenticated persistence across a new session, company/contact/deal/task
+  relationship integrity, trigger-populated `sales_id`, and administrator-only
+  configuration writes. This is separate from FakeRest UI evidence.
+- Added a browser-bundle gate that rejects service-role secret names or values.
+  TypeScript, targeted ESLint, Prettier, build and this bundle gate must pass
+  locally before publication.
+- The real database spec cannot run in this execution environment: Supabase CLI
+  `2.118.0` is present, but `make start-supabase-e2e` fails because neither
+  Docker nor Podman is installed. Do not report the DB/RLS contract as passed
+  until it runs in a Docker-capable disposable environment.
+
+Next priority: publish this reversible package as a Draft PR, inspect GitHub
+Actions availability, and execute `npm run test:e2e:db-contract` against the
+disposable e2e stack. No production Supabase project or secret is needed.
+
 ## Latest checkpoint — Persian core UI and initial route matrix
 
 Draft PR #17: `satno/initial-preview-route-matrix-20260927`, published at
