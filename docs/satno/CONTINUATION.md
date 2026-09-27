@@ -6,6 +6,29 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — desktop tasks preview route
+
+Branch: `satno/desktop-tasks-preview-20260927`, based on Draft PR #13 at
+`a3e8f94c835eca14f95c8cc1514262ea9275534e`.
+
+- Live reconciliation superseded the older #11 automation handoff: PR #13 is
+  open, Draft, unmerged and mergeable. Its published tree matches the locally
+  tested baseline tree. `main` and `satno-development` remain unchanged.
+- Real Chromium visual QA opened dashboard, contacts, companies, deals and tasks
+  with an English browser locale at desktop and mobile sizes. Loaded pages set
+  `lang=fa`, `dir=rtl` and had no document-level horizontal overflow.
+- The QA exposed three baseline route gaps: desktop `/tasks` stayed on the Admin
+  loading screen; mobile `/deals` returned Not Found; mobile `/companies` had no
+  list content. The desktop task gap is fixed here without changing data or task
+  semantics: a dedicated task list page is registered and linked from the header.
+- The new desktop tasks route was rechecked in Chromium at 1440x1000: Persian/RTL
+  loaded, task groups rendered and the viewport had no horizontal overflow. The
+  targeted browser component test and TypeScript check passed.
+
+Next priority: validate the full build and baseline tests, publish this branch as
+a Draft PR, then address mobile company/deal routes in separate reversible work.
+Do not claim mobile acceptance for those routes until they render and are tested.
+
 ## Latest checkpoint — reversible user-test baseline
 
 Branch: `satno/user-test-baseline-20260927`, based on PR #12 at
