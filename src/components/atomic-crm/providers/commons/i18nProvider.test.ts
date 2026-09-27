@@ -38,9 +38,12 @@ describe("SATNO Persian product language", () => {
     },
   );
 
-  it("keeps English fallback for untranslated keys", () => {
+  it("uses Persian for core React Admin messages", () => {
+    expect(i18nProvider.translate("ra.auth.sign_in")).toBe("ورود");
+    expect(i18nProvider.translate("ra.auth.email")).toBe("ایمیل");
+    expect(i18nProvider.translate("ra.auth.password")).toBe("رمز عبور");
     expect(i18nProvider.translate("ra.action.clear_array_input")).toBe(
-      "Clear the list",
+      "پاک‌کردن لیست",
     );
   });
 

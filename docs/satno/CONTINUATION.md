@@ -6,6 +6,38 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Persian core UI and initial route matrix
+
+Branch: `satno/initial-preview-route-matrix-20260927`, stacked on Draft PR #16
+at `7c1383658becd159fca1859a3dba8516bbb6bcc4`.
+
+- Live reconciliation confirmed PR #16 is open, Draft, unmerged and mergeable;
+  `main` and `satno-development` remain at `dce557e`. Upstream remains
+  `d00fdf3` and the Persian reference remains `85fc400`. GitHub reports no
+  workflow runs or status contexts for the PR #16 head. No overlapping newer
+  SATNO feature branch or PR was present before this package.
+- Browser QA exposed a product-language gap: the SATNO CRM and Supabase
+  overlays were Persian, but core React Admin messages such as Sign in, Email,
+  Password and generic actions still came from the English fallback. The
+  verified `ra-language-farsi` dependency used by the Persian reference branch
+  is now merged between the English fallback and SATNO-specific overlays.
+  French remains absent. English remains the fallback/reference catalog.
+- A reusable acceptance matrix now exercises the protected contacts,
+  companies, deals and tasks routes plus the signed-out login route at both
+  1440x1000 and 390x844. It asserts Persian `lang=fa`, RTL direction, real
+  route content and no document-level horizontal overflow for protected routes.
+- Validation passed: 51 relevant real-Chromium tests with one existing skip,
+  including ten new matrix cases; TypeScript, production build, targeted
+  ESLint, Prettier, registry generation and `git diff --check` passed. Existing
+  FieldTitle circular-chunk, large-bundle and stale Browserslist warnings remain.
+- This matrix uses FakeRest data for protected-route content. It does not
+  establish real Supabase persistence, RLS, OTP or production deployment
+  acceptance. No database migration, secret change, merge or deployment.
+
+Next priority: publish this package as a Draft PR, then prepare and execute the
+real Supabase persistence/RLS acceptance queue in an environment with a usable
+Supabase stack. Keep FakeRest demo evidence explicitly separate from DB evidence.
+
 ## Latest checkpoint — mobile deals preview route
 
 Draft PR #16: `satno/mobile-deals-preview-20260927`, feature commit

@@ -1,6 +1,7 @@
 import { mergeTranslations } from "ra-core";
 import polyglotI18nProvider from "ra-i18n-polyglot";
 import englishMessages from "ra-language-english";
+import farsiMessages from "ra-language-farsi";
 import { raSupabaseEnglishMessages } from "ra-supabase-language-english";
 import { englishCrmMessages } from "./englishCrmMessages";
 import { farsiCrmMessages } from "./farsiCrmMessages";
@@ -23,6 +24,7 @@ const englishCatalog = mergeTranslations(
 
 const farsiCatalog = mergeTranslations(
   englishCatalog,
+  farsiMessages,
   farsiCrmMessages,
   raSupabaseFarsiMessages,
 );
