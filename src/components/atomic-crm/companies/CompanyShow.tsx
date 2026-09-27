@@ -32,6 +32,7 @@ import { MobileBackButton } from "../misc/MobileBackButton";
 import { formatRelativeDate } from "../misc/RelativeDate";
 import { Status } from "../misc/Status";
 import { useConfigurationContext } from "../root/ConfigurationContext";
+import { useFormatMoney } from "../root/useFormatMoney";
 import type { Company, Contact, Deal } from "../types";
 import {
   AdditionalInfo,
@@ -262,7 +263,8 @@ const DealsIterator = () => {
   const translate = useTranslate();
   const [locale = "en"] = useLocaleState();
   const { data: deals, error, isPending } = useListContext<Deal>();
-  const { dealStages, dealCategories, currency } = useConfigurationContext();
+  const { dealStages, dealCategories } = useConfigurationContext();
+  const formatMoney = useFormatMoney();
   if (isPending || error) return null;
   return (
     <div>
@@ -277,10 +279,8 @@ const DealsIterator = () => {
                 <div className="font-medium">{deal.name}</div>
                 <div className="text-sm text-muted-foreground">
                   {findDealLabel(dealStages, deal.stage)},{" "}
-                  {deal.amount.toLocaleString("en-US", {
+                  {formatMoney(deal.amount, {
                     notation: "compact",
-                    style: "currency",
-                    currency,
                     currencyDisplay: "narrowSymbol",
                     minimumSignificantDigits: 3,
                   })}

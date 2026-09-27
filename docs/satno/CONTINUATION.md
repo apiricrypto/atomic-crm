@@ -6,6 +6,34 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Persian deal money display
+
+Draft PR #19: `satno/persian-money-ui-20260928`, published at
+`c67304c58ee9b0e96c11ebf3af90e408d96b2fb1` and stacked on Draft PR #17 at
+`7fcb69cbe64571702a5a85435c97fe02c55c01d8`.
+
+- Live reconciliation confirmed PRs #1–#18 remain open and unmerged. `main`
+  and `satno-development` remain at `dce557e`; upstream remains `d00fdf3` and
+  the Persian reference remains `85fc400`. PR #18 still has no workflow runs
+  and its real Supabase/RLS contract remains unexecuted because this runtime
+  has no Docker/Podman and fork workflows were not enabled without approval.
+- Connected the existing `formatMoney` helper to all current deal amount
+  display surfaces: cards, columns, deal/company details, dashboard pipeline,
+  and chart tooltip/axis. UI formatting now follows the loaded product locale,
+  so Persian uses Persian numerals instead of the browser locale.
+- The database `deals.amount` column remains `bigint`; its displayed unit still
+  comes from explicit `configuration.currency`. No stored value is mutated and
+  no Rial/Toman conversion or default-currency inference was introduced.
+- Validation passed: 51 relevant Chromium tests across money, Persian i18n and
+  direction, deal desktop/mobile routes and the initial route matrix; TypeScript,
+  production build, targeted ESLint/Prettier, registry generation and
+  `git diff --check` also passed. Existing FieldTitle circular-chunk,
+  large-bundle and stale Browserslist warnings remain.
+
+Next priority: reconcile PR #19 status, keep PR #18's database contract separate,
+then start the Project + Costing package from verified current schema and explicit
+acceptance criteria. Do not infer recovered historical artifacts or run Draft SQL.
+
 ## Latest checkpoint — Persian core UI and initial route matrix
 
 Draft PR #17: `satno/initial-preview-route-matrix-20260927`, published at
