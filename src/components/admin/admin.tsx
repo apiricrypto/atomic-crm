@@ -14,6 +14,7 @@ import { Ready } from "@/components/admin/ready";
 import { ThemeProvider } from "@/components/admin/theme-provider";
 import { AuthCallback } from "@/components/admin/authentication";
 import { useEffect } from "react";
+import { LocaleDirectionProvider } from "./locale-direction-provider";
 
 const defaultStore = localStorageStore();
 
@@ -55,16 +56,18 @@ const AdminUI = (props: CoreAdminUIProps) => {
   }, [disableTelemetry]);
 
   return (
-    <ThemeProvider>
-      <CoreAdminUI
-        layout={Layout}
-        loginPage={LoginPage}
-        ready={Ready}
-        authCallbackPage={AuthCallback}
-        disableTelemetry // Disable telemetry in CoreAdminUI to avoid double logging
-        {...rest}
-      />
-    </ThemeProvider>
+    <LocaleDirectionProvider>
+      <ThemeProvider>
+        <CoreAdminUI
+          layout={Layout}
+          loginPage={LoginPage}
+          ready={Ready}
+          authCallbackPage={AuthCallback}
+          disableTelemetry // Disable telemetry in CoreAdminUI to avoid double logging
+          {...rest}
+        />
+      </ThemeProvider>
+    </LocaleDirectionProvider>
   );
 };
 

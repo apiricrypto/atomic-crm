@@ -40,7 +40,9 @@ const supabaseComponents = globSync(
 const hooks = globSync(path.join(hooksPath, "**", "*.ts*")).filter((hook) => {
   return !excludedHooks.includes(path.basename(hook));
 });
-const libFiles = globSync(path.join(libPath, "**", "*.ts*")).filter((file) => {
+const libFiles = globSync(path.join(libPath, "**", "*.ts*"), {
+  ignore: [testFilePattern, storyFilePattern],
+}).filter((file) => {
   return !excludedLibFiles.includes(path.basename(file));
 });
 const changelogPath = "CHANGELOG.md";
