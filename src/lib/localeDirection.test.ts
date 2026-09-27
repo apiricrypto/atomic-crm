@@ -3,6 +3,8 @@ import {
   getTextDirection,
   isRtlLocale,
   normalizeLocale,
+  syncDocumentLocale,
+  type LocaleDocumentElement,
 } from "./localeDirection";
 
 describe("localeDirection", () => {
@@ -32,5 +34,30 @@ describe("localeDirection", () => {
 
   it("returns rtl for Persian independently from translation loading", () => {
     expect(getTextDirection("fa-IR")).toBe("rtl");
+  });
+
+  it("synchronizes the document language and direction for Persian", () => {
+    const root = { lang: "", dir: "" } as LocaleDocumentElement;
+
+    expect(syncDocumentLocale(" FA_ir ", root)).toBe("rtl");
+    expect(root).toEqual({ lang: "fa-ir", dir: "rtl" });
+  });
+
+  it("synchronizes the document language and direction for LTR locales", () => {
+    const root = { lang: "", dir: "" } as LocaleDocumentElement;
+
+    expect(syncDocumentLocale("en-US", root)).toBe("ltr");
+    expect(root).toEqual({ lang: "en-us", dir: "ltr" });
+  });
+
+  it("is SSR-safe when no document element is available", () => {
+    expect(syncDocumentLocale("fa-IR", null)).toBe("rtl");
+  });
+
+  it("uses English LTR for a missing locale", () => {
+    const root = { lang: "", dir: "" } as LocaleDocumentElement;
+
+    expect(syncDocumentLocale(undefined, root)).toBe("ltr");
+    expect(root).toEqual({ lang: "en", dir: "ltr" });
   });
 });
