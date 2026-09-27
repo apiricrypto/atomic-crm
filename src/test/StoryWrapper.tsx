@@ -11,6 +11,8 @@ import type {
   Company,
   Contact,
   Deal,
+  Project,
+  ProjectCostItem,
   Sale,
 } from "@/components/atomic-crm/types";
 import { DataImportProvider } from "@/components/atomic-crm/dataImport/DataImportProvider";
@@ -52,6 +54,8 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
     contacts: [],
     deal_notes: [],
     deals: [],
+    projects: [],
+    project_cost_items: [],
     sales: [baseSale],
     tags: [],
     tasks: [],
@@ -122,6 +126,40 @@ export const buildDeal = (overrides: Partial<Deal> = {}): Deal => ({
   name: "Acme deal",
   sales_id: 0,
   stage: "opportunity",
+  updated_at: "2025-01-01T09:00:00.000Z",
+  ...overrides,
+});
+
+export const buildProject = (overrides: Partial<Project> = {}): Project => ({
+  code: "SATNO-0001",
+  company_id: 1,
+  completed_at: null,
+  contract_amount: 1_000_000,
+  created_at: "2025-01-01T09:00:00.000Z",
+  currency: "IRR",
+  deal_id: 1,
+  id: 1,
+  name: "پروژه هیبریدی",
+  sales_id: 0,
+  start_date: "2025-02-01",
+  status: "active",
+  target_end_date: "2025-05-01",
+  updated_at: "2025-01-01T09:00:00.000Z",
+  ...overrides,
+});
+
+export const buildProjectCostItem = (
+  overrides: Partial<ProjectCostItem> = {},
+): ProjectCostItem => ({
+  actual_amount: 300_000,
+  category: "equipment",
+  created_at: "2025-01-01T09:00:00.000Z",
+  currency: "IRR",
+  description: "تجهیزات اصلی",
+  id: 1,
+  planned_amount: 350_000,
+  project_id: 1,
+  sales_id: 0,
   updated_at: "2025-01-01T09:00:00.000Z",
   ...overrides,
 });

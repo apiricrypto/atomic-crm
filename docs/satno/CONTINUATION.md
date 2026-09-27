@@ -6,6 +6,39 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Project + Costing foundation
+
+Draft PR #20: `satno/project-costing-foundation-20260928`, published at
+`bd549edb8038880758562e1964fb2578675ad91c` and stacked on Draft PR #19 at
+`8d649da3efc1fe5c3f0beba490c1095d6ccd9f7b`.
+
+- Live reconciliation confirmed PRs #1–#19 remained open and unmerged before
+  this package. `main` and `satno-development` remained at `dce557e`; upstream
+  remained `d00fdf3` and the Persian reference remained `85fc400`. No newer or
+  overlapping Project/Costing branch existed. PR #20 is open, Draft, clean and
+  mergeable; GitHub reports no workflow runs for its head.
+- Added the declarative `projects` and `project_cost_items` schema, typed domain
+  records, FakeRest demo data and a Persian-first responsive project list. Each
+  project has one unique Deal provenance, cost lines keep planned and actual
+  amounts together, and project/cost currencies must match.
+- Forecast cost is `sum(max(planned, actual))` per line, so replacing an
+  estimate with an actual amount cannot double-count the cost. Contract value
+  remains a commercial snapshot rather than a finance transaction; no
+  Rial/Toman or exchange-rate conversion is inferred.
+- Validation passed: 57 relevant real-Chromium tests including costing,
+  Persian/i18n, money and the desktop/mobile route matrix; TypeScript,
+  production build, targeted ESLint/Prettier, registry generation and
+  `git diff --check`. The declarative table schema parsed successfully. Existing
+  FieldTitle circular-chunk, large-bundle and stale Browserslist warnings remain.
+- FakeRest UI evidence is not real-database evidence. No migration was generated
+  or applied because this runtime still has no local Supabase/Docker stack. The
+  database gate remains migration generation plus the real Supabase/RLS contract
+  from PR #18. No merge, deployment, secret change or production data write.
+
+Next priority: reconcile PR #20, then build Procurement UI as a separate
+reversible package linked to project cost items. Keep purchase commitments,
+actual costs and payments distinct; do not create a duplicate finance total.
+
 ## Latest checkpoint — Persian deal money display
 
 Draft PR #19: `satno/persian-money-ui-20260928`, published at

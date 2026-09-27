@@ -86,6 +86,14 @@ grant all on table public.deal_notes to anon;
 grant all on table public.deal_notes to authenticated;
 grant all on table public.deal_notes to service_role;
 
+grant all on table public.projects to anon;
+grant all on table public.projects to authenticated;
+grant all on table public.projects to service_role;
+
+grant all on table public.project_cost_items to anon;
+grant all on table public.project_cost_items to authenticated;
+grant all on table public.project_cost_items to service_role;
+
 grant all on table public.sales to anon;
 grant all on table public.sales to authenticated;
 grant all on table public.sales to service_role;
@@ -147,6 +155,14 @@ grant all on sequence public.deals_id_seq to service_role;
 grant all on sequence public.favicons_excluded_domains_id_seq to anon;
 grant all on sequence public.favicons_excluded_domains_id_seq to authenticated;
 grant all on sequence public.favicons_excluded_domains_id_seq to service_role;
+
+grant all on sequence public.projects_id_seq to anon;
+grant all on sequence public.projects_id_seq to authenticated;
+grant all on sequence public.projects_id_seq to service_role;
+
+grant all on sequence public.project_cost_items_id_seq to anon;
+grant all on sequence public.project_cost_items_id_seq to authenticated;
+grant all on sequence public.project_cost_items_id_seq to service_role;
 
 grant all on sequence public.sales_id_seq to anon;
 grant all on sequence public.sales_id_seq to authenticated;

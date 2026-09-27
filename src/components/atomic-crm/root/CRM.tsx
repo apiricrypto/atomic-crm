@@ -61,6 +61,7 @@ import { ContactShow } from "../contacts/ContactShow.tsx";
 import { CompanyShow } from "../companies/CompanyShow.tsx";
 import { CompanyListMobile } from "../companies/CompanyList.tsx";
 import { NoteShowPage } from "../notes/NoteShowPage.tsx";
+import projects from "../projects";
 
 const defaultStore = localStorageStore(undefined, "CRM");
 
@@ -265,6 +266,8 @@ const DesktopAdmin = (
         <Route path={ChangelogPage.path} element={<ChangelogPage />} />
       </CustomRoutes>
       <Resource name="deals" {...deals} />
+      <Resource name="projects" {...projects} />
+      <Resource name="project_cost_items" />
       <Resource name="contacts" {...contacts} />
       <Resource name="companies" {...companies} />
       <Resource name="contact_notes" />
@@ -342,6 +345,8 @@ const MobileAdmin = (
           show={CompanyShow}
         />
         <Resource name="deals" list={DealListMobile} />
+        <Resource name="projects" {...projects} />
+        <Resource name="project_cost_items" />
         <Resource name="tasks" list={MobileTasksList} />
       </Admin>
     </PersistQueryClientProvider>

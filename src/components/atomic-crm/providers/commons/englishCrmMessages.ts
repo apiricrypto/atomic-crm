@@ -225,6 +225,26 @@ export const englishCrmMessages = {
       },
       invalid_date: "Invalid date",
     },
+    projects: {
+      name: "Project |||| Projects",
+      forcedCaseName: "Project",
+      costing_subtitle: "Contract value, costs, and forecast margin",
+      count: "%{smart_count} project |||| %{smart_count} projects",
+      empty: "No project has been created from a won deal yet.",
+      fields: {
+        contract_amount: "Contract value",
+        planned_cost: "Planned cost",
+        actual_cost: "Actual cost",
+        forecast_margin: "Forecast margin",
+      },
+      status: {
+        planned: "Planned",
+        active: "Active",
+        on_hold: "On hold",
+        completed: "Completed",
+        cancelled: "Cancelled",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
