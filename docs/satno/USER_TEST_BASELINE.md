@@ -37,6 +37,18 @@ Acceptance:
 - Display formatting never changes a stored monetary value or silently converts
   Rial to Toman.
 
+### Visual QA checkpoint
+
+The 2026-09-27 Chromium pass verified the combined tree at 1440x1000 and 390x844.
+Dashboard, contacts and tasks rendered in Persian/RTL without document-level
+horizontal overflow. The desktop task route is added by the follow-up branch
+`satno/desktop-tasks-preview-20260927`.
+
+Mobile company and deal list routes are not yet part of an accepted preview:
+companies currently have no mobile list content and deals return Not Found. They
+must be implemented and retested before the mobile portion of the scope above can
+be marked complete.
+
 ### B. Real Supabase acceptance
 
 This is the gate for a usable test deployment. It must use a disposable test

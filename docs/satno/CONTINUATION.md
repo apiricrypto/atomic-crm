@@ -6,6 +6,33 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — desktop tasks preview route
+
+Draft PR #14: `satno/desktop-tasks-preview-20260927`, commit
+`feaba2e369870b0027e1aa0abec01eda75c377b0`, based on Draft PR #13 at
+`a3e8f94c835eca14f95c8cc1514262ea9275534e`.
+
+- Live reconciliation superseded the older #11 automation handoff: PR #13 is
+  open, Draft, unmerged and mergeable. Its published tree matches the locally
+  tested baseline tree. `main` and `satno-development` remain unchanged.
+- Real Chromium visual QA opened dashboard, contacts, companies, deals and tasks
+  with an English browser locale at desktop and mobile sizes. Loaded pages set
+  `lang=fa`, `dir=rtl` and had no document-level horizontal overflow.
+- The QA exposed three baseline route gaps: desktop `/tasks` stayed on the Admin
+  loading screen; mobile `/deals` returned Not Found; mobile `/companies` had no
+  list content. The desktop task gap is fixed here without changing data or task
+  semantics: a dedicated task list page is registered and linked from the header.
+- The new desktop tasks route was rechecked in Chromium at 1440x1000: Persian/RTL
+  loaded, task groups rendered and the viewport had no horizontal overflow. All
+  28 targeted browser tests, TypeScript, build, targeted ESLint and Prettier passed.
+  The wider browser run passed 245 tests with one existing skip; only two unrelated
+  Gravatar tests failed when external avatar requests returned no response in this
+  restricted runtime. GitHub reports no status contexts for the published commit.
+
+Next priority: address mobile company/deal routes in separate reversible work, then
+repeat the mobile visual QA. Do not claim mobile acceptance for those routes until
+they render and are tested.
+
 ## Latest checkpoint — reversible user-test baseline
 
 Branch: `satno/user-test-baseline-20260927`, based on PR #12 at
