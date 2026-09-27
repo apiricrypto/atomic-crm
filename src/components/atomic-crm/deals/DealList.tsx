@@ -18,6 +18,8 @@ import { SelectInput } from "@/components/admin/select-input";
 
 import { DataImportButton } from "../dataImport/DataImportButton";
 import { useConfigurationContext } from "../root/ConfigurationContext";
+import { MobileContent } from "../layout/MobileContent";
+import MobileHeader from "../layout/MobileHeader";
 import { TopToolbar } from "../layout/TopToolbar";
 import { AccountManagerInput } from "../sales/AccountManagerInput";
 import { DealArchivedList } from "./DealArchivedList";
@@ -83,6 +85,26 @@ const DealList = () => {
   );
 };
 
+export const DealListMobile = () => {
+  const translate = useTranslate();
+
+  return (
+    <>
+      <MobileHeader>
+        <h1 className="text-lg font-semibold">
+          {translate("resources.deals.name", {
+            smart_count: 2,
+            _: "Deals",
+          })}
+        </h1>
+      </MobileHeader>
+      <MobileContent>
+        <DealList />
+      </MobileContent>
+    </>
+  );
+};
+
 const DealLayout = () => {
   const location = useLocation();
   const matchCreate = matchPath("/deals/create", location.pathname);
@@ -115,7 +137,7 @@ const DealLayout = () => {
 };
 
 const DealActions = () => (
-  <TopToolbar>
+  <TopToolbar className="w-full min-w-0 flex-wrap whitespace-normal">
     <FilterButton />
     <DataImportButton resource="deals" />
     <ExportButton />
