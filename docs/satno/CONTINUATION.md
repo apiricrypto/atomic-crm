@@ -6,6 +6,38 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Persian Supabase messages
+
+Branch: `satno/persian-supabase-messages-20260927`, based on #10 at
+`f69ba238257c51d6011ddff429cd775ea49e396d`. Read this branch's checkpoint for
+the next run, then reconcile all live refs before coding.
+
+- Rechecked PRs #2–#10: open and unmerged, no newer overlapping PR observed.
+  Main/integration, upstream HEAD and Persian reference SHA still match below.
+- Promoted the existing `SATNO_CRM_raSupabaseFarsiMessages.ts` from #2 at
+  `3ffe029adb97ac25478ae03045ab6162b1cc90d3`, under
+  `docs/satno/design-artifacts/persian-money/`, into the runtime commons folder.
+  The message source is preserved byte-for-byte; this is integration of a recovered
+  artifact, not recovery of another historical bundle.
+- All 12 installed `ra-supabase-language-english` message keys match the overlay,
+  including interpolation placeholders. Persian now uses this overlay after the
+  English fallback and CRM catalog. English/French and the English-only test
+  provider remain covered. No auth logic or database behavior changes.
+- 34 real Chromium tests passed: 13 provider, 3 Supabase overlay, 3 CRM catalog,
+  6 Admin integration and 9 locale helper tests. TypeScript, production build,
+  targeted ESLint/Prettier passed; registry regenerated. Browser execution reused
+  the temporary external Chromium 153 runtime without package/lockfile changes.
+- PR #10 has no workflow runs, check runs or status contexts. `check.yml` gates
+  most jobs on non-draft PRs, but E2E has no such condition, so draft status alone
+  does not explain zero runs. Workflow-list access through the connector was
+  rejected as an unsupported endpoint; repository Actions settings remain unverified.
+  Do not claim CI success or change Actions settings without evidence.
+- Historical source lookup found no additional recoverable artifact. The ledger
+  below remains unchanged. Full DB/E2E and combined #7–#9 visual QA remain pending.
+
+Next: connect #3 money formatting to selected UI consumers with explicit units,
+or continue combined RTL visual QA; do not recreate this overlay or old helpers.
+
 ## Reconciled starting state
 
 - `main` and `satno-development`: `dce557e2741eab9e24453b9f59e64eb2ea92da6b`.
@@ -89,8 +121,8 @@ contains website SEO handoff materials and is not a CRM artifact bundle.
 ## Remaining backlog
 
 1. Review and validate this locale-direction integration and its #4/#5/#6 dependencies.
-2. Integrate the archived Persian Supabase message overlay separately, preserving
-   English fallback and placeholder parity.
+2. Review the Persian Supabase overlay on the latest checkpoint branch; integration
+   and local validation are complete, final merge remains pending.
 3. Continue audited RTL fixes in Settings/Profile/filters/CSS; visually test the
    combined #7/#8/#9 behavior on mobile and desktop.
 4. Connect #3's money formatter to consumers without silently changing stored units.
