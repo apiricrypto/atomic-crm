@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { createTenderStateInspector } from "./satno-tender-concurrency-state.mjs";
+
 export const CONFIRMATION = "DISPOSABLE-ONLY";
 export const MANIFEST_VERSION = 1;
 
@@ -401,7 +403,13 @@ async function rpcRequest({ config, actor, rpc, args, fetchImpl }) {
   };
 }
 
-export async function runRaceCase({ race, config, fetchImpl = fetch }) {
+export async function runRaceCase({
+  race,
+  config,
+  fetchImpl = fetch,
+  stateInspector = null,
+}) {
+  await stateInspector?.preflight(race);
   let release;
   const start = new Promise((resolve) => {
     release = resolve;
@@ -431,10 +439,12 @@ export async function runRaceCase({ race, config, fetchImpl = fetch }) {
         `${race.name} did not produce one acceptance and one conflict`,
       );
     }
+    await stateInspector?.postcondition(race);
     return {
       name: race.name,
       passed: true,
       outcome: "one_accepted_one_conflict",
+      stateVerified: Boolean(stateInspector),
     };
   }
 
@@ -452,10 +462,12 @@ export async function runRaceCase({ race, config, fetchImpl = fetch }) {
       `${race.name} did not produce one write and one idempotent retry`,
     );
   }
+  await stateInspector?.postcondition(race);
   return {
     name: race.name,
     passed: true,
     outcome: "one_write_one_idempotent_retry",
+    stateVerified: Boolean(stateInspector),
   };
 }
 
@@ -463,11 +475,12 @@ export async function runConcurrencyMatrix({
   manifest,
   config,
   fetchImpl = fetch,
+  stateInspector = createTenderStateInspector({ config, fetchImpl }),
 }) {
   validateManifest(manifest);
   const cases = [];
   for (const race of manifest.races) {
-    cases.push(await runRaceCase({ race, config, fetchImpl }));
+    cases.push(await runRaceCase({ race, config, fetchImpl, stateInspector }));
   }
   return { passed: true, caseCount: cases.length, cases };
 }

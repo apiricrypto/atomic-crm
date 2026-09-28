@@ -11,6 +11,7 @@ import {
   runRaceCase,
   validateManifest,
 } from "./satno-tender-concurrency-lib.mjs";
+import { createTenderStateInspector } from "./satno-tender-concurrency-state.mjs";
 
 const inquiryReview = (overrides = {}) => ({
   opportunity_type: "inquiry",
@@ -215,6 +216,7 @@ test("single-conflict race accepts exactly one guarded write", async () => {
     name: "import_need_no",
     passed: true,
     outcome: "one_accepted_one_conflict",
+    stateVerified: false,
   });
 });
 
@@ -279,9 +281,18 @@ test("unexpected dual acceptance fails without returning raw response data", asy
 test("complete matrix uses separate requests and reports only redacted outcomes", async () => {
   const manifest = buildManifest();
   const calls = new Map();
+  const inspected = [];
   const result = await runConcurrencyMatrix({
     manifest,
     config,
+    stateInspector: {
+      async preflight(race) {
+        inspected.push(`before:${race.name}`);
+      },
+      async postcondition(race) {
+        inspected.push(`after:${race.name}`);
+      },
+    },
     fetchImpl: async (url, options) => {
       const rpc = new URL(url).pathname.split("/").at(-1);
       const args = JSON.parse(options.body);
@@ -314,8 +325,206 @@ test("complete matrix uses separate requests and reports only redacted outcomes"
   });
   assert.equal(result.passed, true);
   assert.equal(result.caseCount, 6);
+  assert.equal(
+    result.cases.every((item) => item.stateVerified),
+    true,
+  );
+  assert.equal(inspected.length, 12);
   assert.doesNotMatch(
     JSON.stringify(result),
     /SYNTHETIC|test-user|test-anon|redacted by runner|details/,
   );
+});
+
+test("state inspector accepts clean qualified import fixtures", async () => {
+  const race = buildManifest().races[0];
+  const tables = [];
+  const inspector = createTenderStateInspector({
+    config,
+    fetchImpl: async (url, options) => {
+      assert.equal(options.method, "GET");
+      assert.equal(options.headers.Authorization, "Bearer test-user-a-jwt");
+      const table = url.pathname.split("/").at(-1);
+      tables.push(table);
+      if (table === "lead_inbox") {
+        return jsonResponse([
+          {
+            id: 101,
+            source: "tender_radar",
+            source_record_id: "synthetic-a",
+            status: "qualified",
+          },
+          {
+            id: 102,
+            source: "tender_radar",
+            source_record_id: "synthetic-b",
+            status: "qualified",
+          },
+        ]);
+      }
+      return jsonResponse([]);
+    },
+  });
+  await inspector.preflight(race);
+  assert.deepEqual(tables, ["lead_inbox", "tender_opportunities"]);
+});
+
+test("state inspector rejects stale import fixtures before mutation", async () => {
+  const race = buildManifest().races[0];
+  const inspector = createTenderStateInspector({
+    config,
+    fetchImpl: async (url) => {
+      const table = url.pathname.split("/").at(-1);
+      if (table === "lead_inbox") {
+        return jsonResponse([
+          {
+            id: 101,
+            source: "tender_radar",
+            source_record_id: "synthetic-a",
+            status: "qualified",
+          },
+          {
+            id: 102,
+            source: "tender_radar",
+            source_record_id: "synthetic-b",
+            status: "qualified",
+          },
+        ]);
+      }
+      return jsonResponse([{ id: 999, lead_id: 101 }]);
+    },
+  });
+  await assert.rejects(
+    inspector.preflight(race),
+    /clean opportunity preflight/,
+  );
+});
+
+test("state inspector verifies one imported opportunity, Pipeline row and audit", async () => {
+  const race = buildManifest().races[0];
+  const inspector = createTenderStateInspector({
+    config,
+    fetchImpl: async (url) => {
+      const table = url.pathname.split("/").at(-1);
+      if (table === "lead_inbox") {
+        return jsonResponse([
+          {
+            id: 101,
+            source: "tender_radar",
+            source_record_id: "synthetic-a",
+            status: "qualified",
+          },
+          {
+            id: 102,
+            source: "tender_radar",
+            source_record_id: "synthetic-b",
+            status: "qualified",
+          },
+        ]);
+      }
+      if (table === "tender_opportunities") {
+        return jsonResponse([
+          {
+            id: 301,
+            lead_id: 101,
+            opportunity_type: "inquiry",
+            official_need_no: "NEED-SYNTHETIC-1",
+            official_tender_no: null,
+            fallback_fingerprint: "synthetic-fingerprint-a",
+            verification_status: "pending_setad_verification",
+          },
+        ]);
+      }
+      if (table === "tender_pipeline_entries") {
+        return jsonResponse([{ id: 401, opportunity_id: 301 }]);
+      }
+      if (table === "tender_audit_log") {
+        return jsonResponse([
+          {
+            id: 501,
+            opportunity_id: 301,
+            event_type: "radar_lead_imported",
+          },
+        ]);
+      }
+      throw new Error("Unexpected table");
+    },
+  });
+  await inspector.postcondition(race);
+});
+
+test("state inspector preserves the losing official-verification opportunity", async () => {
+  const race = buildManifest().races[4];
+  let after = false;
+  const inspector = createTenderStateInspector({
+    config,
+    fetchImpl: async (url) => {
+      const table = url.pathname.split("/").at(-1);
+      if (table === "tender_opportunities") {
+        return jsonResponse(
+          after
+            ? [
+                {
+                  id: 201,
+                  opportunity_type: "inquiry",
+                  official_need_no: "NEED-SYNTHETIC-2",
+                  official_tender_no: null,
+                  verification_status: "setad_verified",
+                },
+                {
+                  id: 202,
+                  opportunity_type: "inquiry",
+                  official_need_no: null,
+                  official_tender_no: null,
+                  verification_status: "pending_setad_verification",
+                },
+              ]
+            : [
+                {
+                  id: 201,
+                  opportunity_type: "inquiry",
+                  official_need_no: null,
+                  official_tender_no: null,
+                  verification_status: "pending_setad_verification",
+                },
+                {
+                  id: 202,
+                  opportunity_type: "inquiry",
+                  official_need_no: null,
+                  official_tender_no: null,
+                  verification_status: "pending_setad_verification",
+                },
+              ],
+        );
+      }
+      if (table === "tender_setad_verifications") {
+        return jsonResponse(
+          after
+            ? [
+                {
+                  id: 601,
+                  opportunity_id: 201,
+                  official_need_no: "NEED-SYNTHETIC-2",
+                  official_tender_no: null,
+                  verification_status: "setad_verified",
+                },
+              ]
+            : [],
+        );
+      }
+      if (table === "tender_audit_log") {
+        return jsonResponse([
+          {
+            id: 701,
+            opportunity_id: 201,
+            event_type: "setad_verification_recorded",
+          },
+        ]);
+      }
+      throw new Error("Unexpected table");
+    },
+  });
+  await inspector.preflight(race);
+  after = true;
+  await inspector.postcondition(race);
 });

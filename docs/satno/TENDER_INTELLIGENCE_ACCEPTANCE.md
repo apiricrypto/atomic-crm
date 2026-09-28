@@ -186,6 +186,14 @@ identifiers, or connects to Tender Radar/SETAD. Unit tests are not evidence of
 a database pass. A real result still requires a reviewed migration/diff,
 synthetic fixtures, and execution against a local disposable Supabase stack.
 
+Each race is now surrounded by read-only authenticated state checks. Preflight
+rejects stale, hidden, unqualified, already-imported, or previously verified
+fixtures before either concurrent write starts. Postconditions require the
+single winning Opportunity, initial Pipeline row, one audit event, preserved
+winning identity, and—during SETAD verification—one append-only observation
+plus an unchanged losing Opportunity. Actor A must be an active admin/manager;
+these reads stay under normal RLS and never use service-role access.
+
 ## Guarded Radar import function
 
 `import_tender_opportunity(lead_id, review)` is the sole declared write path

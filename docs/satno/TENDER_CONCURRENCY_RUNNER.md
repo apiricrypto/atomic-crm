@@ -24,7 +24,8 @@ Execution is refused unless all of these conditions hold:
 4. the manifest has exactly six versioned race cases and no secret-shaped
    field names;
 5. an anon key and two authenticated disposable-user JWTs are supplied only as
-   process environment variables.
+   process environment variables; actor A must be an active admin/manager so
+   read-only state inspection can see every fixture in the race.
 
 Remote Supabase hosts are deliberately unsupported. The runner accepts no
 service-role key and has no fixture-creation or cleanup privilege. It emits
@@ -47,6 +48,28 @@ prepare a local disposable stack with:
 Fixture creation is intentionally separate. Giving this runner a service-role
 key or a hidden setup RPC would weaken the same write boundary it is intended
 to test. Destroy the disposable stack after preserving the redacted result.
+
+### Read-only state gates
+
+Every case now has database-visible preflight and postcondition checks through
+the normal authenticated REST/RLS boundary:
+
+- import preflight requires the exact fixture Lead IDs to be qualified
+  `tender_radar` rows with source record IDs and no existing Tender
+  Opportunity;
+- SETAD-verification preflight requires both fixture Opportunities to be clean,
+  pending, type-correct, without official identifiers or prior observations;
+- import postconditions require exactly one Opportunity across the competing
+  leads, the winning identity, one initial Pipeline row, and one
+  `radar_lead_imported` audit event;
+- verification postconditions require exactly one verified winner and one
+  unchanged pending loser, one append-only official observation, and one
+  `setad_verification_recorded` audit event.
+
+The runner stops before mutation when a fixture is stale or hidden by RLS. It
+also fails after the race when HTTP classifications appear correct but the
+persisted state is not. These reads never use service-role access and never
+print returned rows or identifiers.
 
 ## Required manifest cases
 
@@ -100,9 +123,9 @@ npm run test:tender-concurrency-unit:satno
 
 ## Interpretation
 
-A passing run demonstrates only the six races against the exact disposable
-schema and fixtures used. It does not establish production readiness, live
-Tender Radar delivery, SETAD authenticity, browser-session safety, migration
-safety, or load behavior. Run the rollback-only pgTAP matrix separately for
-RLS, grants, transactions, audit immutability, Pipeline gates, and quarantine
-invariants.
+A passing run demonstrates only the six races and their persisted-state checks
+against the exact disposable schema and fixtures used. It does not establish
+production readiness, live Tender Radar delivery, SETAD authenticity,
+browser-session safety, migration safety, or load behavior. Run the
+rollback-only pgTAP matrix separately for RLS, grants, transactions, audit
+immutability, Pipeline gates, and quarantine invariants.
