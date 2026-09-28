@@ -8,6 +8,7 @@ import {
   buildTenderOpportunity,
   buildTenderPipelineEntry,
   buildTenderSavedSearch,
+  buildTenderSetadVerification,
   StoryWrapper,
 } from "@/test/StoryWrapper";
 import { i18nProvider } from "../providers/commons/i18nProvider";
@@ -325,5 +326,72 @@ describe("TenderIntelligencePage", () => {
     ]) {
       expect(request).not.toHaveProperty(forbidden);
     }
+  });
+
+  it("shows append-only official history and a mobile-safe conflict comparison", async () => {
+    page.viewport(390, 844);
+    const screen = await render(
+      <StoryWrapper
+        data={{
+          tender_opportunities: [
+            buildTenderOpportunity({
+              aggregator_record_id: "RADAR-CONFLICT-1",
+              document_deadline: "2026-10-01",
+              organizer: "دستگاه رادار",
+              publish_date: "2026-09-27",
+              submission_deadline: "2026-10-04",
+              title: "عنوان رادار",
+              verification_status: "data_conflict",
+            }),
+          ],
+          tender_setad_verifications: [
+            buildTenderSetadVerification({
+              document_deadline: "2026-10-02",
+              official_need_no: "OFFICIAL-NEED-42",
+              organizer: "دستگاه رسمی ستاد",
+              publish_date: "2026-09-28",
+              submission_deadline: "2026-10-05",
+              title: "عنوان رسمی ستاد",
+              verification_status: "data_conflict",
+            }),
+          ],
+        }}
+        i18nProvider={i18nProvider}
+        initialEntries={["/tenders"]}
+      >
+        <div />
+      </StoryWrapper>,
+    );
+
+    await screen.getByRole("tab", { name: "جست‌وجوی تعاملی ستاد" }).click();
+    await expect
+      .element(screen.getByText("۲. صف راستی‌آزمایی و حل تعارض"))
+      .toBeVisible();
+    await expect
+      .element(screen.getByRole("button", { name: "بازبینی مجدد تعارض" }))
+      .toBeVisible();
+    await expect.element(screen.getByText("Tender Radar")).toBeVisible();
+    await expect.element(screen.getByText("SETAD رسمی")).toBeVisible();
+    await expect.element(screen.getByText("RADAR-CONFLICT-1")).toBeVisible();
+    await expect
+      .element(screen.getByText("OFFICIAL-NEED-42").first())
+      .toBeVisible();
+    await expect.element(screen.getByText("عنوان رادار").first()).toBeVisible();
+    await expect
+      .element(screen.getByText("عنوان رسمی ستاد").first())
+      .toBeVisible();
+    await expect
+      .element(screen.getByText("۳. تاریخچه مشاهدات رسمی"))
+      .toBeVisible();
+    await expect
+      .element(screen.getByRole("link", { name: "منبع رسمی" }))
+      .toHaveAttribute("href", "https://eproc.setadiran.ir/eproc/entry.do");
+    await expect
+      .poll(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      )
+      .toBe(true);
   });
 });

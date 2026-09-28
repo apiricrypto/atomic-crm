@@ -100,6 +100,14 @@ The four product areas are:
   `tender_setad_verifications`. A conflict changes only the opportunity routing
   status; neither the quarantined Radar assertion nor the official observation
   is overwritten.
+- The SETAD workspace reads those observations newest-first as a separate,
+  read-only history. A `data_conflict` opportunity shows the latest official
+  observation beside the original Tender Radar assertion, field by field,
+  while retaining every earlier observation below.
+- Conflict comparison is intentionally observational: it does not choose a
+  winner, edit either source, or create an alternate persistence path. A
+  reviewer may reopen the existing guarded observation dialog to append a new
+  official check after another human-controlled SETAD session.
 - A verified identifier is serialized and must not belong to another
   opportunity. Repeating the same verified observation for the same
   opportunity is idempotent.

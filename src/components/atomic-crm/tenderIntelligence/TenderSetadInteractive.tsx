@@ -35,9 +35,22 @@ import type { CrmDataProvider } from "../providers/types";
 import type {
   TenderOpportunity,
   TenderOpportunityType,
+  TenderSetadVerification,
   TenderSetadVerificationInput,
 } from "../types";
 import { getSetadPortalUrl } from "./contract";
+import {
+  TenderSetadConflictComparison,
+  TenderSetadHistory,
+} from "./TenderSetadHistory";
+
+const getLatestSetadObservation = (
+  opportunityId: TenderOpportunity["id"],
+  verifications: TenderSetadVerification[],
+) =>
+  verifications.find(
+    (verification) => verification.opportunity_id === opportunityId,
+  );
 
 export const TenderSetadInteractive = () => {
   const [opportunityType, setOpportunityType] =
@@ -49,6 +62,11 @@ export const TenderSetadInteractive = () => {
       sort: { field: "updated_at", order: "DESC" },
     },
   );
+  const { data: verifications = [], isPending: isVerificationHistoryPending } =
+    useGetList<TenderSetadVerification>("tender_setad_verifications", {
+      pagination: { page: 1, perPage: 250 },
+      sort: { field: "checked_at", order: "DESC" },
+    });
   const reviewQueue = data.filter(
     (record) => record.verification_status !== "setad_verified",
   );
@@ -139,7 +157,7 @@ export const TenderSetadInteractive = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>۲. ثبت مشاهده رسمی پس از بررسی دستی</CardTitle>
+          <CardTitle>۲. صف راستی‌آزمایی و حل تعارض</CardTitle>
           <p className="text-sm text-muted-foreground">
             داده رسمی در رکورد append-only جدا ثبت می‌شود. در حالت تعارض، داده
             Radar و مشاهده ستاد هر دو بدون بازنویسی حفظ می‌شوند.
@@ -148,7 +166,14 @@ export const TenderSetadInteractive = () => {
         <CardContent className="space-y-3">
           {isPending ? null : reviewQueue.length ? (
             reviewQueue.map((opportunity) => (
-              <SetadQueueCard key={opportunity.id} opportunity={opportunity} />
+              <SetadQueueCard
+                key={opportunity.id}
+                latestObservation={getLatestSetadObservation(
+                  opportunity.id,
+                  verifications,
+                )}
+                opportunity={opportunity}
+              />
             ))
           ) : (
             <p className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">
@@ -157,37 +182,55 @@ export const TenderSetadInteractive = () => {
           )}
         </CardContent>
       </Card>
+      <TenderSetadHistory
+        isPending={isVerificationHistoryPending}
+        opportunities={data}
+        verifications={verifications}
+      />
     </div>
   );
 };
 
 const SetadQueueCard = ({
+  latestObservation,
   opportunity,
 }: {
+  latestObservation?: TenderSetadVerification;
   opportunity: TenderOpportunity;
 }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <div className="flex flex-wrap items-center gap-2">
-          <strong>{opportunity.title}</strong>
-          <Badge variant="outline">
-            {opportunity.verification_status === "data_conflict"
-              ? "تعارض داده"
-              : "در انتظار راستی‌آزمایی"}
-          </Badge>
+    <div className="rounded-lg border p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <strong>{opportunity.title}</strong>
+            <Badge variant="outline">
+              {opportunity.verification_status === "data_conflict"
+                ? "تعارض داده"
+                : "در انتظار راستی‌آزمایی"}
+            </Badge>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {opportunity.organizer || "بدون دستگاه برگزارکننده"} •{" "}
+            {opportunity.province || "بدون استان"}
+          </p>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {opportunity.organizer || "بدون دستگاه برگزارکننده"} •{" "}
-          {opportunity.province || "بدون استان"}
-        </p>
+        <CanAccess resource="tender_setad_verifications" action="create">
+          <Button variant="outline" onClick={() => setOpen(true)}>
+            {opportunity.verification_status === "data_conflict"
+              ? "بازبینی مجدد تعارض"
+              : "ثبت نتیجه بررسی رسمی"}
+          </Button>
+        </CanAccess>
       </div>
-      <CanAccess resource="tender_setad_verifications" action="create">
-        <Button variant="outline" onClick={() => setOpen(true)}>
-          ثبت نتیجه بررسی رسمی
-        </Button>
-      </CanAccess>
+      {opportunity.verification_status === "data_conflict" &&
+      latestObservation ? (
+        <TenderSetadConflictComparison
+          observation={latestObservation}
+          opportunity={opportunity}
+        />
+      ) : null}
       <SetadVerificationDialog
         onOpenChange={setOpen}
         open={open}
