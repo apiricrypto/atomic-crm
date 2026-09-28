@@ -9,6 +9,8 @@ alter table public.contacts enable row level security;
 alter table public.contact_notes enable row level security;
 alter table public.deals enable row level security;
 alter table public.deal_notes enable row level security;
+alter table public.lead_inbox enable row level security;
+alter table public.lead_conversions enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_cost_items enable row level security;
 alter table public.procurement_commitments enable row level security;
@@ -54,6 +56,64 @@ create policy "Enable read access for authenticated users" on public.deal_notes 
 create policy "Enable insert for authenticated users only" on public.deal_notes for insert to authenticated with check (true);
 create policy "Deal Notes Update Policy" on public.deal_notes for update to authenticated using (true);
 create policy "Deal Notes Delete Policy" on public.deal_notes for delete to authenticated using (true);
+
+-- Lead inbox: raw records remain quarantined. Admins and managers can triage
+-- every lead; sales staff can only see unassigned or explicitly assigned leads.
+-- Authenticated clients cannot insert or delete ingestion records and cannot
+-- mutate a converted lead. Core CRM creation is only available through the
+-- guarded convert_lead_to_deal function.
+create policy "Authorized staff can read visible leads" on public.lead_inbox
+    for select to authenticated
+    using (
+        public.current_staff_role() in ('admin', 'manager')
+        or (
+            public.current_staff_role() = 'sales'
+            and (
+                assigned_sales_id is null
+                or assigned_sales_id = public.current_sales_id()
+            )
+        )
+    );
+
+create policy "Authorized staff can triage visible leads" on public.lead_inbox
+    for update to authenticated
+    using (
+        status <> 'converted'
+        and (
+            public.current_staff_role() in ('admin', 'manager')
+            or (
+                public.current_staff_role() = 'sales'
+                and (
+                    assigned_sales_id is null
+                    or assigned_sales_id = public.current_sales_id()
+                )
+            )
+        )
+    )
+    with check (
+        status <> 'converted'
+        and (
+            public.current_staff_role() in ('admin', 'manager')
+            or (
+                public.current_staff_role() = 'sales'
+                and (
+                    assigned_sales_id is null
+                    or assigned_sales_id = public.current_sales_id()
+                )
+            )
+        )
+    );
+
+create policy "Authorized staff can read visible lead conversions" on public.lead_conversions
+    for select to authenticated
+    using (
+        public.current_staff_role() in ('admin', 'manager', 'sales')
+        and exists (
+            select 1
+            from public.lead_inbox
+            where public.lead_inbox.id = public.lead_conversions.lead_id
+        )
+    );
 
 -- Projects
 create policy "Enable project read for authenticated" on public.projects for select to authenticated using (true);

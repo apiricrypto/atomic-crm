@@ -18,6 +18,8 @@ import type {
   InventoryItem,
   InventoryLocation,
   InventoryMovement,
+  LeadConversion,
+  LeadInboxRecord,
   Project,
   ProjectCostItem,
   ProcurementCommitment,
@@ -70,6 +72,8 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
     inventory_items: [],
     inventory_locations: [],
     inventory_movements: [],
+    lead_conversions: [],
+    lead_inbox: [],
     projects: [],
     project_cost_items: [],
     procurement_commitments: [],
@@ -313,6 +317,47 @@ export const buildInventoryMovement = (
   reference: "SATNO-GR-0001",
   sales_id: 0,
   type: "receipt",
+  ...overrides,
+});
+
+export const buildLeadInboxRecord = (
+  overrides: Partial<LeadInboxRecord> = {},
+): LeadInboxRecord => ({
+  assigned_sales_id: 0,
+  captured_at: "2026-09-28T05:00:00.000Z",
+  city: "اهواز",
+  contact_email: null,
+  contact_name: "واحد تدارکات",
+  contact_phone: "09120000000",
+  created_at: "2026-09-28T05:00:00.000Z",
+  deadline: "2026-10-05",
+  description: "استعلام تأمین تجهیزات سامانه خورشیدی",
+  estimated_amount: 4_500_000_000,
+  estimated_currency: "IRR",
+  id: 1,
+  organization_name: "سازمان نمونه خوزستان",
+  priority: "high",
+  province: "خوزستان",
+  raw_payload: { fixture: true },
+  source: "tender_radar",
+  source_record_id: "SETAD-TEST-0001",
+  source_url: "https://example.test/leads/SETAD-TEST-0001",
+  status: "qualified",
+  title: "تأمین تجهیزات خورشیدی",
+  updated_at: "2026-09-28T05:00:00.000Z",
+  ...overrides,
+});
+
+export const buildLeadConversion = (
+  overrides: Partial<LeadConversion> = {},
+): LeadConversion => ({
+  company_id: 1,
+  contact_id: 1,
+  converted_at: "2026-09-28T06:00:00.000Z",
+  converted_by_sales_id: 0,
+  deal_id: 1,
+  id: 1,
+  lead_id: 1,
   ...overrides,
 });
 

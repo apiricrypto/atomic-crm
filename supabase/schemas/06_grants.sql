@@ -73,6 +73,10 @@ grant all on function public.set_sales_id_default() to anon;
 grant all on function public.set_sales_id_default() to authenticated;
 grant all on function public.set_sales_id_default() to service_role;
 
+revoke all on function public.convert_lead_to_deal(bigint, text, text, text, bigint, date, text, text, text, text) from public, anon, authenticated;
+grant execute on function public.convert_lead_to_deal(bigint, text, text, text, bigint, date, text, text, text, text) to authenticated;
+grant execute on function public.convert_lead_to_deal(bigint, text, text, text, bigint, date, text, text, text, text) to service_role;
+
 -- Table grants
 grant all on table public.companies to anon;
 grant all on table public.companies to authenticated;
@@ -93,6 +97,15 @@ grant all on table public.deals to service_role;
 grant all on table public.deal_notes to anon;
 grant all on table public.deal_notes to authenticated;
 grant all on table public.deal_notes to service_role;
+
+revoke all on table public.lead_inbox from public, anon, authenticated;
+grant select on table public.lead_inbox to authenticated;
+grant update (status, priority, assigned_sales_id) on table public.lead_inbox to authenticated;
+grant all on table public.lead_inbox to service_role;
+
+revoke all on table public.lead_conversions from public, anon, authenticated;
+grant select on table public.lead_conversions to authenticated;
+grant all on table public.lead_conversions to service_role;
 
 grant all on table public.projects to anon;
 grant all on table public.projects to authenticated;
@@ -191,6 +204,11 @@ grant all on sequence public."dealNotes_id_seq" to service_role;
 grant all on sequence public.deals_id_seq to anon;
 grant all on sequence public.deals_id_seq to authenticated;
 grant all on sequence public.deals_id_seq to service_role;
+
+revoke all on sequence public.lead_inbox_id_seq from public, anon, authenticated;
+revoke all on sequence public.lead_conversions_id_seq from public, anon, authenticated;
+grant all on sequence public.lead_inbox_id_seq to service_role;
+grant all on sequence public.lead_conversions_id_seq to service_role;
 
 grant all on sequence public.favicons_excluded_domains_id_seq to anon;
 grant all on sequence public.favicons_excluded_domains_id_seq to authenticated;

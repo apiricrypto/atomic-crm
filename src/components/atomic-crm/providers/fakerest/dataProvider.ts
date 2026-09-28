@@ -14,6 +14,8 @@ import type {
   ContactNote,
   Deal,
   DealNote,
+  LeadConversionInput,
+  LeadConversionResult,
   Sale,
   SalesFormData,
   SignUpData,
@@ -24,7 +26,8 @@ import { getActivityLog } from "../commons/activity";
 import { getCompanyAvatar } from "../commons/getCompanyAvatar";
 import { getContactAvatar } from "../commons/getContactAvatar";
 import { mergeContacts } from "../commons/mergeContacts";
-import { isAdministratorRole } from "../commons/staffRoles";
+import { isAdministratorRole, resolveStaffRole } from "../commons/staffRoles";
+import { convertLeadInMemory } from "../../leadInbox/conversion";
 import type { CrmDataProvider } from "../types";
 import {
   authProvider as defaultAuthProvider,
@@ -300,6 +303,22 @@ export const createDataProvider = ({
       });
 
       return true;
+    },
+    convertLead: async (
+      input: LeadConversionInput,
+    ): Promise<LeadConversionResult> => {
+      const currentUser = await getIdentity();
+      if (currentUser?.id == null) throw new Error("User not found");
+      const actorSalesId = Number(currentUser.id);
+      const actor = db.sales.find((sale) => Number(sale.id) === actorSalesId);
+      if (!actor || actor.disabled) throw new Error("User not found");
+
+      return convertLeadInMemory({
+        actorRole: resolveStaffRole(actor),
+        actorSalesId,
+        db,
+        input,
+      });
     },
     mergeContacts: async (sourceId: Identifier, targetId: Identifier) => {
       return mergeContacts(sourceId, targetId, baseDataProvider);

@@ -60,6 +60,12 @@ create or replace trigger set_daily_work_report_sales_id_trigger
     before insert on public.daily_work_reports
     for each row execute function public.set_sales_id_default();
 
+-- Preserve conversion provenance. The conversion RPC performs the one allowed
+-- transition into converted; later edits to a converted lead are rejected.
+create or replace trigger prevent_converted_lead_mutation_trigger
+    before update on public.lead_inbox
+    for each row execute function private.prevent_converted_lead_mutation();
+
 -- Auto-fetch company logo from website favicon on save
 create or replace trigger company_saved
     before insert or update on public.companies

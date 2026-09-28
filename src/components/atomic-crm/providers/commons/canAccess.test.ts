@@ -52,6 +52,21 @@ describe("staff access matrix", () => {
         resource: "inventory_movements",
       }),
     ).toBe(true);
+    expect(canAccess("sales", { action: "edit", resource: "lead_inbox" })).toBe(
+      true,
+    );
+    expect(
+      canAccess("sales", { action: "create", resource: "lead_inbox" }),
+    ).toBe(false);
+    expect(
+      canAccess("manager", { action: "delete", resource: "lead_inbox" }),
+    ).toBe(false);
+    expect(
+      canAccess("manager", { action: "edit", resource: "lead_conversions" }),
+    ).toBe(false);
+    expect(
+      canAccess("finance", { action: "list", resource: "lead_inbox" }),
+    ).toBe(false);
   });
 
   it("makes viewer access read-only and denies unknown resources", () => {
@@ -60,6 +75,9 @@ describe("staff access matrix", () => {
     );
     expect(
       canAccess("viewer", { action: "delete", resource: "projects" }),
+    ).toBe(false);
+    expect(
+      canAccess("viewer", { action: "list", resource: "lead_inbox" }),
     ).toBe(false);
     expect(
       canAccess("viewer", { action: "list", resource: "configuration" }),

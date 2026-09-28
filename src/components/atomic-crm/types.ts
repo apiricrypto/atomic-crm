@@ -148,6 +148,80 @@ export type DealNote = {
   status?: undefined;
 } & Pick<RaRecord, "id">;
 
+export type LeadSource =
+  | "tender_radar"
+  | "bale_market"
+  | "website"
+  | "manual"
+  | "import";
+
+export type LeadStatus =
+  | "new"
+  | "reviewing"
+  | "qualified"
+  | "rejected"
+  | "converted";
+
+export type LeadPriority = "low" | "normal" | "high" | "urgent";
+
+/**
+ * A quarantined inbound record. Its normalized fields and raw payload are not
+ * Contact, Company or Deal data until an explicit conversion succeeds.
+ */
+export type LeadInboxRecord = {
+  source: LeadSource;
+  source_record_id: string;
+  source_url?: string | null;
+  title: string;
+  organization_name?: string | null;
+  contact_name?: string | null;
+  contact_phone?: string | null;
+  contact_email?: string | null;
+  province?: string | null;
+  city?: string | null;
+  description?: string | null;
+  estimated_amount?: number | null;
+  estimated_currency?: string | null;
+  deadline?: string | null;
+  status: LeadStatus;
+  priority: LeadPriority;
+  raw_payload: Record<string, unknown>;
+  captured_at: string;
+  created_at: string;
+  updated_at: string;
+  assigned_sales_id?: Identifier | null;
+} & Pick<RaRecord, "id">;
+
+export type LeadConversion = {
+  lead_id: Identifier;
+  company_id: Identifier;
+  contact_id?: Identifier | null;
+  deal_id: Identifier;
+  converted_by_sales_id: Identifier;
+  converted_at: string;
+} & Pick<RaRecord, "id">;
+
+export type LeadConversionInput = {
+  lead_id: Identifier;
+  company_name: string;
+  deal_name: string;
+  deal_description?: string | null;
+  deal_amount?: number | null;
+  expected_closing_date?: string | null;
+  contact_first_name?: string | null;
+  contact_last_name?: string | null;
+  contact_email?: string | null;
+  contact_phone?: string | null;
+};
+
+export type LeadConversionResult = {
+  lead_id: Identifier;
+  company_id: Identifier;
+  contact_id: Identifier | null;
+  deal_id: Identifier;
+  conversion_id: Identifier;
+};
+
 export type ProjectStatus =
   | "planned"
   | "active"

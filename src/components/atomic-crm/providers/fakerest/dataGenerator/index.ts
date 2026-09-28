@@ -14,6 +14,7 @@ import {
   generateInventoryLocations,
   generateInventoryMovements,
 } from "./inventory";
+import { generateLeadInbox } from "./leadInbox";
 import { generateProjectCostItems, generateProjects } from "./projects";
 import { generateProcurementCommitments } from "./procurementCommitments";
 import { finalize } from "./finalize";
@@ -38,6 +39,8 @@ export default (): Db => {
   db.inventory_locations = generateInventoryLocations();
   db.inventory_items = generateInventoryItems();
   db.inventory_movements = generateInventoryMovements(db);
+  db.lead_inbox = generateLeadInbox();
+  db.lead_conversions = [];
   db.financial_receivables = generateFinancialReceivables(db);
   db.financial_payables = generateFinancialPayables(db);
   db.financial_transactions = generateFinancialTransactions(db);
