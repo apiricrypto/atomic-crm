@@ -68,4 +68,25 @@ describe("staff access matrix", () => {
       canAccess("manager", { action: "list", resource: "future_resource" }),
     ).toBe(false);
   });
+
+  it("lets every enabled staff role manage its own daily reports", () => {
+    expect(
+      canAccess("viewer", {
+        action: "create",
+        resource: "daily_work_reports",
+      }),
+    ).toBe(true);
+    expect(
+      canAccess("manager", {
+        action: "list",
+        resource: "daily_work_reports",
+      }),
+    ).toBe(true);
+    expect(
+      canAccess("sales", {
+        action: "approve",
+        resource: "daily_work_reports",
+      }),
+    ).toBe(false);
+  });
 });

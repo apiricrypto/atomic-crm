@@ -60,6 +60,15 @@ export const canAccess = <
 
   const { action, resource } = params;
 
+  if (resource === "daily_work_reports") {
+    return (
+      READ_ACTIONS.has(action) ||
+      action === "create" ||
+      action === "edit" ||
+      action === "delete"
+    );
+  }
+
   if (resource === "configuration") {
     return false;
   }

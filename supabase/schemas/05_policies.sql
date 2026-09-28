@@ -19,6 +19,7 @@ alter table public.inventory_locations enable row level security;
 alter table public.inventory_items enable row level security;
 alter table public.inventory_movements enable row level security;
 alter table public.sales enable row level security;
+alter table public.daily_work_reports enable row level security;
 alter table public.tags enable row level security;
 alter table public.tasks enable row level security;
 alter table public.configuration enable row level security;
@@ -106,6 +107,30 @@ create policy "Enable inventory movement delete for authenticated" on public.inv
 
 -- Sales
 create policy "Enable read access for authenticated users" on public.sales for select to authenticated using (true);
+
+-- Daily work reports: authors own mutations; managers and admins have read-only oversight
+create policy "Staff can read own daily work reports" on public.daily_work_reports
+    for select to authenticated
+    using (
+        sales_id = public.current_sales_id()
+        or public.current_staff_role() in ('admin', 'manager')
+    );
+
+create policy "Staff can create own daily work reports" on public.daily_work_reports
+    for insert to authenticated
+    with check (
+        sales_id = public.current_sales_id()
+        and public.current_staff_role() is not null
+    );
+
+create policy "Staff can update own daily work reports" on public.daily_work_reports
+    for update to authenticated
+    using (sales_id = public.current_sales_id())
+    with check (sales_id = public.current_sales_id());
+
+create policy "Staff can delete own daily work reports" on public.daily_work_reports
+    for delete to authenticated
+    using (sales_id = public.current_sales_id());
 
 -- Tags
 create policy "Enable read access for authenticated users" on public.tags for select to authenticated using (true);

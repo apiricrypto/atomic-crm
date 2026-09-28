@@ -4,6 +4,7 @@ import type {
   ContactNote,
   Deal,
   DealNote,
+  DailyWorkReport,
   FinancialPayable,
   FinancialReceivable,
   FinancialTransaction,
@@ -25,6 +26,7 @@ export interface Db {
   contact_notes: ContactNote[];
   deals: Deal[];
   deal_notes: DealNote[];
+  daily_work_reports: DailyWorkReport[];
   financial_payables: FinancialPayable[];
   financial_receivables: FinancialReceivable[];
   financial_transactions: FinancialTransaction[];

@@ -65,6 +65,7 @@ import projects from "../projects";
 import procurement from "../procurement";
 import { FinanceDashboard } from "../finance";
 import { InventoryDashboard } from "../inventory";
+import dailyWorkReports from "../dailyWorkReports";
 
 const defaultStore = localStorageStore(undefined, "CRM");
 
@@ -299,6 +300,7 @@ const DesktopAdmin = (
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" list={DesktopTasksList} />
+      <Resource name="daily_work_reports" {...dailyWorkReports} />
       <Resource name="sales" {...sales} />
       <Resource name="tags" />
     </Admin>
@@ -397,6 +399,7 @@ const MobileAdmin = (
         <Resource name="inventory_items" />
         <Resource name="inventory_movements" />
         <Resource name="tasks" list={MobileTasksList} />
+        <Resource name="daily_work_reports" {...dailyWorkReports} />
       </Admin>
     </PersistQueryClientProvider>
   );

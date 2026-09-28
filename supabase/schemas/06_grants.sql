@@ -53,6 +53,10 @@ grant all on function public.current_staff_role() to anon;
 grant all on function public.current_staff_role() to authenticated;
 grant all on function public.current_staff_role() to service_role;
 
+grant all on function public.current_sales_id() to anon;
+grant all on function public.current_sales_id() to authenticated;
+grant all on function public.current_sales_id() to service_role;
+
 grant all on function public.is_admin() to anon;
 grant all on function public.is_admin() to authenticated;
 grant all on function public.is_admin() to service_role;
@@ -129,6 +133,10 @@ grant all on table public.inventory_movements to service_role;
 grant all on table public.sales to anon;
 grant all on table public.sales to authenticated;
 grant all on table public.sales to service_role;
+
+grant all on table public.daily_work_reports to anon;
+grant all on table public.daily_work_reports to authenticated;
+grant all on table public.daily_work_reports to service_role;
 
 grant all on table public.tags to anon;
 grant all on table public.tags to authenticated;
@@ -227,6 +235,10 @@ grant all on sequence public.inventory_movements_id_seq to service_role;
 grant all on sequence public.sales_id_seq to anon;
 grant all on sequence public.sales_id_seq to authenticated;
 grant all on sequence public.sales_id_seq to service_role;
+
+grant all on sequence public.daily_work_reports_id_seq to anon;
+grant all on sequence public.daily_work_reports_id_seq to authenticated;
+grant all on sequence public.daily_work_reports_id_seq to service_role;
 
 grant all on sequence public.tags_id_seq to anon;
 grant all on sequence public.tags_id_seq to authenticated;

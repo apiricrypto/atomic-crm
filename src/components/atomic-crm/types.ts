@@ -317,6 +317,16 @@ export type InventoryMovement = {
   sales_id?: Identifier;
 } & Pick<RaRecord, "id">;
 
+export type DailyWorkReport = {
+  sales_id: Identifier;
+  work_date: string;
+  achievements: string;
+  blockers: string;
+  next_steps: string;
+  minutes_worked: number;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
 export type Tag = {
   id: number;
   name: string;

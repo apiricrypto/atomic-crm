@@ -10,6 +10,7 @@ import type { Db } from "@/components/atomic-crm/providers/fakerest/dataGenerato
 import type {
   Company,
   Contact,
+  DailyWorkReport,
   Deal,
   FinancialPayable,
   FinancialReceivable,
@@ -60,6 +61,7 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
     configuration: [{ config: {}, id: 1 }],
     contact_notes: [],
     contacts: [],
+    daily_work_reports: [],
     deal_notes: [],
     deals: [],
     financial_payables: [],
@@ -79,6 +81,20 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
 
 export const buildSale = (overrides: Partial<Sale> = {}): Sale => ({
   ...baseSale,
+  ...overrides,
+});
+
+export const buildDailyWorkReport = (
+  overrides: Partial<DailyWorkReport> = {},
+): DailyWorkReport => ({
+  achievements: "پیگیری پروژه و هماهنگی با تیم انجام شد.",
+  blockers: "",
+  created_at: "2026-09-27T13:30:00.000Z",
+  id: 1,
+  minutes_worked: 420,
+  next_steps: "تکمیل اقدامات برنامه‌ریزی‌شده.",
+  sales_id: 0,
+  work_date: "2026-09-27",
   ...overrides,
 });
 

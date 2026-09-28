@@ -3,6 +3,7 @@ import { generateContactNotes } from "./contactNotes";
 import { generateContacts } from "./contacts";
 import { generateDealNotes } from "./dealNotes";
 import { generateDeals } from "./deals";
+import { generateDailyWorkReports } from "./dailyWorkReports";
 import {
   generateFinancialPayables,
   generateFinancialReceivables,
@@ -30,6 +31,7 @@ export default (): Db => {
   db.contact_notes = generateContactNotes(db);
   db.deals = generateDeals(db);
   db.deal_notes = generateDealNotes(db);
+  db.daily_work_reports = generateDailyWorkReports(db);
   db.projects = generateProjects(db);
   db.project_cost_items = generateProjectCostItems(db);
   db.procurement_commitments = generateProcurementCommitments(db);
