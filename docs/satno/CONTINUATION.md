@@ -6,6 +6,47 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Tender & Inquiry Intelligence contract and UI skeleton
+
+Draft PR #30: `satno/tender-intelligence-skeleton-20260928`, published feature
+commit `86e6b916e8701d3be0bea43afa43e5ec071d748b`, stacked directly on Draft PR
+#29 at `1a69739793b1c5ad49378bd1191a3899abbfcde3`.
+
+- Live reconciliation confirmed PRs #11 and #29 remained open, Draft and
+  unmerged. `main` and `satno-development` remained at `dce557e`, upstream at
+  `64e2163`, and the Persian reference at `85fc400`. No overlapping Tender,
+  SETAD or Radar branch/PR existed; PR #29 had no workflow run or status context.
+- Added the first Persian-first responsive skeleton for Radar Inbox, SETAD
+  Interactive Search, Tender Pipeline and Saved Searches. It covers the two
+  product domains, every requested custom filter, the official inquiry/tender
+  portal split and the three starter saved searches.
+- The data contract keeps SETAD Need No/Tender No separate from aggregator
+  identity, keeps publication and official deadlines separate, and defines
+  official-first dedup, fallback fingerprinting, A/B import eligibility and the
+  three verification states.
+- Added declarative opportunity, pipeline, saved-search and append-only audit
+  tables with role/assignment-aware RLS. Authenticated writes are deliberately
+  revoked until guarded server functions and disposable real-database tests
+  exist. Sensitive audit keys are rejected by schema constraint.
+- SETAD remains strictly human-in-the-loop: the UI only opens the official page
+  in the user's browser. It does not solve/bypass CAPTCHA or read/store/login
+  credentials, cookies, OTP or session state. No live SETAD success is claimed.
+- Validation passed: 52 focused Chromium tests including desktop and 390x844
+  mobile RTL, all 173 Edge Function tests, TypeScript, production build,
+  targeted ESLint/Prettier, declarative table SQL parse, secret-pattern scan and
+  `git diff --check`. Existing FieldTitle, bundle-size and Browserslist warnings
+  remain.
+- FakeRest records and starter searches are synthetic UI evidence only. No
+  migration, real Supabase/RLS run, Tender Radar sender deployment/token
+  exchange, SETAD session, production write, merge or deployment occurred.
+  Acceptance requirements are in
+  `docs/satno/TENDER_INTELLIGENCE_ACCEPTANCE.md`.
+
+Next priority: reconcile PR #30, then add a guarded server-side Radar
+Inbox-to-tender import/dedup function with immutable provenance and audit events.
+Sender conformance fixtures remain separate from the independent Tender Radar
+codebase and must not contain real tokens or production records.
+
 ## Latest checkpoint — server-side Lead ingestion contract
 
 Draft PR #29: `satno/lead-ingestion-contract-20260928`, published feature
