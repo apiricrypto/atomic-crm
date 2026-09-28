@@ -6,6 +6,41 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — read-only SETAD history and conflict review
+
+Draft PR #37: `satno/setad-history-conflict-20260928`, published feature commit
+`f3d62e8247e5e55e82979417ddb356f966c30b53`, stacked directly on Draft PR #36
+at `c066f5c129b762d9b47a1735b5566447415a9754`.
+
+- Live GitHub reconciliation confirmed #36 and #11 remained open, Draft,
+  mergeable, and unmerged. `main`/`satno-development` remained at `dce557e`,
+  upstream at `64e2163`, and the Persian reference at `85fc400`. No overlapping
+  SETAD history/conflict branch or PR existed; #36 had no workflow run or
+  commit status.
+- Added a Persian/RTL, read-only history of append-only official observations,
+  newest first. Each record keeps its official Need No/Tender No, title,
+  organizer, geography, publication date, both deadlines, checked time, and
+  constrained official source link separate from the Radar assertion.
+- `data_conflict` records now compare the latest official observation against
+  the original Tender Radar fields side by side. The comparison selects no
+  winner, mutates neither source, and preserves every earlier observation.
+- Re-review uses only the existing guarded observation dialog and RPC from
+  #36, so this package adds no alternative write path. The 390x844 browser test
+  proves that the comparison and history have no horizontal page overflow.
+- Validation passed: 28 focused Chromium tests, TypeScript, production build,
+  targeted ESLint/Prettier, registry generation, and `git diff --check`. The
+  published feature tree `464d99c5` exactly matched the tested local tree.
+- No real SETAD login/session/CAPTCHA or official record was used. Docker,
+  Podman, and Supabase CLI remained unavailable, so no real transaction/RLS/
+  concurrency run occurred. No migration, Tender Radar request, production
+  write, merge, deployment, or secret change occurred.
+
+Next priority: reconcile PR #37 and execute the import, pipeline, Saved Search,
+SETAD verification, RLS, rollback, append-only, and concurrent identifier
+acceptance matrix in a disposable Supabase environment. Do not claim a live
+Tender Radar or SETAD connection until the corresponding authorized real-data
+tests have passed; CAPTCHA and login remain exclusively human-controlled.
+
 ## Latest checkpoint — human SETAD handoff and official observation capture
 
 Draft PR #36: `satno/setad-interactive-handoff-20260928`, published feature
