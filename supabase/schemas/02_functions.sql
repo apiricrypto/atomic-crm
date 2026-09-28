@@ -277,6 +277,16 @@ begin
 end;
 $$;
 
+CREATE OR REPLACE FUNCTION "public"."current_sales_id"() RETURNS bigint
+    LANGUAGE "sql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select id
+  from public.sales
+  where user_id = auth.uid() and disabled = false
+  limit 1;
+$$;
+
 CREATE OR REPLACE FUNCTION "public"."is_admin"() RETURNS boolean
     LANGUAGE "sql" SECURITY DEFINER
     SET "search_path" TO ''

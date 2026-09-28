@@ -377,6 +377,33 @@ export const englishCrmMessages = {
         note_or_attachment_required: "A note or an attachment is required",
       },
     },
+    daily_work_reports: {
+      name: "Daily work report |||| Daily work reports",
+      subtitle: "One accountable report per staff member and work day",
+      empty: "No daily work report has been recorded yet.",
+      create_title: "Create daily work report",
+      edit_title: "Edit daily work report",
+      open: "Open daily work reports",
+      owner_only: "Only the report owner can edit this record.",
+      duration: "%{hours} h %{minutes} min",
+      minutes_help: "Total time from 0 to 1,440 minutes",
+      achievements_help: "Summarize completed work and concrete outcomes.",
+      blockers_help: "Record blockers that need attention, if any.",
+      next_steps_help: "Record the next planned actions, if any.",
+      fields: {
+        sales_id: "Staff member",
+        work_date: "Work date",
+        achievements: "Completed work",
+        blockers: "Blockers",
+        next_steps: "Next steps",
+        minutes_worked: "Time worked (minutes)",
+        created_at: "Created at",
+      },
+      action: {
+        create: "New daily report",
+        edit: "Edit report",
+      },
+    },
     sales: {
       name: "User |||| Users",
       fields: {

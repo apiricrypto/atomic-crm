@@ -322,6 +322,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/dailyWorkReports.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/contacts.ts",
           "type": "registry:component"
         },
@@ -791,6 +795,30 @@
         },
         {
           "path": "src/components/atomic-crm/dashboard/Dashboard.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/dailyWorkReports/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/dailyWorkReports/date.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/dailyWorkReports/DailyWorkReportList.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/dailyWorkReports/DailyWorkReportForm.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/dailyWorkReports/DailyWorkReportEdit.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/dailyWorkReports/DailyWorkReportCreate.tsx",
           "type": "registry:component"
         },
         {

@@ -1,4 +1,11 @@
-import { FileText, Import, Settings, User, Users } from "lucide-react";
+import {
+  ClipboardList,
+  FileText,
+  Import,
+  Settings,
+  User,
+  Users,
+} from "lucide-react";
 import { CanAccess, useTranslate, useUserMenu } from "ra-core";
 import { Link, matchPath, useLocation } from "react-router";
 import { RefreshButton } from "@/components/admin/refresh-button";
@@ -103,6 +110,7 @@ const Header = () => {
                 <RefreshButton />
                 <UserMenu>
                   <ProfileMenu />
+                  <DailyWorkReportsMenu />
                   <CanAccess resource="sales" action="list">
                     <UsersMenu />
                   </CanAccess>
@@ -169,6 +177,22 @@ const ProfileMenu = () => {
       <Link to="/profile" className="flex items-center gap-2">
         <User />
         {translate("crm.profile.title")}
+      </Link>
+    </DropdownMenuItem>
+  );
+};
+
+const DailyWorkReportsMenu = () => {
+  const translate = useTranslate();
+  const userMenuContext = useUserMenu();
+  if (!userMenuContext) {
+    throw new Error("<DailyWorkReportsMenu> must be used inside <UserMenu>");
+  }
+  return (
+    <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
+      <Link to="/daily_work_reports" className="flex items-center gap-2">
+        <ClipboardList />
+        {translate("resources.daily_work_reports.name", { smart_count: 2 })}
       </Link>
     </DropdownMenuItem>
   );
