@@ -18,6 +18,8 @@ import type {
   SignUpData,
   TenderImportResult,
   TenderOpportunityReview,
+  TenderPipelineEntry,
+  TenderPipelineTransition,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { ATTACHMENTS_BUCKET } from "../commons/attachments";
@@ -277,6 +279,25 @@ const getDataProviderWithCustomMethods = () => {
       const result = Array.isArray(data) ? data[0] : data;
       if (!result) throw new Error("Tender import returned no result");
       return result as TenderImportResult;
+    },
+    async updateTenderPipeline(
+      opportunityId: Identifier,
+      transition: TenderPipelineTransition,
+    ): Promise<TenderPipelineEntry> {
+      const { data, error } = await (getSupabaseClient() as any).rpc(
+        "update_tender_pipeline",
+        {
+          p_opportunity_id: opportunityId,
+          p_transition: transition,
+        },
+      );
+
+      if (error) {
+        throw new Error(error.message || "Failed to update Tender Pipeline");
+      }
+      const result = Array.isArray(data) ? data[0] : data;
+      if (!result) throw new Error("Tender Pipeline update returned no result");
+      return result as TenderPipelineEntry;
     },
     async isInitialized() {
       return getIsInitialized();

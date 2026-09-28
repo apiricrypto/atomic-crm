@@ -157,4 +157,43 @@ describe("Tender & Inquiry Intelligence SQL contract", () => {
       /before update or delete on public\.tender_audit_log/,
     );
   });
+
+  it("transitions Tender Pipeline records through a guarded audited RPC", () => {
+    const start = functionsSql.indexOf(
+      'CREATE OR REPLACE FUNCTION "public"."update_tender_pipeline"',
+    );
+    const functionBody = functionsSql
+      .slice(start)
+      .match(/AS \$\$([\s\S]+?)\$\$;/)?.[1];
+
+    expect(start).toBeGreaterThan(-1);
+    expect(functionBody).toBeTruthy();
+    expect(functionsSql.slice(start, start + 500)).toMatch(
+      /SECURITY DEFINER[\s\S]+SET "search_path" TO ''/,
+    );
+    expect(functionBody).toMatch(/current_staff_role/);
+    expect(functionBody).toMatch(/v_allowed_keys constant text\[\]/);
+    expect(functionBody).toMatch(/transition contains an unsupported field/);
+    expect(functionBody).toMatch(/FOR UPDATE/);
+    expect(functionBody).toMatch(/stage cannot move backward/);
+    expect(functionBody).toMatch(/Documents must be complete before advancing/);
+    expect(functionBody).toMatch(
+      /Technical review must be approved before pricing/,
+    );
+    expect(functionBody).toMatch(/UPDATE public\.tender_pipeline_entries/);
+    expect(functionBody).toMatch(/INSERT INTO public\.tender_audit_log/);
+    expect(functionBody).toMatch(/'notes_changed'/);
+    expect(functionBody).not.toMatch(
+      /public\.companies|public\.contacts|public\.deals|public\.projects|financial_|inventory_|raw_payload/,
+    );
+    expect(grantsSql).toMatch(
+      /revoke all on function public\.update_tender_pipeline\(bigint, jsonb\) from public, anon, authenticated/i,
+    );
+    expect(grantsSql).toMatch(
+      /grant execute on function public\.update_tender_pipeline\(bigint, jsonb\) to authenticated/i,
+    );
+    expect(grantsSql).not.toMatch(
+      /grant\s+(?:all|insert|update|delete)\s+on\s+table\s+public\.tender_pipeline_entries\s+to\s+authenticated/i,
+    );
+  });
 });

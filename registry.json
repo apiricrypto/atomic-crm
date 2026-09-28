@@ -58,6 +58,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/tenderIntelligence/TenderPipelineBoard.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/tenderIntelligence/TenderIntelligencePage.tsx",
           "type": "registry:component"
         },

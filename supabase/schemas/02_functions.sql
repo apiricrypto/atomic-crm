@@ -1031,3 +1031,253 @@ BEGIN
     END;
 END;
 $$;
+
+-- Guarded Tender Pipeline transition boundary. Authenticated clients retain
+-- read-only table grants and may change workflow state only through this RPC.
+-- The function serializes concurrent edits, enforces forward-only milestones,
+-- and appends a redacted audit event in the same transaction.
+CREATE OR REPLACE FUNCTION "public"."update_tender_pipeline"(
+    "p_opportunity_id" bigint,
+    "p_transition" jsonb
+) RETURNS public.tender_pipeline_entries
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+DECLARE
+  v_actor_id bigint;
+  v_actor_role text;
+  v_opportunity public.tender_opportunities%ROWTYPE;
+  v_before public.tender_pipeline_entries%ROWTYPE;
+  v_after public.tender_pipeline_entries%ROWTYPE;
+  v_stage text;
+  v_documents_status text;
+  v_technical_review_status text;
+  v_pricing_status text;
+  v_participation_decision text;
+  v_result_status text;
+  v_assigned_sales_id bigint;
+  v_notes text;
+  v_allowed_keys constant text[] := ARRAY[
+    'stage', 'documents_status', 'technical_review_status',
+    'pricing_status', 'participation_decision', 'result_status',
+    'assigned_sales_id', 'notes'
+  ];
+BEGIN
+  v_actor_id := public.current_sales_id();
+  v_actor_role := public.current_staff_role();
+
+  IF v_actor_id IS NULL OR v_actor_role NOT IN ('admin', 'manager', 'sales') THEN
+    RAISE EXCEPTION 'Tender Pipeline update is not allowed for this role'
+      USING ERRCODE = '42501';
+  END IF;
+  IF p_transition IS NULL OR jsonb_typeof(p_transition) <> 'object' THEN
+    RAISE EXCEPTION 'transition must be a JSON object';
+  END IF;
+  IF p_transition = '{}'::jsonb THEN
+    RAISE EXCEPTION 'transition must contain at least one field';
+  END IF;
+  IF pg_catalog.pg_column_size(p_transition) > 65536 THEN
+    RAISE EXCEPTION 'transition is too large';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_object_keys(p_transition) AS supplied(key)
+    WHERE supplied.key <> ALL (v_allowed_keys)
+  ) THEN
+    RAISE EXCEPTION 'transition contains an unsupported field';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_each(p_transition) AS supplied(key, value)
+    WHERE jsonb_typeof(supplied.value) NOT IN ('string', 'number', 'null')
+  ) THEN
+    RAISE EXCEPTION 'transition fields must be scalar values';
+  END IF;
+
+  SELECT * INTO v_opportunity
+  FROM public.tender_opportunities
+  WHERE id = p_opportunity_id
+  FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Tender opportunity not found' USING ERRCODE = 'P0002';
+  END IF;
+
+  SELECT * INTO v_before
+  FROM public.tender_pipeline_entries
+  WHERE opportunity_id = p_opportunity_id
+  FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Tender Pipeline entry not found' USING ERRCODE = 'P0002';
+  END IF;
+
+  IF v_actor_role = 'sales' AND (
+    v_opportunity.assigned_sales_id IS DISTINCT FROM v_actor_id
+    OR v_before.assigned_sales_id IS DISTINCT FROM v_actor_id
+  ) THEN
+    RAISE EXCEPTION 'Tender opportunity is assigned to another salesperson'
+      USING ERRCODE = '42501';
+  END IF;
+
+  v_stage := coalesce(nullif(btrim(p_transition ->> 'stage'), ''), v_before.stage);
+  v_documents_status := coalesce(
+    nullif(btrim(p_transition ->> 'documents_status'), ''),
+    v_before.documents_status
+  );
+  v_technical_review_status := coalesce(
+    nullif(btrim(p_transition ->> 'technical_review_status'), ''),
+    v_before.technical_review_status
+  );
+  v_pricing_status := coalesce(
+    nullif(btrim(p_transition ->> 'pricing_status'), ''),
+    v_before.pricing_status
+  );
+  v_participation_decision := coalesce(
+    nullif(btrim(p_transition ->> 'participation_decision'), ''),
+    v_before.participation_decision
+  );
+  v_result_status := coalesce(
+    nullif(btrim(p_transition ->> 'result_status'), ''),
+    v_before.result_status
+  );
+  v_notes := CASE
+    WHEN p_transition ? 'notes' THEN nullif(btrim(p_transition ->> 'notes'), '')
+    ELSE v_before.notes
+  END;
+
+  BEGIN
+    v_assigned_sales_id := CASE
+      WHEN p_transition ? 'assigned_sales_id'
+        THEN nullif(p_transition ->> 'assigned_sales_id', '')::bigint
+      ELSE v_before.assigned_sales_id
+    END;
+  EXCEPTION WHEN invalid_text_representation OR numeric_value_out_of_range THEN
+    RAISE EXCEPTION 'transition contains an invalid assigned salesperson';
+  END;
+
+  IF v_stage NOT IN (
+    'documents', 'technical_review', 'pricing', 'participation_decision', 'result'
+  ) THEN RAISE EXCEPTION 'Invalid Tender Pipeline stage'; END IF;
+  IF v_documents_status NOT IN ('not_started', 'requested', 'received', 'complete') THEN
+    RAISE EXCEPTION 'Invalid documents status';
+  END IF;
+  IF v_technical_review_status NOT IN ('not_started', 'in_review', 'approved', 'rejected') THEN
+    RAISE EXCEPTION 'Invalid technical review status';
+  END IF;
+  IF v_pricing_status NOT IN ('not_started', 'in_progress', 'approved') THEN
+    RAISE EXCEPTION 'Invalid pricing status';
+  END IF;
+  IF v_participation_decision NOT IN ('undecided', 'bid', 'no_bid') THEN
+    RAISE EXCEPTION 'Invalid participation decision';
+  END IF;
+  IF v_result_status NOT IN ('pending', 'won', 'lost', 'cancelled') THEN
+    RAISE EXCEPTION 'Invalid result status';
+  END IF;
+  IF v_assigned_sales_id IS NULL OR NOT EXISTS (
+    SELECT 1 FROM public.sales
+    WHERE id = v_assigned_sales_id AND disabled = false
+  ) THEN
+    RAISE EXCEPTION 'Assigned salesperson is missing or disabled';
+  END IF;
+  IF v_actor_role = 'sales'
+     AND v_assigned_sales_id IS DISTINCT FROM v_actor_id THEN
+    RAISE EXCEPTION 'Sales staff cannot reassign Tender Pipeline work'
+      USING ERRCODE = '42501';
+  END IF;
+  IF v_notes IS NOT NULL AND length(v_notes) > 10000 THEN
+    RAISE EXCEPTION 'Tender Pipeline notes are too long';
+  END IF;
+
+  -- Stage progress is monotonic. A rejected technical review may close as
+  -- no-bid without pricing; bid paths must complete every prior milestone.
+  IF array_position(
+    ARRAY['documents', 'technical_review', 'pricing', 'participation_decision', 'result'],
+    v_stage
+  ) < array_position(
+    ARRAY['documents', 'technical_review', 'pricing', 'participation_decision', 'result'],
+    v_before.stage
+  ) THEN
+    RAISE EXCEPTION 'Tender Pipeline stage cannot move backward';
+  END IF;
+  IF v_stage <> 'documents' AND v_documents_status <> 'complete' THEN
+    RAISE EXCEPTION 'Documents must be complete before advancing';
+  END IF;
+  IF v_stage IN ('pricing', 'participation_decision')
+     AND v_technical_review_status <> 'approved' THEN
+    RAISE EXCEPTION 'Technical review must be approved before pricing';
+  END IF;
+  IF v_stage = 'participation_decision' AND v_pricing_status <> 'approved' THEN
+    RAISE EXCEPTION 'Pricing must be approved before participation decision';
+  END IF;
+  IF v_stage = 'result' AND v_participation_decision = 'undecided' THEN
+    RAISE EXCEPTION 'Participation decision is required before result';
+  END IF;
+  IF v_stage = 'result' AND v_participation_decision = 'bid' AND (
+    v_technical_review_status <> 'approved' OR v_pricing_status <> 'approved'
+  ) THEN
+    RAISE EXCEPTION 'Bid result requires approved technical review and pricing';
+  END IF;
+  IF v_participation_decision = 'no_bid' AND (
+    v_stage <> 'result' OR v_result_status <> 'cancelled'
+  ) THEN
+    RAISE EXCEPTION 'No-bid decision must close the opportunity as cancelled';
+  END IF;
+  IF v_result_status <> 'pending' AND v_stage <> 'result' THEN
+    RAISE EXCEPTION 'A final result is allowed only in the result stage';
+  END IF;
+  IF v_result_status IN ('won', 'lost')
+     AND v_participation_decision <> 'bid' THEN
+    RAISE EXCEPTION 'Won or lost result requires a bid decision';
+  END IF;
+
+  UPDATE public.tender_pipeline_entries
+  SET
+    stage = v_stage,
+    documents_status = v_documents_status,
+    technical_review_status = v_technical_review_status,
+    pricing_status = v_pricing_status,
+    participation_decision = v_participation_decision,
+    result_status = v_result_status,
+    assigned_sales_id = v_assigned_sales_id,
+    notes = v_notes,
+    updated_at = now()
+  WHERE id = v_before.id
+  RETURNING * INTO v_after;
+
+  IF v_assigned_sales_id IS DISTINCT FROM v_opportunity.assigned_sales_id THEN
+    UPDATE public.tender_opportunities
+    SET assigned_sales_id = v_assigned_sales_id, updated_at = now()
+    WHERE id = p_opportunity_id;
+  END IF;
+
+  INSERT INTO public.tender_audit_log (
+    opportunity_id, event_type, actor_sales_id, metadata
+  ) VALUES (
+    p_opportunity_id,
+    'pipeline_transitioned',
+    v_actor_id,
+    jsonb_build_object(
+      'before', jsonb_build_object(
+        'stage', v_before.stage,
+        'documents_status', v_before.documents_status,
+        'technical_review_status', v_before.technical_review_status,
+        'pricing_status', v_before.pricing_status,
+        'participation_decision', v_before.participation_decision,
+        'result_status', v_before.result_status,
+        'assigned_sales_id', v_before.assigned_sales_id
+      ),
+      'after', jsonb_build_object(
+        'stage', v_after.stage,
+        'documents_status', v_after.documents_status,
+        'technical_review_status', v_after.technical_review_status,
+        'pricing_status', v_after.pricing_status,
+        'participation_decision', v_after.participation_decision,
+        'result_status', v_after.result_status,
+        'assigned_sales_id', v_after.assigned_sales_id
+      ),
+      'notes_changed', v_before.notes IS DISTINCT FROM v_after.notes
+    )
+  );
+
+  RETURN v_after;
+END;
+$$;

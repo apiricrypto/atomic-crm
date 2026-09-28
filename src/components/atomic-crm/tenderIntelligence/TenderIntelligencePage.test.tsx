@@ -2,7 +2,13 @@ import { page } from "vitest/browser";
 import { vi } from "vitest";
 import { render } from "vitest-browser-react";
 
-import { buildLeadInboxRecord, StoryWrapper } from "@/test/StoryWrapper";
+import {
+  buildLeadInboxRecord,
+  buildTenderAuditEvent,
+  buildTenderOpportunity,
+  buildTenderPipelineEntry,
+  StoryWrapper,
+} from "@/test/StoryWrapper";
 import { i18nProvider } from "../providers/commons/i18nProvider";
 import tenderRadarFixtures from "../../../../supabase/functions/ingest_leads/fixtures/tender-radar-v1.json";
 
@@ -158,5 +164,64 @@ describe("TenderIntelligencePage", () => {
     });
     expect(review).not.toHaveProperty("source_snapshot");
     expect(JSON.stringify(review)).not.toContain("NEVER_RENDER_OR_SEND");
+  });
+
+  it("shows pipeline state and submits an allow-listed audited transition", async () => {
+    page.viewport(390, 844);
+    const updateTenderPipeline = vi.fn().mockResolvedValue(
+      buildTenderPipelineEntry({
+        documents_status: "requested",
+      }),
+    );
+    const screen = await render(
+      <StoryWrapper
+        data={{
+          tender_audit_log: [buildTenderAuditEvent()],
+          tender_opportunities: [buildTenderOpportunity()],
+          tender_pipeline_entries: [buildTenderPipelineEntry()],
+        }}
+        dataProvider={{ updateTenderPipeline }}
+        i18nProvider={i18nProvider}
+        initialEntries={["/tenders"]}
+      >
+        <div />
+      </StoryWrapper>,
+    );
+
+    await screen.getByRole("tab", { name: "خط لوله مناقصه" }).click();
+    await expect
+      .element(screen.getByText("استعلام ساختگی تجهیزات خورشیدی"))
+      .toBeVisible();
+    await expect
+      .element(screen.getByText(/وضعیت خط لوله تغییر کرد/))
+      .toBeVisible();
+    await screen.getByRole("button", { name: "ثبت گذار" }).click();
+    await expect
+      .element(screen.getByRole("dialog", { name: "ثبت گذار خط لوله" }))
+      .toBeVisible();
+
+    await screen.getByLabelText("وضعیت اسناد").click();
+    await screen.getByRole("option", { name: "درخواست‌شده" }).click();
+    await screen.getByRole("button", { name: "ثبت گذار و ممیزی" }).click();
+
+    await expect.poll(() => updateTenderPipeline.mock.calls.length).toBe(1);
+    expect(updateTenderPipeline).toHaveBeenCalledWith(
+      51,
+      expect.objectContaining({
+        documents_status: "requested",
+        stage: "documents",
+      }),
+    );
+    const transition = updateTenderPipeline.mock.calls[0][1];
+    expect(transition).not.toHaveProperty("raw_payload");
+    expect(transition).not.toHaveProperty("cookie");
+    expect(transition).not.toHaveProperty("captcha");
+    await expect
+      .poll(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      )
+      .toBe(true);
   });
 });

@@ -21,14 +21,7 @@ import type { LeadInboxRecord } from "../types";
 import { getSetadPortalUrl, type TenderOpportunityType } from "./contract";
 import { buildTenderRadarReviewCandidate } from "./reviewAdapter";
 import { TenderRadarReviewDialog } from "./TenderRadarReviewDialog";
-
-const PIPELINE_STAGES = [
-  "documents",
-  "technical_review",
-  "pricing",
-  "participation_decision",
-  "result",
-] as const;
+import { TenderPipelineBoard } from "./TenderPipelineBoard";
 
 const SAVED_SEARCH_EXAMPLES = [
   {
@@ -84,7 +77,7 @@ export const TenderIntelligencePage = () => {
           <SetadSearchSkeleton />
         </TabsContent>
         <TabsContent value="pipeline">
-          <PipelineSkeleton />
+          <TenderPipelineBoard />
         </TabsContent>
         <TabsContent value="saved_searches">
           <SavedSearchesSkeleton />
@@ -322,33 +315,6 @@ const SearchSelect = ({
     </Select>
   </div>
 );
-
-const PipelineSkeleton = () => {
-  const translate = useTranslate();
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {translate("resources.tender_intelligence.pipeline.title")}
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {translate("resources.tender_intelligence.pipeline.notice")}
-        </p>
-      </CardHeader>
-      <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        {PIPELINE_STAGES.map((stage) => (
-          <div className="rounded-lg border p-4" key={stage}>
-            <h2 className="font-medium">
-              {translate(`resources.tender_intelligence.pipeline.${stage}`)}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">۰ مورد</p>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
-};
 
 const SavedSearchesSkeleton = () => {
   const translate = useTranslate();
