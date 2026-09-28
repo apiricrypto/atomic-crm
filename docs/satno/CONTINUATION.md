@@ -6,6 +6,38 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — optional Phone/SMS OTP foundation
+
+Draft PR #26: `satno/phone-otp-foundation-20260928`, published feature commit
+`4a3bee82ab7dd04c88509c8e031b0ec06c48b4f3`, stacked directly on Draft PR #25
+at `b6eccca0df6e46b9e5f805760f50e51f7ed0510e`.
+
+- Live reconciliation confirmed PR #25 remained open, Draft, unmerged, clean
+  and two commits ahead/zero behind PR #24. `main` and `satno-development`
+  remained at `dce557e`; upstream remained `d00fdf3` and the Persian reference
+  remained `85fc400`. No overlapping OTP branch or PR existed.
+- Added an optional Persian-first phone OTP flow backed by Supabase Auth.
+  Iranian local/Persian-digit inputs normalize to E.164, verification uses the
+  SMS token type and the request always sets `shouldCreateUser: false`; raw or
+  unknown phone numbers therefore cannot create Auth or CRM users.
+- Administrators may assign or replace one unique staff sign-in phone through
+  the existing users Edge Function. Provider selection stays outside the
+  browser through Supabase's built-in SMS configuration or replaceable Send SMS
+  Hook. Email/password login remains unchanged.
+- Validation passed: 48 focused Chromium tests, all 150 Edge Function tests,
+  TypeScript, production build, targeted ESLint and Prettier, registry
+  generation, declarative table-schema parse, secret-pattern scan and
+  `git diff --check`. Existing FieldTitle circular-chunk, large-bundle and stale
+  Browserslist warnings remain.
+- The UI is default-off behind `VITE_ENABLE_PHONE_OTP_AUTHENTICATION=true`. No
+  provider, API key, hook secret or production secret was added; no SMS was sent
+  and no real Supabase Auth/provider E2E was performed. SQL remains declarative;
+  no migration, merge, deployment or production write occurred.
+
+Next priority: reconcile PR #26, then start Export/Backup/Server Migration as a
+separate portability package. Keep backup design and restore acceptance separate
+from production execution; do not export secrets or real customer data.
+
 ## Latest checkpoint — Daily Work Reports foundation
 
 Draft PR #25: `satno/daily-work-reports-20260928`, published feature commit
