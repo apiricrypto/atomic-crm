@@ -291,6 +291,56 @@ export const farsiCrmMessages = {
           "اطلاعات را بازبینی کردم و ایجاد رکوردهای اصلی CRM را تأیید می‌کنم. داده خام و برآورد اولیه خودکار کپی نمی‌شود.",
       },
     },
+    tender_intelligence: {
+      name: "هوشمندی مناقصه و استعلام",
+      short_name: "مناقصات",
+      subtitle:
+        "دریافت از رادار، راستی‌آزمایی رسمی ستاد و پیگیری تصمیم تا نتیجه",
+      tabs: {
+        radar: "صندوق رادار",
+        setad: "جست‌وجوی تعاملی ستاد",
+        pipeline: "خط لوله مناقصه",
+        saved_searches: "جست‌وجوهای ذخیره‌شده",
+      },
+      fields: {
+        domain: "حوزه",
+        type: "نوع فرصت",
+      },
+      verification: {
+        setad_verified: "تأییدشده در ستاد",
+        pending_setad_verification: "در انتظار راستی‌آزمایی ستاد",
+        data_conflict: "تعارض داده",
+      },
+      radar: {
+        title: "Radar Inbox",
+        contract_notice:
+          "فقط موارد A و B پس از بازبینی قابل ورود هستند؛ retry باید idempotent باشد و منشأ رسمی حفظ شود.",
+        quarantine:
+          "این رکورد هنوز سرنخ قرنطینه‌شده است و شرکت، مخاطب یا معامله محسوب نمی‌شود.",
+        empty: "هنوز موردی از Tender Radar وارد نشده است.",
+      },
+      setad: {
+        title: "جست‌وجوی رسمی ستاد با حضور کاربر",
+        human_notice:
+          "ورود، OTP و CAPTCHA فقط توسط کاربر در مرورگر انجام می‌شود؛ سامانه هیچ‌کدام را حل، دور نمی‌زند یا ذخیره نمی‌کند.",
+      },
+      pipeline: {
+        title: "Tender Pipeline",
+        notice:
+          "اسناد، بررسی فنی، قیمت‌گذاری، تصمیم شرکت و نتیجه مستقل ثبت می‌شوند و خودکار Deal یا Project نمی‌سازند.",
+        documents: "دریافت اسناد",
+        technical_review: "بررسی فنی",
+        pricing: "قیمت‌گذاری",
+        participation_decision: "شرکت / عدم شرکت",
+        result: "نتیجه",
+      },
+      saved_searches: {
+        title: "Saved Searches",
+        notice:
+          "این سه مورد فقط نمونه‌اند؛ پروفایل نهایی همه فیلترهای دلخواه کاربر را نگه می‌دارد.",
+        example: "نمونه اولیه",
+      },
+    },
     projects: {
       name: "پروژه |||| پروژه‌ها",
       forcedCaseName: "پروژه",

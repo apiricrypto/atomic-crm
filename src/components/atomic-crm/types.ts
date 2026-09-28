@@ -214,6 +214,71 @@ export type LeadConversionInput = {
   contact_phone?: string | null;
 };
 
+export type TenderDomain = "renewable_energy" | "security_systems";
+export type TenderOpportunityType = "inquiry" | "tender";
+export type TenderVerificationStatus =
+  | "setad_verified"
+  | "pending_setad_verification"
+  | "data_conflict";
+export type TenderRadarGrade = "A" | "B" | "C";
+export type TenderPipelineStage =
+  | "documents"
+  | "technical_review"
+  | "pricing"
+  | "participation_decision"
+  | "result";
+
+/**
+ * A reviewed tender record imported from the quarantined Lead Inbox.
+ * Official SETAD identifiers remain separate from aggregator identity.
+ */
+export type TenderOpportunity = {
+  lead_id: Identifier;
+  source: "tender_radar" | "setad" | "manual";
+  aggregator_record_id?: string | null;
+  opportunity_type: TenderOpportunityType;
+  official_need_no?: string | null;
+  official_tender_no?: string | null;
+  title: string;
+  description?: string | null;
+  organizer?: string | null;
+  province?: string | null;
+  city?: string | null;
+  publish_date?: string | null;
+  document_deadline?: string | null;
+  submission_deadline?: string | null;
+  official_source_url?: string | null;
+  aggregator_source_url?: string | null;
+  domain: TenderDomain;
+  trade?: string | null;
+  category?: string | null;
+  verification_status: TenderVerificationStatus;
+  radar_score?: number | null;
+  radar_grade?: TenderRadarGrade | null;
+  fallback_fingerprint: string;
+  assigned_sales_id?: Identifier | null;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+export type TenderPipelineEntry = {
+  opportunity_id: Identifier;
+  stage: TenderPipelineStage;
+  documents_status: "not_started" | "requested" | "received" | "complete";
+  technical_review_status:
+    | "not_started"
+    | "in_review"
+    | "approved"
+    | "rejected";
+  pricing_status: "not_started" | "in_progress" | "approved";
+  participation_decision: "undecided" | "bid" | "no_bid";
+  result_status: "pending" | "won" | "lost" | "cancelled";
+  assigned_sales_id?: Identifier | null;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
 export type LeadConversionResult = {
   lead_id: Identifier;
   company_id: Identifier;

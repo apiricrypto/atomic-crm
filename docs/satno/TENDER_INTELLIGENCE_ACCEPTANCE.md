@@ -1,0 +1,98 @@
+# Tender & Inquiry Intelligence acceptance contract
+
+## Scope and evidence boundary
+
+This package defines the first reviewable contract, declarative schema, access
+boundary, and responsive Persian UI skeleton for Tender & Inquiry Intelligence.
+It does not apply a migration, persist UI input, deploy a connector, log in to
+SETAD, solve a CAPTCHA, or prove a live SETAD/Tender Radar integration.
+
+The four product areas are:
+
+1. **Radar Inbox** — quarantined Tender Radar leads already delivered through
+   the server-side `ingest_leads` boundary;
+2. **SETAD Interactive Search** — user-controlled browser navigation to the
+   official inquiry or tender portal;
+3. **Tender Pipeline** — documents, technical review, pricing, participation
+   decision, and outcome;
+4. **Saved Searches** — reusable user-owned filter profiles.
+
+## Source priority and provenance
+
+- Official SETAD data is authoritative. Tender Radar and third-party aggregators
+  are complementary sources.
+- An inquiry's official identity is its SETAD **Need No**. A tender's official
+  identity is its SETAD **Tender No**. These fields never share storage with the
+  aggregator record ID.
+- `publish_date`, `document_deadline`, and `submission_deadline` are separate.
+  No publication date is inferred to be a deadline.
+- Verification status is one of `SETAD Verified`,
+  `Pending SETAD Verification`, or `Data Conflict`.
+- Deduplication prefers the type-correct official identifier, then the stable
+  `(source, aggregator_record_id)` pair, then a reviewed deterministic
+  fingerprint. A retry must not overwrite reviewed data.
+- A raw Lead Inbox row never becomes a Company, Contact, Deal, Project, finance
+  record, or inventory record. Import into `tender_opportunities` is a future
+  explicit server-side operation with immutable provenance.
+
+## Tender Radar A/B contract
+
+- The sender may classify records as `A`, `B`, or `C` and provide a score from
+  0 through 100. Score and grade must be supplied together.
+- Only reviewed A/B rows are import candidates. C rows may remain visible for
+  context but are not imported by default.
+- The shared scoring thresholds are not invented in this CRM package; they must
+  be versioned with the Tender Radar sender contract before live activation.
+- Connector tokens remain source-specific server secrets. No token may use a
+  `VITE_` prefix or enter Git, browser storage, logs, screenshots, chat, request
+  bodies, or database rows.
+
+## SETAD human-in-the-loop boundary
+
+- Inquiry search opens
+  `https://eproc.setadiran.ir/eproc/entry.do` and uses Need No for official
+  verification.
+- Tender search opens
+  `https://etend.setadiran.ir/etend/index.action` and uses Tender No for official
+  verification.
+- Login, OTP, cookies, session state, and CAPTCHA remain exclusively in the
+  user's interactive browser session. They are never read, exported, solved,
+  bypassed, automated, logged, committed, or copied into chat.
+- The CRM may remember non-sensitive search filters, but not authenticated
+  session material.
+- No successful SETAD connection may be claimed until an authorized user has
+  completed a disposable live-session acceptance run.
+
+## Filters and starter profiles
+
+The UI contract covers domain (`renewable_energy` or `security_systems`),
+province, city, keyword, opportunity type, trade, category, organizer,
+publication range, deadline range, and status. Starter examples are synthetic:
+
+- خورشیدی خوزستان
+- UPS چهار استان هدف
+- CCTV خوزستان و ایلام
+
+Users are not limited to those examples.
+
+## Security acceptance before persistence
+
+Before any migration or write path is enabled, a disposable Supabase run must
+prove:
+
+1. RLS and grants deny anonymous access and deny direct authenticated imports;
+2. managers see all permitted records while sales staff see unassigned or
+   explicitly assigned records only;
+3. import creates exactly one opportunity for a quarantined lead and preserves
+   both aggregator and official provenance;
+4. official Need No/Tender No uniqueness wins over fallback fingerprints;
+5. pipeline updates cannot create Company, Contact, Deal, Project, finance, or
+   inventory rows;
+6. audit events are append-only and exclude raw payloads and all session or
+   credential material;
+7. mobile/desktop RTL behavior and all custom filters work with real data;
+8. SETAD verification records conflicts without overwriting either source.
+
+The SQL in `supabase/schemas` is declarative design input, not an applied
+migration.
+

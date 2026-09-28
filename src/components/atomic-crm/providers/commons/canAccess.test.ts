@@ -67,6 +67,24 @@ describe("staff access matrix", () => {
     expect(
       canAccess("finance", { action: "list", resource: "lead_inbox" }),
     ).toBe(false);
+    expect(
+      canAccess("sales", { action: "list", resource: "tender_opportunities" }),
+    ).toBe(true);
+    expect(
+      canAccess("manager", {
+        action: "edit",
+        resource: "tender_pipeline_entries",
+      }),
+    ).toBe(false);
+    expect(
+      canAccess("sales", { action: "create", resource: "tender_audit_log" }),
+    ).toBe(false);
+    expect(
+      canAccess("finance", {
+        action: "list",
+        resource: "tender_opportunities",
+      }),
+    ).toBe(false);
   });
 
   it("makes viewer access read-only and denies unknown resources", () => {

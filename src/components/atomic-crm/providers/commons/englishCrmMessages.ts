@@ -290,6 +290,56 @@ export const englishCrmMessages = {
           "I reviewed the fields and approve creating core CRM records. Raw payload and the initial estimate are not copied automatically.",
       },
     },
+    tender_intelligence: {
+      name: "Tender & Inquiry Intelligence",
+      short_name: "Tenders",
+      subtitle:
+        "Receive Radar leads, verify against official SETAD data, and track each decision to its outcome",
+      tabs: {
+        radar: "Radar Inbox",
+        setad: "Interactive SETAD Search",
+        pipeline: "Tender Pipeline",
+        saved_searches: "Saved Searches",
+      },
+      fields: {
+        domain: "Domain",
+        type: "Opportunity type",
+      },
+      verification: {
+        setad_verified: "SETAD Verified",
+        pending_setad_verification: "Pending SETAD Verification",
+        data_conflict: "Data Conflict",
+      },
+      radar: {
+        title: "Radar Inbox",
+        contract_notice:
+          "Only reviewed A/B records are import candidates; retries must be idempotent and official provenance must be retained.",
+        quarantine:
+          "This is still a quarantined lead, not a Company, Contact, or Deal.",
+        empty: "No Tender Radar record has arrived yet.",
+      },
+      setad: {
+        title: "Human-assisted official SETAD search",
+        human_notice:
+          "Login, OTP, and CAPTCHA are completed only by the user in the browser; the product never solves, bypasses, or stores them.",
+      },
+      pipeline: {
+        title: "Tender Pipeline",
+        notice:
+          "Documents, technical review, pricing, participation decision, and result are recorded separately and never auto-create a Deal or Project.",
+        documents: "Documents",
+        technical_review: "Technical review",
+        pricing: "Pricing",
+        participation_decision: "Bid / No bid",
+        result: "Result",
+      },
+      saved_searches: {
+        title: "Saved Searches",
+        notice:
+          "These are examples only; saved profiles retain the user's full custom filter set.",
+        example: "Starter example",
+      },
+    },
     projects: {
       name: "Project |||| Projects",
       forcedCaseName: "Project",

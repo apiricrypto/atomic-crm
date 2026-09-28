@@ -33,6 +33,8 @@ const Header = () => {
     currentPath = "/deals";
   } else if (matchPath("/lead_inbox/*", location.pathname)) {
     currentPath = "/lead_inbox";
+  } else if (matchPath("/tenders/*", location.pathname)) {
+    currentPath = "/tenders";
   } else if (matchPath("/projects/*", location.pathname)) {
     currentPath = "/projects";
   } else if (matchPath("/tasks/*", location.pathname)) {
@@ -100,6 +102,15 @@ const Header = () => {
                       isActive={currentPath === "/lead_inbox"}
                     />
                   </CanAccess>
+                  <CanAccess resource="tender_opportunities" action="list">
+                    <NavigationTab
+                      label={translate(
+                        "resources.tender_intelligence.short_name",
+                      )}
+                      to="/tenders"
+                      isActive={currentPath === "/tenders"}
+                    />
+                  </CanAccess>
                   <NavigationTab
                     label={translate("resources.projects.name", {
                       smart_count: 2,
@@ -151,7 +162,7 @@ const NavigationTab = ({
 }) => (
   <Link
     to={to}
-    className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+    className={`px-3 py-3 text-sm font-medium transition-colors border-b-2 xl:px-6 ${
       isActive
         ? "text-secondary-foreground border-secondary-foreground"
         : "text-secondary-foreground/70 border-transparent hover:text-secondary-foreground/80"
