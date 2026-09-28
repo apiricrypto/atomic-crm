@@ -15,8 +15,10 @@ at `b2035e0f5ee8a521a095cd44cdc90a60f312533c`.
 - Live reconciliation confirmed PR #23 remained open, Draft, unmerged and
   mergeable before this package. `main` and `satno-development` remained at
   `dce557e`; upstream remained `d00fdf3` and the Persian reference remained
-  `85fc400`. No overlapping Staff/RBAC branch or PR existed. PR #24 is open,
-  Draft, clean and mergeable; its head has no workflow run or status context.
+  `85fc400`. No overlapping Staff/RBAC branch or PR existed. PR #24 is open and
+  Draft; GitHub compare reports two commits ahead and zero behind its exact base,
+  while REST mergeability is awaiting recomputation after the documentation
+  commit. Its head has no workflow run or status context.
 - Added seven explicit staff roles: administrator, manager, sales, project,
   finance, inventory and read-only viewer. The client matrix is deny-by-default,
   role selection and badges are localized, disabled accounts fail access checks,
