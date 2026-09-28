@@ -14,6 +14,7 @@ alter table public.lead_conversions enable row level security;
 alter table public.tender_opportunities enable row level security;
 alter table public.tender_pipeline_entries enable row level security;
 alter table public.tender_saved_searches enable row level security;
+alter table public.tender_setad_verifications enable row level security;
 alter table public.tender_audit_log enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_cost_items enable row level security;
@@ -155,6 +156,20 @@ create policy "Staff can read own saved tender searches" on public.tender_saved_
     using (
         owner_sales_id = public.current_sales_id()
         or public.current_staff_role() in ('admin', 'manager')
+    );
+
+create policy "Authorized staff can read SETAD verifications" on public.tender_setad_verifications
+    for select to authenticated
+    using (
+        public.current_staff_role() in ('admin', 'manager')
+        or (
+            public.current_staff_role() = 'sales'
+            and exists (
+                select 1
+                from public.tender_opportunities
+                where public.tender_opportunities.id = public.tender_setad_verifications.opportunity_id
+            )
+        )
     );
 
 create policy "Authorized staff can read tender audit events" on public.tender_audit_log

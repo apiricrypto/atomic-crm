@@ -86,6 +86,31 @@ The four product areas are:
 - No successful SETAD connection may be claimed until an authorized user has
   completed a disposable live-session acceptance run.
 
+### Official observation capture
+
+- The CRM search form is a manual checklist only. It does not inject filters
+  into SETAD, submit a request to SETAD, inspect the opened tab, or reuse an
+  authenticated browser session.
+- After the authorized user completes the official search, the guarded
+  `record_setad_verification(opportunity_id, verification)` RPC accepts only an
+  allow-listed scalar transcription. A type-correct Need No or Tender No, the
+  exact official portal URL, an official title, and an explicit result of
+  `setad_verified` or `data_conflict` are required.
+- Official observations are append-only in
+  `tender_setad_verifications`. A conflict changes only the opportunity routing
+  status; neither the quarantined Radar assertion nor the official observation
+  is overwritten.
+- A verified identifier is serialized and must not belong to another
+  opportunity. Repeating the same verified observation for the same
+  opportunity is idempotent.
+- Audit metadata records only the verification row ID, status transition, and
+  boolean change indicators. It does not copy titles, descriptions, geography,
+  identifiers, credentials, cookies, OTP, CAPTCHA, tokens, sessions, or raw
+  provider data.
+- The current UI and SQL tests use synthetic records. They do not prove an
+  authorized SETAD session, real official data, database transactionality, RLS,
+  or concurrent deduplication.
+
 ## Filters and starter profiles
 
 The UI contract covers domain (`renewable_energy` or `security_systems`),

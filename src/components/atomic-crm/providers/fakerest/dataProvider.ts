@@ -26,6 +26,8 @@ import type {
   TenderPipelineTransition,
   TenderSavedSearch,
   TenderSavedSearchInput,
+  TenderSetadVerification,
+  TenderSetadVerificationInput,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { getActivityLog } from "../commons/activity";
@@ -353,6 +355,14 @@ export const createDataProvider = ({
     deleteTenderSearch: async (_searchId: Identifier): Promise<Identifier> => {
       throw new Error(
         "Tender Saved Search deletion is disabled in FakeRest demo mode; no database write occurred",
+      );
+    },
+    recordSetadVerification: async (
+      _opportunityId: Identifier,
+      _verification: TenderSetadVerificationInput,
+    ): Promise<TenderSetadVerification> => {
+      throw new Error(
+        "SETAD verification writes are disabled in FakeRest demo mode; no database write occurred",
       );
     },
     mergeContacts: async (sourceId: Identifier, targetId: Identifier) => {

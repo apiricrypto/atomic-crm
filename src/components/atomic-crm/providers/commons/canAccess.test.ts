@@ -105,6 +105,12 @@ describe("staff access matrix", () => {
     ).toBe(true);
     expect(
       canAccess("sales", {
+        action: "create",
+        resource: "tender_setad_verifications",
+      }),
+    ).toBe(true);
+    expect(
+      canAccess("sales", {
         action: "edit",
         resource: "tender_pipeline_entries",
       }),

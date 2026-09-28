@@ -28,6 +28,7 @@ import type {
   TenderOpportunity,
   TenderPipelineEntry,
   TenderSavedSearch,
+  TenderSetadVerification,
 } from "@/components/atomic-crm/types";
 import { DataImportProvider } from "@/components/atomic-crm/dataImport/DataImportProvider";
 import { CRM } from "@/components/atomic-crm/root/CRM";
@@ -88,6 +89,7 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
     tender_opportunities: [],
     tender_pipeline_entries: [],
     tender_saved_searches: [],
+    tender_setad_verifications: [],
     ...overrides,
   }) as Db;
 
@@ -449,6 +451,29 @@ export const buildTenderSavedSearch = (
   statuses: ["pending_setad_verification"],
   trade: null,
   updated_at: "2026-09-28T09:00:00.000Z",
+  ...overrides,
+});
+
+export const buildTenderSetadVerification = (
+  overrides: Partial<TenderSetadVerification> = {},
+): TenderSetadVerification => ({
+  checked_at: "2026-09-28T10:00:00.000Z",
+  checked_by_sales_id: 0,
+  city: "اهواز",
+  description: "شرح رسمی ساختگی برای آزمون رابط",
+  document_deadline: "2026-10-02",
+  id: 91,
+  official_need_no: "SYNTHETIC-NEED-1001",
+  official_source_url: "https://eproc.setadiran.ir/eproc/entry.do",
+  official_tender_no: null,
+  opportunity_id: 51,
+  opportunity_type: "inquiry",
+  organizer: "سازمان نمونه خوزستان",
+  province: "خوزستان",
+  publish_date: "2026-09-28",
+  submission_deadline: "2026-10-05",
+  title: "استعلام رسمی ساختگی تجهیزات خورشیدی",
+  verification_status: "setad_verified",
   ...overrides,
 });
 

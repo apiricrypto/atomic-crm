@@ -22,6 +22,8 @@ import type {
   TenderPipelineTransition,
   TenderSavedSearch,
   TenderSavedSearchInput,
+  TenderSetadVerification,
+  TenderSetadVerificationInput,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { ATTACHMENTS_BUCKET } from "../commons/attachments";
@@ -323,6 +325,23 @@ const getDataProviderWithCustomMethods = () => {
       if (error)
         throw new Error(error.message || "Failed to delete Tender search");
       return data as Identifier;
+    },
+    async recordSetadVerification(
+      opportunityId: Identifier,
+      verification: TenderSetadVerificationInput,
+    ): Promise<TenderSetadVerification> {
+      const { data, error } = await (getSupabaseClient() as any).rpc(
+        "record_setad_verification",
+        {
+          p_opportunity_id: opportunityId,
+          p_verification: verification,
+        },
+      );
+      if (error)
+        throw new Error(error.message || "Failed to record SETAD verification");
+      const result = Array.isArray(data) ? data[0] : data;
+      if (!result) throw new Error("SETAD verification returned no result");
+      return result as TenderSetadVerification;
     },
     async isInitialized() {
       return getIsInitialized();

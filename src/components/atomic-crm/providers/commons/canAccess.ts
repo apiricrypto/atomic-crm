@@ -45,6 +45,7 @@ const TENDER_RESOURCES = new Set([
   "tender_opportunities",
   "tender_pipeline_entries",
   "tender_saved_searches",
+  "tender_setad_verifications",
   "tender_audit_log",
 ]);
 
@@ -104,6 +105,9 @@ export const canAccess = <
       resource === "tender_saved_searches" &&
       ["create", "edit", "delete"].includes(action)
     ) {
+      return true;
+    }
+    if (resource === "tender_setad_verifications" && action === "create") {
       return true;
     }
     return isRead(action);

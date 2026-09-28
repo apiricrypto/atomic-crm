@@ -327,6 +327,31 @@ export type TenderSavedSearchInput = Omit<
   "created_at" | "id" | "owner_sales_id" | "updated_at"
 >;
 
+export type TenderSetadVerificationInput = {
+  verification_status: Extract<
+    TenderVerificationStatus,
+    "data_conflict" | "setad_verified"
+  >;
+  official_need_no?: string | null;
+  official_tender_no?: string | null;
+  title: string;
+  description?: string | null;
+  organizer?: string | null;
+  province?: string | null;
+  city?: string | null;
+  publish_date?: string | null;
+  document_deadline?: string | null;
+  submission_deadline?: string | null;
+  official_source_url: string;
+};
+
+export type TenderSetadVerification = TenderSetadVerificationInput & {
+  opportunity_id: Identifier;
+  opportunity_type: TenderOpportunityType;
+  checked_by_sales_id: Identifier;
+  checked_at: string;
+} & Pick<RaRecord, "id">;
+
 /**
  * Allow-listed values reviewed by a person before the guarded Tender import
  * RPC is called. Quarantined provider payloads are deliberately excluded.

@@ -267,4 +267,63 @@ describe("TenderIntelligencePage", () => {
     expect(request).not.toHaveProperty("cookie");
     expect(request).not.toHaveProperty("session");
   });
+
+  it("records only a confirmed official SETAD observation after manual review", async () => {
+    const recordSetadVerification = vi.fn().mockResolvedValue({ id: 91 });
+    const screen = await render(
+      <StoryWrapper
+        data={{
+          tender_opportunities: [
+            buildTenderOpportunity({
+              official_need_no: null,
+              verification_status: "pending_setad_verification",
+            }),
+          ],
+        }}
+        dataProvider={{ recordSetadVerification }}
+        i18nProvider={i18nProvider}
+        initialEntries={["/tenders"]}
+      >
+        <div />
+      </StoryWrapper>,
+    );
+
+    await screen.getByRole("tab", { name: "جست‌وجوی تعاملی ستاد" }).click();
+    await expect
+      .element(screen.getByText(/فیلترهای زیر راهنمای ورود دستی/))
+      .toBeVisible();
+    await screen.getByRole("button", { name: "ثبت نتیجه بررسی رسمی" }).click();
+    await expect
+      .element(screen.getByRole("dialog", { name: "ثبت مشاهده رسمی ستاد" }))
+      .toBeVisible();
+    await screen
+      .getByLabelText("شماره نیاز رسمی (Need No) *")
+      .fill("OFFICIAL-NEED-9001");
+    await screen.getByRole("checkbox").click();
+    await screen.getByRole("button", { name: "ثبت مشاهده و ممیزی" }).click();
+
+    await expect.poll(() => recordSetadVerification.mock.calls.length).toBe(1);
+    expect(recordSetadVerification).toHaveBeenCalledWith(
+      51,
+      expect.objectContaining({
+        official_need_no: "OFFICIAL-NEED-9001",
+        official_source_url: "https://eproc.setadiran.ir/eproc/entry.do",
+        official_tender_no: null,
+        verification_status: "setad_verified",
+      }),
+    );
+    const request = recordSetadVerification.mock.calls[0][1];
+    for (const forbidden of [
+      "captcha",
+      "cookie",
+      "credential",
+      "otp",
+      "password",
+      "raw_payload",
+      "session",
+      "token",
+    ]) {
+      expect(request).not.toHaveProperty(forbidden);
+    }
+  });
 });

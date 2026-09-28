@@ -54,6 +54,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/tenderIntelligence/TenderSetadInteractive.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/tenderIntelligence/TenderSavedSearches.tsx",
           "type": "registry:component"
         },
