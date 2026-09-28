@@ -413,12 +413,15 @@ export const farsiCrmMessages = {
         first_name: "نام",
         last_name: "نام خانوادگی",
         email: "ایمیل",
+        phone: "شماره موبایل ورود",
         secondary_email: "ایمیل ثانویه",
         secondary_emails: "ایمیل‌های ثانویه",
         role: "نقش",
         administrator: "مدیر",
         disabled: "غیرفعال",
       },
+      phone_help:
+        "شماره به قالب بین‌المللی ذخیره می‌شود؛ تغییر آن فقط برای مدیر سامانه مجاز است.",
       roles: {
         admin: "مدیر سامانه",
         manager: "مدیر کسب‌وکار",
@@ -517,6 +520,21 @@ export const farsiCrmMessages = {
         "اگر کاربر ثبت‌نامی هستید، به زودی ایمیلی برای بازیابی رمز عبور دریافت خواهید کرد.",
       sign_in_failed: "ورود ناموفق بود.",
       sign_in_google_workspace: "ورود با گوگل ورک‌اسپیس",
+      phone_sign_in: "ورود با شماره موبایل",
+      phone_number: "شماره موبایل",
+      phone_send_code: "ارسال کد ورود",
+      phone_code: "کد تأیید",
+      phone_verify_code: "تأیید و ورود",
+      phone_change: "اصلاح شماره موبایل",
+      phone_code_sent:
+        "اگر این شماره برای کاربر فعال ثبت شده باشد، کد ورود ارسال شد.",
+      phone_invalid: "شماره موبایل معتبر وارد کنید.",
+      phone_code_invalid: "کد تأیید معتبر وارد کنید.",
+      phone_otp_failed: "ورود با شماره موبایل انجام نشد.",
+      phone_taken: "این شماره موبایل قبلاً برای کاربر دیگری ثبت شده است.",
+      phone_admin_only: "فقط مدیر سامانه می‌تواند شماره ورود را تغییر دهد.",
+      phone_clear_not_supported:
+        "شماره ورود را می‌توان جایگزین کرد؛ حذف آن به فرایند بازیابی مدیریتی نیاز دارد.",
       signup: {
         create_account: "ایجاد حساب کاربری",
         create_first_user: "ایجاد اولین حساب کاربری برای تکمیل راه‌اندازی.",

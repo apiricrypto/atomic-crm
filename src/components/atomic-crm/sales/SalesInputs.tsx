@@ -5,6 +5,10 @@ import { TextInput } from "@/components/admin/text-input";
 
 import { STAFF_ROLES, resolveStaffRole } from "../providers/commons/staffRoles";
 import type { Sale } from "../types";
+import { normalizePhoneNumber } from "../login/phoneOtp";
+
+const validatePhone = (value?: string) =>
+  !value || normalizePhoneNumber(value) ? undefined : "crm.auth.phone_invalid";
 
 export function SalesInputs() {
   const { identity } = useGetIdentity();
@@ -17,6 +21,12 @@ export function SalesInputs() {
         source="email"
         validate={[required(), email()]}
         helperText={false}
+      />
+      <TextInput
+        source="phone"
+        type="tel"
+        validate={validatePhone}
+        helperText="resources.sales.phone_help"
       />
       <SelectInput
         source="role"

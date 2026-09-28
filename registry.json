@@ -550,6 +550,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/login/phoneOtp.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/login/authConfig.ts",
           "type": "registry:component"
         },
@@ -563,6 +567,10 @@
         },
         {
           "path": "src/components/atomic-crm/login/SSOAuthButton.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/login/PhoneOtpLogin.tsx",
           "type": "registry:component"
         },
         {

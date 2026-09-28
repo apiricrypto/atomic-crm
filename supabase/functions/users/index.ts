@@ -9,6 +9,7 @@ import {
   MAX_SECONDARY_EMAILS,
   normalizeSecondaryEmails,
 } from "./secondaryEmails.ts";
+import { normalizePhoneNumber } from "./phoneNumbers.ts";
 import {
   isAdministrator,
   requireStaffRole,
@@ -37,10 +38,20 @@ async function updateSaleRole(user_id: string, role: StaffRole) {
   return sales.at(0);
 }
 
+async function updateSalePhone(user_id: string, phone: string | null) {
+  const { error } = await supabaseAdmin
+    .from("sales")
+    .update({ phone })
+    .eq("user_id", user_id);
+
+  if (error) throw error;
+}
+
 async function createSale(
   user_id: string,
   data: {
     email: string;
+    phone?: string | null;
     first_name: string;
     last_name: string;
     disabled: boolean;
@@ -99,6 +110,18 @@ async function findEmailUsedByAnotherSale(
   return undefined;
 }
 
+async function findPhoneUsedByAnotherSale(
+  phone: string,
+  excludeSalesId?: number,
+) {
+  let query = supabaseAdmin.from("sales").select("id").eq("phone", phone);
+  if (excludeSalesId !== undefined) query = query.neq("id", excludeSalesId);
+
+  const { data, error } = await query.limit(1);
+  if (error) throw error;
+  return Boolean(data?.length);
+}
+
 async function updateSaleSecondaryEmails(
   user_id: string,
   secondary_emails: string[],
@@ -131,6 +154,7 @@ async function updateSaleAvatar(user_id: string, avatar: string) {
 async function inviteUser(req: Request, currentUserSale: any) {
   const {
     email,
+    phone,
     password,
     first_name,
     last_name,
@@ -140,6 +164,19 @@ async function inviteUser(req: Request, currentUserSale: any) {
 
   if (!isAdministrator(currentUserSale)) {
     return createErrorResponse(401, "Not Authorized");
+  }
+
+  const normalizedPhone = phone ? normalizePhoneNumber(phone) : null;
+  if (phone && !normalizedPhone) {
+    return createErrorResponse(400, "Invalid phone number", {
+      code: "invalid_phone",
+    });
+  }
+
+  if (normalizedPhone && (await findPhoneUsedByAnotherSale(normalizedPhone))) {
+    return createErrorResponse(409, "Phone number already used", {
+      code: "phone_taken",
+    });
   }
 
   let role: StaffRole;
@@ -164,6 +201,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
 
   const { data, error: userError } = await supabaseAdmin.auth.admin.createUser({
     email,
+    ...(normalizedPhone ? { phone: normalizedPhone, phone_confirm: true } : {}),
     password,
     user_metadata: { first_name, last_name },
   });
@@ -185,6 +223,18 @@ async function inviteUser(req: Request, currentUserSale: any) {
     }
 
     user = data[0];
+    if (normalizedPhone) {
+      const { error: phoneError } =
+        await supabaseAdmin.auth.admin.updateUserById(user.id, {
+          phone: normalizedPhone,
+          phone_confirm: true,
+        });
+      if (phoneError) {
+        return createErrorResponse(409, "Unable to assign phone number", {
+          code: "phone_taken",
+        });
+      }
+    }
     try {
       const { data: existingSale, error: salesError } = await supabaseAdmin
         .from("sales")
@@ -204,6 +254,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
 
       const sale = await createSale(user.id, {
         email,
+        phone: normalizedPhone,
         first_name,
         last_name,
         disabled,
@@ -248,6 +299,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
   }
 
   try {
+    await updateSalePhone(user.id, normalizedPhone);
     await updateSaleDisabled(user.id, disabled);
     const sale = await updateSaleRole(user.id, role);
 
@@ -269,6 +321,7 @@ async function patchUser(req: Request, currentUserSale: any) {
   const {
     sales_id,
     email,
+    phone,
     secondary_emails,
     first_name,
     last_name,
@@ -284,6 +337,43 @@ async function patchUser(req: Request, currentUserSale: any) {
 
   if (!sale) {
     return createErrorResponse(404, "Not Found");
+  }
+
+  let normalizedPhone: string | null | undefined;
+  if (phone !== undefined) {
+    if (!isAdministrator(currentUserSale)) {
+      return createErrorResponse(
+        401,
+        "Only administrators can change phone numbers",
+        {
+          code: "phone_admin_only",
+        },
+      );
+    }
+
+    normalizedPhone = phone ? normalizePhoneNumber(phone) : null;
+    if (!phone && sale.phone) {
+      return createErrorResponse(
+        400,
+        "Replacing a phone is supported, but clearing it requires an administrator recovery workflow",
+        { code: "phone_clear_not_supported" },
+      );
+    }
+    if (phone && !normalizedPhone) {
+      return createErrorResponse(400, "Invalid phone number", {
+        code: "invalid_phone",
+      });
+    }
+
+    if (
+      normalizedPhone &&
+      normalizedPhone !== sale.phone &&
+      (await findPhoneUsedByAnotherSale(normalizedPhone, sales_id))
+    ) {
+      return createErrorResponse(409, "Phone number already used", {
+        code: "phone_taken",
+      });
+    }
   }
 
   if (
@@ -375,6 +465,11 @@ async function patchUser(req: Request, currentUserSale: any) {
   const { data, error: userError } =
     await supabaseAdmin.auth.admin.updateUserById(sale.user_id, {
       email,
+      ...(normalizedPhone !== undefined
+        ? normalizedPhone
+          ? { phone: normalizedPhone, phone_confirm: true }
+          : {}
+        : {}),
       ban_duration: disabled ? "87600h" : "none",
       user_metadata: { first_name, last_name },
     });
@@ -391,6 +486,9 @@ async function patchUser(req: Request, currentUserSale: any) {
 
     if (normalizedSecondaryEmails) {
       await updateSaleSecondaryEmails(data.user.id, normalizedSecondaryEmails);
+    }
+    if (normalizedPhone !== undefined) {
+      await updateSalePhone(data.user.id, normalizedPhone);
     }
   } catch (e) {
     console.error("Error patching sale:", e);

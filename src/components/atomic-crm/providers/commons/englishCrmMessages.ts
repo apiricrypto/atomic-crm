@@ -410,12 +410,15 @@ export const englishCrmMessages = {
         first_name: "First name",
         last_name: "Last name",
         email: "Email",
+        phone: "Sign-in mobile number",
         secondary_email: "Secondary email",
         secondary_emails: "Secondary emails",
         role: "Role",
         administrator: "Admin",
         disabled: "Disabled",
       },
+      phone_help:
+        "Stored in international format; only an administrator may change it.",
       roles: {
         admin: "Administrator",
         manager: "Manager",
@@ -513,6 +516,22 @@ export const englishCrmMessages = {
         "If you're a registered user, you should receive a password recovery email shortly.",
       sign_in_failed: "Failed to log in.",
       sign_in_google_workspace: "Sign in with Google Workplace",
+      phone_sign_in: "Sign in with mobile number",
+      phone_number: "Mobile number",
+      phone_send_code: "Send sign-in code",
+      phone_code: "Verification code",
+      phone_verify_code: "Verify and sign in",
+      phone_change: "Change mobile number",
+      phone_code_sent:
+        "If this number belongs to an active user, a sign-in code was sent.",
+      phone_invalid: "Enter a valid mobile number.",
+      phone_code_invalid: "Enter a valid verification code.",
+      phone_otp_failed: "Phone sign-in could not be completed.",
+      phone_taken: "This mobile number is already assigned to another user.",
+      phone_admin_only:
+        "Only an administrator may change a sign-in mobile number.",
+      phone_clear_not_supported:
+        "A sign-in number may be replaced; removing it requires administrator recovery.",
       signup: {
         create_account: "Create account",
         create_first_user:
