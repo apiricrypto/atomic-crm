@@ -110,6 +110,18 @@ grant all on table public.financial_transactions to anon;
 grant all on table public.financial_transactions to authenticated;
 grant all on table public.financial_transactions to service_role;
 
+grant all on table public.inventory_locations to anon;
+grant all on table public.inventory_locations to authenticated;
+grant all on table public.inventory_locations to service_role;
+
+grant all on table public.inventory_items to anon;
+grant all on table public.inventory_items to authenticated;
+grant all on table public.inventory_items to service_role;
+
+grant all on table public.inventory_movements to anon;
+grant all on table public.inventory_movements to authenticated;
+grant all on table public.inventory_movements to service_role;
+
 grant all on table public.sales to anon;
 grant all on table public.sales to authenticated;
 grant all on table public.sales to service_role;
@@ -195,6 +207,18 @@ grant all on sequence public.financial_payables_id_seq to service_role;
 grant all on sequence public.financial_transactions_id_seq to anon;
 grant all on sequence public.financial_transactions_id_seq to authenticated;
 grant all on sequence public.financial_transactions_id_seq to service_role;
+
+grant all on sequence public.inventory_locations_id_seq to anon;
+grant all on sequence public.inventory_locations_id_seq to authenticated;
+grant all on sequence public.inventory_locations_id_seq to service_role;
+
+grant all on sequence public.inventory_items_id_seq to anon;
+grant all on sequence public.inventory_items_id_seq to authenticated;
+grant all on sequence public.inventory_items_id_seq to service_role;
+
+grant all on sequence public.inventory_movements_id_seq to anon;
+grant all on sequence public.inventory_movements_id_seq to authenticated;
+grant all on sequence public.inventory_movements_id_seq to service_role;
 
 grant all on sequence public.sales_id_seq to anon;
 grant all on sequence public.sales_id_seq to authenticated;

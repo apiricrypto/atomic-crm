@@ -14,6 +14,9 @@ import type {
   FinancialPayable,
   FinancialReceivable,
   FinancialTransaction,
+  InventoryItem,
+  InventoryLocation,
+  InventoryMovement,
   Project,
   ProjectCostItem,
   ProcurementCommitment,
@@ -61,6 +64,9 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
     financial_payables: [],
     financial_receivables: [],
     financial_transactions: [],
+    inventory_items: [],
+    inventory_locations: [],
+    inventory_movements: [],
     projects: [],
     project_cost_items: [],
     procurement_commitments: [],
@@ -246,6 +252,50 @@ export const buildFinancialTransaction = (
   receivable_id: 1,
   reference: "SATNO-RCPT-0001",
   sales_id: 0,
+  ...overrides,
+});
+
+export const buildInventoryLocation = (
+  overrides: Partial<InventoryLocation> = {},
+): InventoryLocation => ({
+  active: true,
+  code: "AHV-MAIN",
+  created_at: "2025-01-01T09:00:00.000Z",
+  id: 1,
+  name: "انبار مرکزی اهواز",
+  updated_at: "2025-01-01T09:00:00.000Z",
+  ...overrides,
+});
+
+export const buildInventoryItem = (
+  overrides: Partial<InventoryItem> = {},
+): InventoryItem => ({
+  active: true,
+  created_at: "2025-01-01T09:00:00.000Z",
+  id: 1,
+  name: "پنل خورشیدی ترینا ۷۱۵ وات",
+  reorder_level: 50,
+  sku: "PV-TRINA-715",
+  unit: "piece",
+  updated_at: "2025-01-01T09:00:00.000Z",
+  ...overrides,
+});
+
+export const buildInventoryMovement = (
+  overrides: Partial<InventoryMovement> = {},
+): InventoryMovement => ({
+  created_at: "2025-01-15T09:00:00.000Z",
+  id: 1,
+  item_id: 1,
+  location_id: 1,
+  notes: null,
+  occurred_at: "2025-01-15T09:00:00.000Z",
+  procurement_commitment_id: null,
+  project_id: null,
+  quantity: 100,
+  reference: "SATNO-GR-0001",
+  sales_id: 0,
+  type: "receipt",
   ...overrides,
 });
 

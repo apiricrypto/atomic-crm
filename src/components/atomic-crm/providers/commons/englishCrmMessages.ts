@@ -292,6 +292,42 @@ export const englishCrmMessages = {
         outflow: "Outflow",
       },
     },
+    inventory: {
+      name: "Inventory",
+      subtitle: "Stock items and explicit warehouse movements",
+      empty: "No inventory item has been defined yet.",
+      accounting_notice:
+        "Procurement receiving never changes stock automatically. Stock changes only through an explicit receipt, issue, or adjustment; quantities are not financial costs or payments.",
+      recent_movements: "Recent movements",
+      fields: {
+        on_hand: "On hand",
+        reorder_level: "Reorder level",
+      },
+      summary: {
+        active_items: "Active items",
+        low_stock: "At or below reorder level",
+        negative_stock: "Negative stock",
+      },
+      status: {
+        available: "Available",
+        low: "Low stock",
+        negative: "Negative stock",
+      },
+      movement: {
+        receipt: "Receipt",
+        issue: "Issue",
+        adjustment_in: "Positive adjustment",
+        adjustment_out: "Negative adjustment",
+      },
+      unit: {
+        piece: "pcs",
+        meter: "m",
+        kilogram: "kg",
+        liter: "L",
+        set: "sets",
+        other: "units",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",

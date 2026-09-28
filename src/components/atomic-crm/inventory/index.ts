@@ -1,0 +1,1 @@
+export { InventoryDashboard } from "./InventoryDashboard";

@@ -292,6 +292,42 @@ export const farsiCrmMessages = {
         outflow: "پرداخت",
       },
     },
+    inventory: {
+      name: "مدیریت انبار",
+      subtitle: "اقلام موجودی و گردش‌های صریح انبار",
+      empty: "هنوز کالایی در انبار تعریف نشده است.",
+      accounting_notice:
+        "تحویل تدارکات هرگز موجودی را خودکار تغییر نمی‌دهد. موجودی فقط با رسید، حواله یا اصلاح صریح تغییر می‌کند و مقدار کالا هزینه یا پرداخت مالی نیست.",
+      recent_movements: "گردش‌های اخیر",
+      fields: {
+        on_hand: "موجودی فعلی",
+        reorder_level: "نقطه سفارش",
+      },
+      summary: {
+        active_items: "اقلام فعال",
+        low_stock: "در نقطه سفارش یا کمتر",
+        negative_stock: "موجودی منفی",
+      },
+      status: {
+        available: "موجود",
+        low: "کمبود موجودی",
+        negative: "موجودی منفی",
+      },
+      movement: {
+        receipt: "رسید انبار",
+        issue: "حواله انبار",
+        adjustment_in: "اصلاح افزایشی",
+        adjustment_out: "اصلاح کاهشی",
+      },
+      unit: {
+        piece: "عدد",
+        meter: "متر",
+        kilogram: "کیلوگرم",
+        liter: "لیتر",
+        set: "دستگاه",
+        other: "واحد",
+      },
+    },
     notes: {
       name: "یادداشت |||| یادداشتها",
       forcedCaseName: "یادداشت",

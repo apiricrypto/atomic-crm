@@ -298,6 +298,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/inventory.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/index.ts",
           "type": "registry:component"
         },
@@ -607,6 +611,18 @@
         },
         {
           "path": "src/components/atomic-crm/layout/FormToolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/inventory/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/inventory/balances.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/inventory/InventoryDashboard.tsx",
           "type": "registry:component"
         },
         {

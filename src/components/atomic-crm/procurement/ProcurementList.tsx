@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/formatMoney";
-import { WalletCards } from "lucide-react";
+import { Boxes, WalletCards } from "lucide-react";
 import { Link } from "react-router";
 
 import { getMoneyLocale } from "../root/useFormatMoney";
@@ -61,12 +61,20 @@ const ProcurementGrid = () => {
             {translate("resources.procurement_commitments.subtitle")}
           </p>
         </div>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/finance">
-            <WalletCards className="size-4" />
-            {translate("resources.finance.name")}
-          </Link>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link to="/inventory">
+              <Boxes className="size-4" />
+              {translate("resources.inventory.name")}
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/finance">
+              <WalletCards className="size-4" />
+              {translate("resources.finance.name")}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {!!data?.length && (
