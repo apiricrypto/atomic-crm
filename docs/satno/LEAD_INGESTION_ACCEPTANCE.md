@@ -34,7 +34,9 @@ fields are:
 - `source_record_id`: stable ID from the connector/provider;
 - `title`;
 - `captured_at`: provider observation time;
-- `raw_payload`: untouched provider object retained only in quarantine.
+- `raw_payload`: versioned connector envelope retained only in quarantine. For
+  Tender Radar, the untouched provider material is nested in `source_snapshot`
+  under contract `satno.tender-radar.lead.v1`.
 
 Optional normalized fields include source URL, organization/contact details,
 location, description, paired non-negative estimated amount and ISO currency,
@@ -46,6 +48,12 @@ The body is limited to 128 KiB and `raw_payload` to 64 KiB. Source links must us
 HTTP(S), dates are validated, future capture timestamps are rejected beyond a
 small clock-skew allowance, and connector estimates never become Deal values
 without human review.
+
+Tender Radar additionally requires the versioned contract documented in
+`TENDER_RADAR_SENDER_CONTRACT.md`. A/B/C grade and score are quarantined source
+assertions. Only A/B can later enter human review. Credential, authorization,
+password, cookie, CAPTCHA, OTP, and token keys are rejected recursively from all
+connector raw payloads.
 
 ## Idempotency and quarantine
 

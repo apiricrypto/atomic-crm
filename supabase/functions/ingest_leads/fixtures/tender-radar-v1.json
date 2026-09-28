@@ -1,0 +1,125 @@
+{
+  "fixture_version": "satno.tender-radar.conformance.v1",
+  "cases": [
+    {
+      "name": "grade-a-renewable-inquiry",
+      "request": {
+        "source_record_id": "RADAR-SYNTHETIC-A-1001",
+        "source_url": "https://radar.example.test/opportunities/A-1001",
+        "title": "استعلام ساختگی سامانه خورشیدی",
+        "organization_name": "سازمان نمونه خوزستان",
+        "province": "خوزستان",
+        "city": "اهواز",
+        "description": "رکورد مصنوعی برای آزمون قرارداد؛ فاقد داده واقعی است.",
+        "deadline": "2026-10-15",
+        "priority": "high",
+        "captured_at": "2026-09-28T09:00:00Z",
+        "raw_payload": {
+          "contract_version": "satno.tender-radar.lead.v1",
+          "scoring_version": "synthetic-rules-v1",
+          "opportunity_type": "inquiry",
+          "domain": "renewable_energy",
+          "radar_grade": "A",
+          "radar_score": 91,
+          "official_need_no_candidate": "SYNTHETIC-NEED-1001",
+          "official_tender_no_candidate": null,
+          "official_source_url_candidate": "https://eproc.setadiran.ir/eproc/entry.do",
+          "publish_date_candidate": "2026-09-27",
+          "document_deadline_candidate": "2026-10-10",
+          "submission_deadline_candidate": "2026-10-15",
+          "organizer_candidate": "سازمان نمونه خوزستان",
+          "fallback_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source_snapshot": {
+            "synthetic": true,
+            "source_label": "fixture-only"
+          }
+        }
+      },
+      "review_expectation": {
+        "eligible": true,
+        "verification_status": "pending_setad_verification",
+        "dedup_basis": "official_need_no_candidate"
+      }
+    },
+    {
+      "name": "grade-b-security-tender",
+      "request": {
+        "source_record_id": "RADAR-SYNTHETIC-B-2001",
+        "source_url": "https://radar.example.test/opportunities/B-2001",
+        "title": "مناقصه ساختگی سامانه نظارت تصویری",
+        "organization_name": "دستگاه نمونه ایلام",
+        "province": "ایلام",
+        "city": "ایلام",
+        "description": "رکورد مصنوعی برای آزمون قرارداد؛ فاقد داده واقعی است.",
+        "deadline": "2026-10-20",
+        "priority": "normal",
+        "captured_at": "2026-09-28T09:05:00Z",
+        "raw_payload": {
+          "contract_version": "satno.tender-radar.lead.v1",
+          "scoring_version": "synthetic-rules-v1",
+          "opportunity_type": "tender",
+          "domain": "security_systems",
+          "radar_grade": "B",
+          "radar_score": 74,
+          "official_need_no_candidate": null,
+          "official_tender_no_candidate": "SYNTHETIC-TENDER-2001",
+          "official_source_url_candidate": "https://etend.setadiran.ir/etend/index.action",
+          "publish_date_candidate": "2026-09-26",
+          "document_deadline_candidate": "2026-10-12",
+          "submission_deadline_candidate": "2026-10-20",
+          "organizer_candidate": "دستگاه نمونه ایلام",
+          "fallback_fingerprint": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_snapshot": {
+            "synthetic": true,
+            "source_label": "fixture-only"
+          }
+        }
+      },
+      "review_expectation": {
+        "eligible": true,
+        "verification_status": "pending_setad_verification",
+        "dedup_basis": "official_tender_no_candidate"
+      }
+    },
+    {
+      "name": "grade-c-remains-quarantined",
+      "request": {
+        "source_record_id": "RADAR-SYNTHETIC-C-3001",
+        "source_url": "https://radar.example.test/opportunities/C-3001",
+        "title": "فرصت ساختگی کم‌امتیاز",
+        "organization_name": "مرجع نمونه",
+        "province": "لرستان",
+        "city": "خرم‌آباد",
+        "description": "این رکورد فقط باید در قرنطینه باقی بماند.",
+        "deadline": "2026-10-25",
+        "priority": "low",
+        "captured_at": "2026-09-28T09:10:00Z",
+        "raw_payload": {
+          "contract_version": "satno.tender-radar.lead.v1",
+          "scoring_version": "synthetic-rules-v1",
+          "opportunity_type": "inquiry",
+          "domain": "renewable_energy",
+          "radar_grade": "C",
+          "radar_score": 38,
+          "official_need_no_candidate": null,
+          "official_tender_no_candidate": null,
+          "official_source_url_candidate": null,
+          "publish_date_candidate": "2026-09-25",
+          "document_deadline_candidate": null,
+          "submission_deadline_candidate": "2026-10-25",
+          "organizer_candidate": "مرجع نمونه",
+          "fallback_fingerprint": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "source_snapshot": {
+            "synthetic": true,
+            "source_label": "fixture-only"
+          }
+        }
+      },
+      "review_expectation": {
+        "eligible": false,
+        "verification_status": "pending_setad_verification",
+        "dedup_basis": "fallback_fingerprint"
+      }
+    }
+  ]
+}
