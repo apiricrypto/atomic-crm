@@ -32,6 +32,24 @@ service-role key and has no fixture-creation or cleanup privilege. It emits
 only case names and redacted pass/fail classifications: response bodies,
 database IDs, manifest values, URLs, keys, and JWTs are never printed.
 
+### Read-only environment diagnosis
+
+Before creating fixtures or running migrations, inspect the local disposable
+runtime without accepting any URL, key, JWT, cookie, OTP, CAPTCHA, or session:
+
+```sh
+npm run check:tender-disposable:satno
+```
+
+The check only invokes `docker version`, `docker image inspect`, and
+`npx --no-install supabase --version`. It never pulls an image, starts a
+container, installs a CLI, contacts a remote host, or prints raw command output.
+It reports stable codes for missing Docker/CLI, non-Linux Docker Desktop mode,
+and a mismatch between the Docker Engine architecture and the already-present
+Supabase Postgres `15.8.1.085` image. A ready result proves only those local
+prerequisites; it does not prove that Supabase starts or that any database test
+passes.
+
 ## Disposable fixture prerequisites
 
 After generating and reviewing a migration/diff from the declarative schema,
