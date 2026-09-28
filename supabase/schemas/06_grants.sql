@@ -107,6 +107,22 @@ revoke all on table public.lead_conversions from public, anon, authenticated;
 grant select on table public.lead_conversions to authenticated;
 grant all on table public.lead_conversions to service_role;
 
+revoke all on table public.tender_opportunities from public, anon, authenticated;
+grant select on table public.tender_opportunities to authenticated;
+grant all on table public.tender_opportunities to service_role;
+
+revoke all on table public.tender_pipeline_entries from public, anon, authenticated;
+grant select on table public.tender_pipeline_entries to authenticated;
+grant all on table public.tender_pipeline_entries to service_role;
+
+revoke all on table public.tender_saved_searches from public, anon, authenticated;
+grant select on table public.tender_saved_searches to authenticated;
+grant all on table public.tender_saved_searches to service_role;
+
+revoke all on table public.tender_audit_log from public, anon, authenticated;
+grant select on table public.tender_audit_log to authenticated;
+grant all on table public.tender_audit_log to service_role;
+
 grant all on table public.projects to anon;
 grant all on table public.projects to authenticated;
 grant all on table public.projects to service_role;
@@ -208,6 +224,14 @@ grant all on sequence public.deals_id_seq to service_role;
 revoke all on sequence public.lead_inbox_id_seq from public, anon, authenticated;
 revoke all on sequence public.lead_conversions_id_seq from public, anon, authenticated;
 grant all on sequence public.lead_inbox_id_seq to service_role;
+revoke all on sequence public.tender_opportunities_id_seq from public, anon, authenticated;
+grant all on sequence public.tender_opportunities_id_seq to service_role;
+revoke all on sequence public.tender_pipeline_entries_id_seq from public, anon, authenticated;
+grant all on sequence public.tender_pipeline_entries_id_seq to service_role;
+revoke all on sequence public.tender_saved_searches_id_seq from public, anon, authenticated;
+grant all on sequence public.tender_saved_searches_id_seq to service_role;
+revoke all on sequence public.tender_audit_log_id_seq from public, anon, authenticated;
+grant all on sequence public.tender_audit_log_id_seq to service_role;
 grant all on sequence public.lead_conversions_id_seq to service_role;
 
 grant all on sequence public.favicons_excluded_domains_id_seq to anon;

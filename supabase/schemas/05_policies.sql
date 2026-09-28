@@ -11,6 +11,10 @@ alter table public.deals enable row level security;
 alter table public.deal_notes enable row level security;
 alter table public.lead_inbox enable row level security;
 alter table public.lead_conversions enable row level security;
+alter table public.tender_opportunities enable row level security;
+alter table public.tender_pipeline_entries enable row level security;
+alter table public.tender_saved_searches enable row level security;
+alter table public.tender_audit_log enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_cost_items enable row level security;
 alter table public.procurement_commitments enable row level security;
@@ -112,6 +116,58 @@ create policy "Authorized staff can read visible lead conversions" on public.lea
             select 1
             from public.lead_inbox
             where public.lead_inbox.id = public.lead_conversions.lead_id
+        )
+    );
+
+-- Tender records remain separate from core CRM. Managers can read all records;
+-- sales staff can read unassigned work or work explicitly assigned to them.
+-- Creation/import and audit writes stay server-side until guarded functions are
+-- implemented and accepted against a real database.
+create policy "Authorized staff can read visible tender opportunities" on public.tender_opportunities
+    for select to authenticated
+    using (
+        public.current_staff_role() in ('admin', 'manager')
+        or (
+            public.current_staff_role() = 'sales'
+            and (
+                assigned_sales_id is null
+                or assigned_sales_id = public.current_sales_id()
+            )
+        )
+    );
+
+create policy "Authorized staff can read visible tender pipeline" on public.tender_pipeline_entries
+    for select to authenticated
+    using (
+        public.current_staff_role() in ('admin', 'manager')
+        or (
+            public.current_staff_role() = 'sales'
+            and exists (
+                select 1
+                from public.tender_opportunities
+                where public.tender_opportunities.id = public.tender_pipeline_entries.opportunity_id
+            )
+        )
+    );
+
+create policy "Staff can read own saved tender searches" on public.tender_saved_searches
+    for select to authenticated
+    using (
+        owner_sales_id = public.current_sales_id()
+        or public.current_staff_role() in ('admin', 'manager')
+    );
+
+create policy "Authorized staff can read tender audit events" on public.tender_audit_log
+    for select to authenticated
+    using (
+        public.current_staff_role() in ('admin', 'manager')
+        or (
+            public.current_staff_role() = 'sales'
+            and exists (
+                select 1
+                from public.tender_opportunities
+                where public.tender_opportunities.id = public.tender_audit_log.opportunity_id
+            )
         )
     );
 

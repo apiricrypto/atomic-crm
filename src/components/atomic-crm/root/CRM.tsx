@@ -67,6 +67,7 @@ import { FinanceDashboard } from "../finance";
 import { InventoryDashboard } from "../inventory";
 import dailyWorkReports from "../dailyWorkReports";
 import leadInbox from "../leadInbox";
+import { TenderIntelligencePage } from "../tenderIntelligence";
 
 const defaultStore = localStorageStore(undefined, "CRM");
 
@@ -285,6 +286,14 @@ const DesktopAdmin = (
             </CanAccess>
           }
         />
+        <Route
+          path="/tenders"
+          element={
+            <CanAccess resource="tender_opportunities" action="list">
+              <TenderIntelligencePage />
+            </CanAccess>
+          }
+        />
       </CustomRoutes>
       <Resource name="deals" {...deals} />
       <Resource name="lead_inbox" {...leadInbox} />
@@ -374,6 +383,14 @@ const MobileAdmin = (
             element={
               <CanAccess resource="inventory_movements" action="list">
                 <InventoryDashboard />
+              </CanAccess>
+            }
+          />
+          <Route
+            path="/tenders"
+            element={
+              <CanAccess resource="tender_opportunities" action="list">
+                <TenderIntelligencePage />
               </CanAccess>
             }
           />

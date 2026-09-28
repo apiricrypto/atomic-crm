@@ -8,7 +8,8 @@ import {
   useRefresh,
   useTranslate,
 } from "ra-core";
-import { ExternalLink, ShieldCheck } from "lucide-react";
+import { ExternalLink, Radar, ShieldCheck } from "lucide-react";
+import { Link } from "react-router";
 
 import { List } from "@/components/admin/list";
 import { ListPagination } from "@/components/admin/list-pagination";
@@ -104,6 +105,14 @@ const LeadInboxGrid = () => {
             label={translate("resources.lead_inbox.summary.converted")}
             value={convertedCount}
           />
+          <CanAccess resource="tender_opportunities" action="list">
+            <Button asChild size="sm" variant="outline">
+              <Link to="/tenders">
+                <Radar className="size-4" />
+                {translate("resources.tender_intelligence.short_name")}
+              </Link>
+            </Button>
+          </CanAccess>
         </div>
       </div>
 

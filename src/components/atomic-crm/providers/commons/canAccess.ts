@@ -41,6 +41,13 @@ const INVENTORY_RESOURCES = new Set([
 
 const LEAD_RESOURCES = new Set(["lead_inbox", "lead_conversions"]);
 
+const TENDER_RESOURCES = new Set([
+  "tender_opportunities",
+  "tender_pipeline_entries",
+  "tender_saved_searches",
+  "tender_audit_log",
+]);
+
 const BUSINESS_RESOURCES = new Set([
   ...CORE_RESOURCES,
   ...PROJECT_RESOURCES,
@@ -83,6 +90,11 @@ export const canAccess = <
     if (role !== "manager" && role !== "sales") return false;
     if (resource === "lead_conversions") return isRead(action);
     return isRead(action) || action === "edit";
+  }
+
+  if (TENDER_RESOURCES.has(resource)) {
+    if (role !== "manager" && role !== "sales") return false;
+    return isRead(action);
   }
 
   if (!BUSINESS_RESOURCES.has(resource)) {
