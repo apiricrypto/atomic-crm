@@ -51,6 +51,9 @@ describe("lead inbox SQL contract", () => {
     expect(functionBody).toMatch(/FOR UPDATE/);
     expect(functionBody).toMatch(/v_lead\.status <> 'qualified'/);
     expect(functionBody).toMatch(/INSERT INTO public\.lead_conversions/);
+    expect(functionBody).toMatch(
+      /public\.tender_opportunities[\s\S]+Tender leads must progress through Tender Pipeline/,
+    );
     expect(functionBody).toMatch(/'opportunity'/);
     expect(functionBody).not.toMatch(/raw_payload/);
     expect(functionBody).not.toMatch(/estimated_amount/);

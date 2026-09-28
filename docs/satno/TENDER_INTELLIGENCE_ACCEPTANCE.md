@@ -96,3 +96,33 @@ prove:
 The SQL in `supabase/schemas` is declarative design input, not an applied
 migration.
 
+## Guarded Radar import function
+
+`import_tender_opportunity(lead_id, review)` is the sole declared write path
+from a reviewed Radar Inbox row into the Tender workspace. It is a
+security-definer database function with an empty search path and these
+invariants:
+
+- the caller must be active `admin`, `manager`, or `sales` staff and must be
+  allowed to see the assigned lead;
+- the locked source row must be a qualified `tender_radar` lead;
+- only A/B rows with a paired score are accepted; C remains quarantined;
+- review JSON is allow-listed, so raw payload, credentials, cookies, OTP,
+  CAPTCHA, tokens, and arbitrary provider fields cannot cross the boundary;
+- official Need No/Tender No is checked first, source plus Radar record ID
+  second, and the reviewed fallback fingerprint third;
+- advisory transaction locks serialize every available identity dimension;
+- a retry for the same Lead ID returns the original opportunity without
+  changing reviewed data, while a collision from a different lead raises a
+  conflict for human resolution;
+- opportunity, initial pipeline row, and append-only audit event are created in
+  one transaction; no Company, Contact, Deal, Project, finance, or inventory
+  row is created;
+- after import, the quarantined source lead is rejected by the generic
+  Lead-to-Deal conversion RPC; any later core CRM transition must originate
+  from an explicit, separately reviewed Tender Pipeline action.
+
+This function is still declarative and unexecuted. A disposable real Supabase
+test must prove transactionality, role/assignment denial, concurrent dedup,
+rollback, grants, RLS visibility, and audit immutability before migration or
+activation.

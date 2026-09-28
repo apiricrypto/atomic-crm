@@ -490,6 +490,29 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION "private"."prevent_tender_provenance_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$
+BEGIN
+  IF OLD.lead_id IS DISTINCT FROM NEW.lead_id
+     OR OLD.source IS DISTINCT FROM NEW.source
+     OR OLD.aggregator_record_id IS DISTINCT FROM NEW.aggregator_record_id THEN
+    RAISE EXCEPTION 'Tender ingestion provenance is immutable';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION "private"."prevent_tender_audit_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$
+BEGIN
+  RAISE EXCEPTION 'Tender audit events are append-only';
+END;
+$$;
+
 -- The only authenticated path from a raw lead into core CRM records. The
 -- function locks the lead, validates ownership and qualification, creates all
 -- target records, writes provenance, and marks the lead converted in one
@@ -556,6 +579,13 @@ BEGIN
     WHERE existing_conversion.lead_id = p_lead_id
   ) THEN
     RAISE EXCEPTION 'Lead has already been converted';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM public.tender_opportunities AS tender_opportunity
+    WHERE tender_opportunity.lead_id = p_lead_id
+  ) THEN
+    RAISE EXCEPTION 'Tender leads must progress through Tender Pipeline';
   END IF;
   IF length(btrim(coalesce(p_company_name, ''))) = 0 THEN
     RAISE EXCEPTION 'company_name is required';
@@ -666,5 +696,338 @@ BEGIN
     v_contact_id,
     v_deal_id,
     v_conversion_id;
+END;
+$$;
+
+-- Guarded, atomic boundary from a reviewed Tender Radar lead into the tender
+-- workspace. The JSON argument is deliberately treated as an allow-listed
+-- review form: provider raw_payload and any credential/session material are
+-- never read or copied. Deduplication is serialized by advisory locks and is
+-- checked in official identifier, source identifier, then fingerprint order.
+CREATE OR REPLACE FUNCTION "public"."import_tender_opportunity"(
+    "p_lead_id" bigint,
+    "p_review" jsonb
+) RETURNS TABLE (
+    "opportunity_id" bigint,
+    "pipeline_entry_id" bigint,
+    "lead_id" bigint,
+    "duplicate" boolean,
+    "dedup_basis" text
+)
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+DECLARE
+  v_actor_id bigint;
+  v_actor_role text;
+  v_lead public.lead_inbox%ROWTYPE;
+  v_existing public.tender_opportunities%ROWTYPE;
+  v_opportunity_id bigint;
+  v_pipeline_entry_id bigint;
+  v_dedup_basis text;
+  v_opportunity_type text;
+  v_domain text;
+  v_title text;
+  v_description text;
+  v_organizer text;
+  v_province text;
+  v_city text;
+  v_trade text;
+  v_category text;
+  v_official_need_no text;
+  v_official_tender_no text;
+  v_official_source_url text;
+  v_verification_status text;
+  v_fallback_fingerprint text;
+  v_radar_grade text;
+  v_radar_score smallint;
+  v_publish_date date;
+  v_document_deadline date;
+  v_submission_deadline date;
+  v_assigned_sales_id bigint;
+  v_allowed_keys constant text[] := ARRAY[
+    'opportunity_type', 'domain', 'title', 'description', 'organizer',
+    'province', 'city', 'publish_date', 'document_deadline',
+    'submission_deadline', 'official_need_no', 'official_tender_no',
+    'official_source_url', 'trade', 'category', 'verification_status',
+    'radar_score', 'radar_grade', 'fallback_fingerprint',
+    'assigned_sales_id'
+  ];
+BEGIN
+  v_actor_id := public.current_sales_id();
+  v_actor_role := public.current_staff_role();
+
+  IF v_actor_id IS NULL OR v_actor_role NOT IN ('admin', 'manager', 'sales') THEN
+    RAISE EXCEPTION 'Tender import is not allowed for this role'
+      USING ERRCODE = '42501';
+  END IF;
+  IF p_review IS NULL OR jsonb_typeof(p_review) <> 'object' THEN
+    RAISE EXCEPTION 'review must be a JSON object';
+  END IF;
+  IF pg_catalog.pg_column_size(p_review) > 131072 THEN
+    RAISE EXCEPTION 'review is too large';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_object_keys(p_review) AS supplied(key)
+    WHERE supplied.key <> ALL (v_allowed_keys)
+  ) THEN
+    RAISE EXCEPTION 'review contains an unsupported field';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_each(p_review) AS supplied(key, value)
+    WHERE jsonb_typeof(supplied.value) NOT IN ('string', 'number', 'null')
+  ) THEN
+    RAISE EXCEPTION 'review fields must be scalar values';
+  END IF;
+
+  SELECT * INTO v_lead
+  FROM public.lead_inbox
+  WHERE id = p_lead_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Lead not found' USING ERRCODE = 'P0002';
+  END IF;
+  IF v_lead.source <> 'tender_radar' THEN
+    RAISE EXCEPTION 'Only Tender Radar leads can enter Tender Intelligence';
+  END IF;
+  IF v_lead.status <> 'qualified' THEN
+    RAISE EXCEPTION 'Only qualified leads can be imported';
+  END IF;
+  IF v_actor_role = 'sales'
+     AND v_lead.assigned_sales_id IS NOT NULL
+     AND v_lead.assigned_sales_id <> v_actor_id THEN
+    RAISE EXCEPTION 'Lead is assigned to another salesperson'
+      USING ERRCODE = '42501';
+  END IF;
+
+  v_opportunity_type := nullif(btrim(p_review ->> 'opportunity_type'), '');
+  v_domain := nullif(btrim(p_review ->> 'domain'), '');
+  v_title := nullif(btrim(p_review ->> 'title'), '');
+  v_description := nullif(btrim(p_review ->> 'description'), '');
+  v_organizer := nullif(btrim(p_review ->> 'organizer'), '');
+  v_province := nullif(btrim(p_review ->> 'province'), '');
+  v_city := nullif(btrim(p_review ->> 'city'), '');
+  v_trade := nullif(btrim(p_review ->> 'trade'), '');
+  v_category := nullif(btrim(p_review ->> 'category'), '');
+  v_official_need_no := nullif(btrim(p_review ->> 'official_need_no'), '');
+  v_official_tender_no := nullif(btrim(p_review ->> 'official_tender_no'), '');
+  v_official_source_url := nullif(btrim(p_review ->> 'official_source_url'), '');
+  v_verification_status := coalesce(
+    nullif(btrim(p_review ->> 'verification_status'), ''),
+    'pending_setad_verification'
+  );
+  v_fallback_fingerprint := nullif(
+    btrim(p_review ->> 'fallback_fingerprint'),
+    ''
+  );
+  v_radar_grade := nullif(btrim(p_review ->> 'radar_grade'), '');
+
+  BEGIN
+    v_radar_score := nullif(p_review ->> 'radar_score', '')::smallint;
+    v_publish_date := nullif(p_review ->> 'publish_date', '')::date;
+    v_document_deadline := nullif(
+      p_review ->> 'document_deadline',
+      ''
+    )::date;
+    v_submission_deadline := nullif(
+      p_review ->> 'submission_deadline',
+      ''
+    )::date;
+    v_assigned_sales_id := nullif(
+      p_review ->> 'assigned_sales_id',
+      ''
+    )::bigint;
+  EXCEPTION WHEN invalid_text_representation
+    OR numeric_value_out_of_range
+    OR datetime_field_overflow THEN
+    RAISE EXCEPTION 'review contains an invalid typed value';
+  END;
+
+  IF v_title IS NULL OR v_domain IS NULL OR v_opportunity_type IS NULL
+     OR v_fallback_fingerprint IS NULL THEN
+    RAISE EXCEPTION 'type, domain, title and fallback fingerprint are required';
+  END IF;
+  IF v_opportunity_type NOT IN ('inquiry', 'tender') THEN
+    RAISE EXCEPTION 'Invalid opportunity type';
+  END IF;
+  IF v_domain NOT IN ('renewable_energy', 'security_systems') THEN
+    RAISE EXCEPTION 'Invalid tender domain';
+  END IF;
+  IF v_verification_status NOT IN (
+    'setad_verified', 'pending_setad_verification', 'data_conflict'
+  ) THEN
+    RAISE EXCEPTION 'Invalid verification status';
+  END IF;
+  IF v_radar_grade IS NULL
+     OR v_radar_grade NOT IN ('A', 'B')
+     OR v_radar_score IS NULL
+     OR v_radar_score NOT BETWEEN 0 AND 100 THEN
+    RAISE EXCEPTION 'Only reviewed A/B Tender Radar leads can be imported';
+  END IF;
+  IF v_opportunity_type = 'inquiry' AND v_official_tender_no IS NOT NULL THEN
+    RAISE EXCEPTION 'Inquiry review cannot contain Tender No';
+  END IF;
+  IF v_opportunity_type = 'tender' AND v_official_need_no IS NOT NULL THEN
+    RAISE EXCEPTION 'Tender review cannot contain Need No';
+  END IF;
+  IF v_official_source_url IS NOT NULL AND (
+    (v_opportunity_type = 'inquiry'
+      AND v_official_source_url NOT LIKE 'https://eproc.setadiran.ir/%')
+    OR
+    (v_opportunity_type = 'tender'
+      AND v_official_source_url NOT LIKE 'https://etend.setadiran.ir/%')
+  ) THEN
+    RAISE EXCEPTION 'Official SETAD URL does not match opportunity type';
+  END IF;
+  IF v_verification_status = 'setad_verified' AND (
+    (v_opportunity_type = 'inquiry' AND v_official_need_no IS NULL)
+    OR
+    (v_opportunity_type = 'tender' AND v_official_tender_no IS NULL)
+  ) THEN
+    RAISE EXCEPTION 'SETAD verification requires the type-correct official identifier';
+  END IF;
+  IF v_actor_role = 'sales'
+     AND v_assigned_sales_id IS NOT NULL
+     AND v_assigned_sales_id <> v_actor_id THEN
+    RAISE EXCEPTION 'Sales staff cannot assign imported work to another salesperson'
+      USING ERRCODE = '42501';
+  END IF;
+  v_assigned_sales_id := coalesce(
+    v_assigned_sales_id,
+    v_lead.assigned_sales_id,
+    v_actor_id
+  );
+
+  -- Lock every available identity dimension in stable order. This makes two
+  -- concurrent imports with different Lead IDs observe the same dedup result.
+  IF v_official_need_no IS NOT NULL THEN
+    PERFORM pg_catalog.pg_advisory_xact_lock(
+      pg_catalog.hashtextextended('tender:need:' || v_official_need_no, 0)
+    );
+  END IF;
+  IF v_official_tender_no IS NOT NULL THEN
+    PERFORM pg_catalog.pg_advisory_xact_lock(
+      pg_catalog.hashtextextended('tender:tender:' || v_official_tender_no, 0)
+    );
+  END IF;
+  PERFORM pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(
+      'tender:source:' || v_lead.source || ':' || v_lead.source_record_id,
+      0
+    )
+  );
+  PERFORM pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(
+      'tender:fingerprint:' || v_fallback_fingerprint,
+      0
+    )
+  );
+
+  SELECT * INTO v_existing
+  FROM public.tender_opportunities AS existing
+  WHERE existing.lead_id = p_lead_id;
+  IF FOUND THEN
+    SELECT id INTO v_pipeline_entry_id
+    FROM public.tender_pipeline_entries
+    WHERE opportunity_id = v_existing.id;
+    RETURN QUERY SELECT
+      v_existing.id, v_pipeline_entry_id, p_lead_id, true, 'lead_id'::text;
+    RETURN;
+  END IF;
+
+  IF v_official_need_no IS NOT NULL THEN
+    SELECT * INTO v_existing
+    FROM public.tender_opportunities AS existing
+    WHERE existing.official_need_no = v_official_need_no;
+    IF FOUND THEN v_dedup_basis := 'official_need_no'; END IF;
+  ELSIF v_official_tender_no IS NOT NULL THEN
+    SELECT * INTO v_existing
+    FROM public.tender_opportunities AS existing
+    WHERE existing.official_tender_no = v_official_tender_no;
+    IF FOUND THEN v_dedup_basis := 'official_tender_no'; END IF;
+  END IF;
+
+  IF v_dedup_basis IS NULL THEN
+    SELECT * INTO v_existing
+    FROM public.tender_opportunities AS existing
+    WHERE existing.source = v_lead.source
+      AND existing.aggregator_record_id = v_lead.source_record_id;
+    IF FOUND THEN v_dedup_basis := 'source_record_id'; END IF;
+  END IF;
+
+  IF v_dedup_basis IS NULL
+     AND v_official_need_no IS NULL
+     AND v_official_tender_no IS NULL THEN
+    SELECT * INTO v_existing
+    FROM public.tender_opportunities AS existing
+    WHERE existing.fallback_fingerprint = v_fallback_fingerprint;
+    IF FOUND THEN v_dedup_basis := 'fallback_fingerprint'; END IF;
+  END IF;
+
+  IF v_dedup_basis IS NOT NULL THEN
+    RAISE EXCEPTION 'Tender duplicate conflicts with another quarantined lead (%).',
+      v_dedup_basis
+      USING ERRCODE = '23505';
+  END IF;
+
+  -- Claim the inbox row in the same transaction so another sales user cannot
+  -- discover the resulting opportunity through an idempotent retry.
+  UPDATE public.lead_inbox
+  SET
+    assigned_sales_id = v_assigned_sales_id,
+    updated_at = now()
+  WHERE id = p_lead_id
+    AND assigned_sales_id IS DISTINCT FROM v_assigned_sales_id;
+
+  INSERT INTO public.tender_opportunities (
+    lead_id, source, aggregator_record_id, opportunity_type,
+    official_need_no, official_tender_no, title, description, organizer,
+    province, city, publish_date, document_deadline, submission_deadline,
+    official_source_url, aggregator_source_url, domain, trade, category,
+    verification_status, radar_score, radar_grade, fallback_fingerprint,
+    assigned_sales_id
+  ) VALUES (
+    p_lead_id, v_lead.source, v_lead.source_record_id, v_opportunity_type,
+    v_official_need_no, v_official_tender_no, v_title, v_description,
+    v_organizer, v_province, v_city, v_publish_date, v_document_deadline,
+    v_submission_deadline, v_official_source_url, v_lead.source_url, v_domain,
+    v_trade, v_category, v_verification_status, v_radar_score, v_radar_grade,
+    v_fallback_fingerprint, v_assigned_sales_id
+  ) RETURNING id INTO v_opportunity_id;
+
+  INSERT INTO public.tender_pipeline_entries (
+    opportunity_id, assigned_sales_id
+  ) VALUES (
+    v_opportunity_id, v_assigned_sales_id
+  ) RETURNING id INTO v_pipeline_entry_id;
+
+  INSERT INTO public.tender_audit_log (
+    opportunity_id, event_type, actor_sales_id, metadata
+  ) VALUES (
+    v_opportunity_id,
+    'radar_lead_imported',
+    v_actor_id,
+    jsonb_build_object(
+      'lead_id', p_lead_id,
+      'source', v_lead.source,
+      'source_record_id', v_lead.source_record_id,
+      'verification_status', v_verification_status,
+      'radar_grade', v_radar_grade
+    )
+  );
+
+  RETURN QUERY SELECT
+    v_opportunity_id,
+    v_pipeline_entry_id,
+    p_lead_id,
+    false,
+    CASE
+      WHEN v_official_need_no IS NOT NULL THEN 'official_need_no'
+      WHEN v_official_tender_no IS NOT NULL THEN 'official_tender_no'
+      ELSE 'source_record_id'
+    END;
 END;
 $$;
