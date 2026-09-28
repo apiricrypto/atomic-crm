@@ -77,6 +77,10 @@ revoke all on function public.convert_lead_to_deal(bigint, text, text, text, big
 grant execute on function public.convert_lead_to_deal(bigint, text, text, text, bigint, date, text, text, text, text) to authenticated;
 grant execute on function public.convert_lead_to_deal(bigint, text, text, text, bigint, date, text, text, text, text) to service_role;
 
+revoke all on function public.import_tender_opportunity(bigint, jsonb) from public, anon, authenticated;
+grant execute on function public.import_tender_opportunity(bigint, jsonb) to authenticated;
+grant execute on function public.import_tender_opportunity(bigint, jsonb) to service_role;
+
 -- Table grants
 grant all on table public.companies to anon;
 grant all on table public.companies to authenticated;

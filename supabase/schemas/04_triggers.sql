@@ -66,6 +66,17 @@ create or replace trigger prevent_converted_lead_mutation_trigger
     before update on public.lead_inbox
     for each row execute function private.prevent_converted_lead_mutation();
 
+-- Preserve the quarantined Lead/Radar identity even for privileged writers.
+-- Official SETAD fields remain separately verifiable in a later guarded flow.
+create or replace trigger prevent_tender_provenance_mutation_trigger
+    before update of lead_id, source, aggregator_record_id on public.tender_opportunities
+    for each row execute function private.prevent_tender_provenance_mutation();
+
+-- Audit evidence is insert-only, including for service-role callers.
+create or replace trigger prevent_tender_audit_mutation_trigger
+    before update or delete on public.tender_audit_log
+    for each row execute function private.prevent_tender_audit_mutation();
+
 -- Auto-fetch company logo from website favicon on save
 create or replace trigger company_saved
     before insert or update on public.companies
