@@ -63,6 +63,7 @@ import { CompanyListMobile } from "../companies/CompanyList.tsx";
 import { NoteShowPage } from "../notes/NoteShowPage.tsx";
 import projects from "../projects";
 import procurement from "../procurement";
+import { FinanceDashboard } from "../finance";
 
 const defaultStore = localStorageStore(undefined, "CRM");
 
@@ -265,11 +266,15 @@ const DesktopAdmin = (
         <Route path={SettingsPage.path} element={<SettingsPage />} />
         <Route path={ImportPage.path} element={<ImportPage />} />
         <Route path={ChangelogPage.path} element={<ChangelogPage />} />
+        <Route path="/finance" element={<FinanceDashboard />} />
       </CustomRoutes>
       <Resource name="deals" {...deals} />
       <Resource name="projects" {...projects} />
       <Resource name="project_cost_items" />
       <Resource name="procurement_commitments" {...procurement} />
+      <Resource name="financial_receivables" />
+      <Resource name="financial_payables" />
+      <Resource name="financial_transactions" />
       <Resource name="contacts" {...contacts} />
       <Resource name="companies" {...companies} />
       <Resource name="contact_notes" />
@@ -332,6 +337,7 @@ const MobileAdmin = (
             element={<SettingsPageMobile />}
           />
           <Route path={ChangelogPage.path} element={<ChangelogPage />} />
+          <Route path="/finance" element={<FinanceDashboard />} />
         </CustomRoutes>
         <Resource
           name="contacts"
@@ -350,6 +356,9 @@ const MobileAdmin = (
         <Resource name="projects" {...projects} />
         <Resource name="project_cost_items" />
         <Resource name="procurement_commitments" {...procurement} />
+        <Resource name="financial_receivables" />
+        <Resource name="financial_payables" />
+        <Resource name="financial_transactions" />
         <Resource name="tasks" list={MobileTasksList} />
       </Admin>
     </PersistQueryClientProvider>

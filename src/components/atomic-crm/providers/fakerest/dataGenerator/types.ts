@@ -4,6 +4,9 @@ import type {
   ContactNote,
   Deal,
   DealNote,
+  FinancialPayable,
+  FinancialReceivable,
+  FinancialTransaction,
   Project,
   ProjectCostItem,
   ProcurementCommitment,
@@ -19,6 +22,9 @@ export interface Db {
   contact_notes: ContactNote[];
   deals: Deal[];
   deal_notes: DealNote[];
+  financial_payables: FinancialPayable[];
+  financial_receivables: FinancialReceivable[];
+  financial_transactions: FinancialTransaction[];
   projects: Project[];
   project_cost_items: ProjectCostItem[];
   procurement_commitments: ProcurementCommitment[];

@@ -36,6 +36,18 @@ create or replace trigger set_procurement_commitment_sales_id_trigger
     before insert on public.procurement_commitments
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger set_financial_receivable_sales_id_trigger
+    before insert on public.financial_receivables
+    for each row execute function public.set_sales_id_default();
+
+create or replace trigger set_financial_payable_sales_id_trigger
+    before insert on public.financial_payables
+    for each row execute function public.set_sales_id_default();
+
+create or replace trigger set_financial_transaction_sales_id_trigger
+    before insert on public.financial_transactions
+    for each row execute function public.set_sales_id_default();
+
 create or replace trigger set_task_sales_id_trigger
     before insert on public.tasks
     for each row execute function public.set_sales_id_default();

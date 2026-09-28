@@ -12,6 +12,9 @@ alter table public.deal_notes enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_cost_items enable row level security;
 alter table public.procurement_commitments enable row level security;
+alter table public.financial_receivables enable row level security;
+alter table public.financial_payables enable row level security;
+alter table public.financial_transactions enable row level security;
 alter table public.sales enable row level security;
 alter table public.tags enable row level security;
 alter table public.tasks enable row level security;
@@ -65,6 +68,22 @@ create policy "Enable procurement read for authenticated" on public.procurement_
 create policy "Enable procurement insert for authenticated" on public.procurement_commitments for insert to authenticated with check (true);
 create policy "Enable procurement update for authenticated" on public.procurement_commitments for update to authenticated using (true) with check (true);
 create policy "Enable procurement delete for authenticated" on public.procurement_commitments for delete to authenticated using (true);
+
+-- Financial ledgers
+create policy "Enable receivable read for authenticated" on public.financial_receivables for select to authenticated using (true);
+create policy "Enable receivable insert for authenticated" on public.financial_receivables for insert to authenticated with check (true);
+create policy "Enable receivable update for authenticated" on public.financial_receivables for update to authenticated using (true) with check (true);
+create policy "Enable receivable delete for authenticated" on public.financial_receivables for delete to authenticated using (true);
+
+create policy "Enable payable read for authenticated" on public.financial_payables for select to authenticated using (true);
+create policy "Enable payable insert for authenticated" on public.financial_payables for insert to authenticated with check (true);
+create policy "Enable payable update for authenticated" on public.financial_payables for update to authenticated using (true) with check (true);
+create policy "Enable payable delete for authenticated" on public.financial_payables for delete to authenticated using (true);
+
+create policy "Enable transaction read for authenticated" on public.financial_transactions for select to authenticated using (true);
+create policy "Enable transaction insert for authenticated" on public.financial_transactions for insert to authenticated with check (true);
+create policy "Enable transaction update for authenticated" on public.financial_transactions for update to authenticated using (true) with check (true);
+create policy "Enable transaction delete for authenticated" on public.financial_transactions for delete to authenticated using (true);
 
 -- Sales
 create policy "Enable read access for authenticated users" on public.sales for select to authenticated using (true);

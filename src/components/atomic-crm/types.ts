@@ -223,6 +223,51 @@ export type ProcurementCommitment = {
   sales_id?: Identifier;
 } & Pick<RaRecord, "id">;
 
+export type FinancialReceivable = {
+  project_id: Identifier;
+  company_id: Identifier;
+  reference: string;
+  amount: number;
+  currency: string;
+  issued_on: string;
+  due_on: string;
+  cancelled_at?: string | null;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+  sales_id?: Identifier;
+} & Pick<RaRecord, "id">;
+
+export type FinancialPayable = {
+  project_id: Identifier;
+  procurement_commitment_id?: Identifier | null;
+  company_id: Identifier;
+  reference: string;
+  amount: number;
+  currency: string;
+  issued_on: string;
+  due_on: string;
+  cancelled_at?: string | null;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+  sales_id?: Identifier;
+} & Pick<RaRecord, "id">;
+
+export type FinancialTransaction = {
+  receivable_id?: Identifier | null;
+  payable_id?: Identifier | null;
+  reference: string;
+  direction: "inflow" | "outflow";
+  amount: number;
+  currency: string;
+  occurred_at: string;
+  method: "bank" | "cash" | "card" | "cheque" | "other";
+  notes?: string | null;
+  created_at: string;
+  sales_id?: Identifier;
+} & Pick<RaRecord, "id">;
+
 export type Tag = {
   id: number;
   name: string;

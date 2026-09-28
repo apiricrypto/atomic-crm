@@ -98,6 +98,18 @@ grant all on table public.procurement_commitments to anon;
 grant all on table public.procurement_commitments to authenticated;
 grant all on table public.procurement_commitments to service_role;
 
+grant all on table public.financial_receivables to anon;
+grant all on table public.financial_receivables to authenticated;
+grant all on table public.financial_receivables to service_role;
+
+grant all on table public.financial_payables to anon;
+grant all on table public.financial_payables to authenticated;
+grant all on table public.financial_payables to service_role;
+
+grant all on table public.financial_transactions to anon;
+grant all on table public.financial_transactions to authenticated;
+grant all on table public.financial_transactions to service_role;
+
 grant all on table public.sales to anon;
 grant all on table public.sales to authenticated;
 grant all on table public.sales to service_role;
@@ -171,6 +183,18 @@ grant all on sequence public.project_cost_items_id_seq to service_role;
 grant all on sequence public.procurement_commitments_id_seq to anon;
 grant all on sequence public.procurement_commitments_id_seq to authenticated;
 grant all on sequence public.procurement_commitments_id_seq to service_role;
+
+grant all on sequence public.financial_receivables_id_seq to anon;
+grant all on sequence public.financial_receivables_id_seq to authenticated;
+grant all on sequence public.financial_receivables_id_seq to service_role;
+
+grant all on sequence public.financial_payables_id_seq to anon;
+grant all on sequence public.financial_payables_id_seq to authenticated;
+grant all on sequence public.financial_payables_id_seq to service_role;
+
+grant all on sequence public.financial_transactions_id_seq to anon;
+grant all on sequence public.financial_transactions_id_seq to authenticated;
+grant all on sequence public.financial_transactions_id_seq to service_role;
 
 grant all on sequence public.sales_id_seq to anon;
 grant all on sequence public.sales_id_seq to authenticated;
