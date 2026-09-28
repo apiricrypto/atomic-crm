@@ -6,6 +6,45 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — server-side Lead ingestion contract
+
+Draft PR #29: `satno/lead-ingestion-contract-20260928`, published feature
+commit `d8240fe8a152d026d4007bc00427a1dc2bf71df6`, stacked directly on Draft PR
+#28 at `194097f986dc87ecffa23173f857ea82d645ed4f`.
+
+- Live reconciliation confirmed PR #28 remained open, Draft, unmerged and
+  mergeable. `main` and `satno-development` remained at `dce557e` and the
+  Persian reference remained `85fc400`. No overlapping ingestion/connector PR
+  or branch existed and PR #28 had no workflow run or status context.
+- Upstream advanced from `d00fdf3` to `64e2163` through two commits that add and
+  then drop the same `deals.lost_reason` column. They have no final schema effect
+  and were not mixed into this feature; controlled upstream sync remains a
+  separate package.
+- Added a server-to-server `ingest_leads` boundary for Tender Radar and Bale
+  Market. Each connector uses a distinct server-only bearer token and can write
+  only normalized quarantine fields. Browser CORS access is absent and no
+  token, provider credential or `VITE_` secret is included.
+- Stable `(source, source_record_id)` keys make retries idempotent. Persistence
+  performs one insert and, only on a unique-key collision, reads the existing
+  record; it never upserts or overwrites triage/conversion state.
+- The contract rejects connector-supplied qualification, assignment and core
+  CRM/Project/finance/inventory IDs, limits request/raw-payload sizes, validates
+  URLs/dates/amounts and never returns the raw payload.
+- Validation passed: all 173 Edge Function tests, including 23 ingestion tests,
+  TypeScript, production build, targeted ESLint and Prettier, secret-pattern
+  scan and `git diff --check`. Existing FieldTitle circular-chunk, large-bundle
+  and stale Browserslist warnings remain.
+- Tests use synthetic events and an injected store. Deno/Supabase local runtime
+  was unavailable; no deployed Function, real token, real connector call,
+  database concurrency run, migration, merge, deployment or production write
+  occurred. Acceptance requirements are in
+  `docs/satno/LEAD_INGESTION_ACCEPTANCE.md`.
+
+Next priority: reconcile PR #29, then define sender-side conformance fixtures
+for Tender Radar and Bale Market without moving either independent product into
+this repository. Actual sender deployment and secret exchange require their own
+reviewed changes and a disposable end-to-end test.
+
 ## Latest checkpoint — quarantined Lead Inbox foundation
 
 Draft PR #28: `satno/lead-inbox-foundation-20260928`, published feature commit
