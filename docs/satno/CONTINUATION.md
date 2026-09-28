@@ -6,6 +6,47 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — disposable Tender concurrency runner
+
+Draft PR #39: `satno/tender-concurrency-acceptance-20260928`, published feature
+commit `889361c71d608e5a1f3ad21e07f081dbefcafbc2`, stacked directly on Draft PR
+#38 at `24b3c32a835290c67cb711216665fda955c16696`.
+
+- Live GitHub reconciliation confirmed #38 and #11 remained open, Draft,
+  mergeable, and unmerged. `main` and `satno-development` remained identical at
+  `dce557e`; upstream remained `64e2163`, and the Persian reference remained
+  one commit ahead of its main at `85fc400`. No overlapping concurrency branch
+  or PR existed. #38 had no workflow run or commit status.
+- Added a fail-closed, multi-request PostgREST runner for six synthetic races:
+  concurrent import collisions on Need No, Tender No, and fallback fingerprint;
+  a same-source Lead retry; and concurrent official verification of Need No and
+  Tender No across different opportunities.
+- Execution requires the exact `DISPOSABLE-ONLY` confirmation, a credential-free
+  loopback URL, an absolute manifest outside Git, and two disposable-user JWTs
+  supplied only by environment. Remote hosts, service-role setup, unsupported
+  RPC/input fields, secret-shaped manifest keys, and raw-response output are
+  rejected. The runner prints only redacted case classifications.
+- Fixture creation is intentionally separate so this acceptance package does
+  not introduce a privileged setup path. The external manifest must use only
+  synthetic rows and identifiers; the runner never contacts SETAD or Tender
+  Radar and never handles CAPTCHA, login, OTP, cookies, or sessions.
+- Validation passed: 8 Node unit tests, 27 focused Chromium tests, TypeScript,
+  production build, targeted ESLint/Prettier, registry generation, secret
+  scanning, and `git diff --check`. The published feature tree `ad996e7f`
+  exactly matched the tested local feature tree.
+- The real runner did not execute. Docker, Podman, Supabase CLI, Postgres, Deno,
+  disposable fixtures, and disposable credentials remained unavailable.
+  Therefore no real RLS, transaction, rollback, concurrency, Tender Radar, or
+  SETAD acceptance is claimed. No migration, merge, deployment, production
+  write, secret change, login, OTP, CAPTCHA, cookie, or session operation ran.
+
+Next priority: reconcile PR #39. When a local disposable Supabase runtime is
+available, generate and review the declarative-schema migration/diff, prepare
+synthetic fixtures without adding a privileged production path, run the
+rollback-only pgTAP matrix, and then run the six-case concurrency runner. Until
+that evidence exists, do not claim live Tender Radar/SETAD integration or
+database concurrency acceptance.
+
 ## Latest checkpoint — disposable Tender database acceptance matrix
 
 Draft PR #38: `satno/tender-db-acceptance-matrix-20260928`, published feature
