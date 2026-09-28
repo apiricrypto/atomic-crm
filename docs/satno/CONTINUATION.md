@@ -6,6 +6,41 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Procurement commitments UI
+
+Draft PR #21: `satno/procurement-ui-foundation-20260928`, feature commit
+`17cf7d168982d2c1c6eb1d482f75c434959a78be`, stacked on Draft PR #20 at
+`71fa68667cb0d8360fb0cf70dac74d0e2165cb48`.
+
+- Live reconciliation confirmed PRs #1–#20 remained open and unmerged before
+  this package. `main` and `satno-development` remained at `dce557e`; upstream
+  remained `d00fdf3` and the Persian reference remained `85fc400`. No newer or
+  overlapping Procurement branch existed. PR #21 is open, Draft, clean and
+  mergeable; GitHub reports no workflow runs for its feature head.
+- Added a declarative `procurement_commitments` schema linked to exactly one
+  project cost item and an optional supplier Company. Composite provenance keys
+  enforce project/cost/commitment currency equality. RLS, grants, indexes and
+  owner trigger follow the current repository pattern.
+- Added a Persian-first responsive Procurement list and a Projects-page entry
+  point. It shows reference, project, supplier, status, amount and expected date,
+  plus separate draft, active and received summaries.
+- Commitments remain operational obligations: receiving one does not create an
+  actual cost, payable, payment, inventory receipt or transaction. Cancelled,
+  received, active and draft amounts are mutually exclusive and are never summed
+  into a finance total.
+- Validation passed: 55 relevant real-Chromium tests and a focused 4-test rerun
+  at 390x844; TypeScript, production build, targeted ESLint/Prettier, declarative
+  table-schema parse, registry generation and `git diff --check`. Existing
+  FieldTitle circular-chunk, large-bundle and stale Browserslist warnings remain.
+- FakeRest UI evidence is not real-database evidence. No migration was generated
+  or applied because this runtime has no local Supabase/Docker stack. The database
+  gate remains migration generation plus the real Supabase/RLS contract in PR #18.
+  No merge, deployment, secret change or production data write.
+
+Next priority: begin Finance foundations in a separate reversible package with
+Receivables, Payables and Transactions modeled as distinct ledgers. Do not turn
+procurement commitments or project contract snapshots into payments implicitly.
+
 ## Latest checkpoint — Project + Costing foundation
 
 Draft PR #20: `satno/project-costing-foundation-20260928`, published at

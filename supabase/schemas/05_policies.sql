@@ -11,6 +11,7 @@ alter table public.deals enable row level security;
 alter table public.deal_notes enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_cost_items enable row level security;
+alter table public.procurement_commitments enable row level security;
 alter table public.sales enable row level security;
 alter table public.tags enable row level security;
 alter table public.tasks enable row level security;
@@ -58,6 +59,12 @@ create policy "Enable project cost read for authenticated" on public.project_cos
 create policy "Enable project cost insert for authenticated" on public.project_cost_items for insert to authenticated with check (true);
 create policy "Enable project cost update for authenticated" on public.project_cost_items for update to authenticated using (true) with check (true);
 create policy "Enable project cost delete for authenticated" on public.project_cost_items for delete to authenticated using (true);
+
+-- Procurement commitments
+create policy "Enable procurement read for authenticated" on public.procurement_commitments for select to authenticated using (true);
+create policy "Enable procurement insert for authenticated" on public.procurement_commitments for insert to authenticated with check (true);
+create policy "Enable procurement update for authenticated" on public.procurement_commitments for update to authenticated using (true) with check (true);
+create policy "Enable procurement delete for authenticated" on public.procurement_commitments for delete to authenticated using (true);
 
 -- Sales
 create policy "Enable read access for authenticated users" on public.sales for select to authenticated using (true);

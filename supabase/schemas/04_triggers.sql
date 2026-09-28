@@ -32,6 +32,10 @@ create or replace trigger set_project_cost_item_sales_id_trigger
     before insert on public.project_cost_items
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger set_procurement_commitment_sales_id_trigger
+    before insert on public.procurement_commitments
+    for each row execute function public.set_sales_id_default();
+
 create or replace trigger set_task_sales_id_trigger
     before insert on public.tasks
     for each row execute function public.set_sales_id_default();

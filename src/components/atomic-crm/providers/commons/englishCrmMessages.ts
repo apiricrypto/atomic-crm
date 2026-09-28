@@ -245,6 +245,32 @@ export const englishCrmMessages = {
         cancelled: "Cancelled",
       },
     },
+    procurement_commitments: {
+      name: "Purchase commitment |||| Project procurement",
+      forcedCaseName: "Purchase commitment",
+      subtitle: "Track orders and commitments linked to project cost items",
+      empty: "No procurement commitment has been recorded yet.",
+      mixed_currency: "Multiple currencies",
+      accounting_notice:
+        "These amounts are not payments or actual costs; payments and actual costs are recorded in separate financial workflows.",
+      fields: {
+        amount: "Committed amount",
+        supplier: "Supplier",
+        expected_on: "Expected date",
+      },
+      summary: {
+        active: "Active commitment",
+        received: "Received",
+        draft: "Draft",
+      },
+      status: {
+        draft: "Draft",
+        approved: "Approved",
+        ordered: "Ordered",
+        received: "Received",
+        cancelled: "Cancelled",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",

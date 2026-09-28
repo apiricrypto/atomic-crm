@@ -11,7 +11,10 @@ import { ListPagination } from "@/components/admin/list-pagination";
 import { ReferenceField } from "@/components/admin/reference-field";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/formatMoney";
+import { ShoppingCart } from "lucide-react";
+import { Link } from "react-router";
 
 import { getMoneyLocale } from "../root/useFormatMoney";
 import type { Project, ProjectCostItem } from "../types";
@@ -36,7 +39,7 @@ const ProjectGrid = () => {
 
   return (
     <section className="w-full px-4 pb-20 md:px-0 md:pb-0">
-      <div className="mb-5 flex items-center justify-between gap-3">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">
             {translate("resources.projects.name", { smart_count: 2 })}
@@ -45,11 +48,21 @@ const ProjectGrid = () => {
             {translate("resources.projects.costing_subtitle")}
           </p>
         </div>
-        <Badge variant="outline">
-          {translate("resources.projects.count", {
-            smart_count: data?.length ?? 0,
-          })}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">
+            {translate("resources.projects.count", {
+              smart_count: data?.length ?? 0,
+            })}
+          </Badge>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/procurement_commitments">
+              <ShoppingCart className="size-4" />
+              {translate("resources.procurement_commitments.name", {
+                smart_count: 2,
+              })}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {!data?.length ? (

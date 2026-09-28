@@ -6,6 +6,7 @@ import type {
   DealNote,
   Project,
   ProjectCostItem,
+  ProcurementCommitment,
   Sale,
   Tag,
   Task,
@@ -20,6 +21,7 @@ export interface Db {
   deal_notes: DealNote[];
   projects: Project[];
   project_cost_items: ProjectCostItem[];
+  procurement_commitments: ProcurementCommitment[];
   sales: Sale[];
   tags: Tag[];
   tasks: Task[];

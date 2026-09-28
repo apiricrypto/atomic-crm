@@ -13,6 +13,7 @@ import type {
   Deal,
   Project,
   ProjectCostItem,
+  ProcurementCommitment,
   Sale,
 } from "@/components/atomic-crm/types";
 import { DataImportProvider } from "@/components/atomic-crm/dataImport/DataImportProvider";
@@ -56,6 +57,7 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
     deals: [],
     projects: [],
     project_cost_items: [],
+    procurement_commitments: [],
     sales: [baseSale],
     tags: [],
     tasks: [],
@@ -160,6 +162,26 @@ export const buildProjectCostItem = (
   planned_amount: 350_000,
   project_id: 1,
   sales_id: 0,
+  updated_at: "2025-01-01T09:00:00.000Z",
+  ...overrides,
+});
+
+export const buildProcurementCommitment = (
+  overrides: Partial<ProcurementCommitment> = {},
+): ProcurementCommitment => ({
+  amount: 420_000,
+  created_at: "2025-01-01T09:00:00.000Z",
+  currency: "IRR",
+  expected_on: "2025-03-01",
+  id: 1,
+  notes: null,
+  project_cost_item_id: 1,
+  project_id: 1,
+  received_on: null,
+  reference: "SATNO-PO-0001",
+  sales_id: 0,
+  status: "approved",
+  supplier_company_id: 2,
   updated_at: "2025-01-01T09:00:00.000Z",
   ...overrides,
 });
