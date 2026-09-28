@@ -234,13 +234,14 @@ begin
   select count(id) into sales_count
   from public.sales;
 
-  insert into public.sales (first_name, last_name, email, user_id, administrator)
+  insert into public.sales (first_name, last_name, email, user_id, administrator, role)
   values (
     coalesce(new.raw_user_meta_data ->> 'first_name', new.raw_user_meta_data -> 'custom_claims' ->> 'first_name', 'Pending'),
     coalesce(new.raw_user_meta_data ->> 'last_name', new.raw_user_meta_data -> 'custom_claims' ->> 'last_name', 'Pending'),
     new.email,
     new.id,
-    case when sales_count > 0 then FALSE else TRUE end
+    case when sales_count > 0 then FALSE else TRUE end,
+    case when sales_count > 0 then 'sales' else 'admin' end
   );
   return new;
 end;
@@ -262,15 +263,25 @@ begin
 end;
 $$;
 
-CREATE OR REPLACE FUNCTION "public"."is_admin"() RETURNS boolean
+CREATE OR REPLACE FUNCTION "public"."current_staff_role"() RETURNS text
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
 begin
-  return exists (
-    select 1 from public.sales where user_id = auth.uid() and administrator = true
+  return (
+    select coalesce(role, case when administrator then 'admin' else 'sales' end)
+    from public.sales
+    where user_id = auth.uid() and disabled = false
+    limit 1
   );
 end;
+$$;
+
+CREATE OR REPLACE FUNCTION "public"."is_admin"() RETURNS boolean
+    LANGUAGE "sql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select coalesce(public.current_staff_role() = 'admin', false);
 $$;
 
 CREATE OR REPLACE FUNCTION "public"."merge_contacts"("loser_id" bigint, "winner_id" bigint) RETURNS bigint

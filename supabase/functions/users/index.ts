@@ -9,6 +9,12 @@ import {
   MAX_SECONDARY_EMAILS,
   normalizeSecondaryEmails,
 } from "./secondaryEmails.ts";
+import {
+  isAdministrator,
+  requireStaffRole,
+  type StaffRole,
+  wouldLockOutSelfAdministrator,
+} from "./staffRoles.ts";
 
 async function updateSaleDisabled(user_id: string, disabled: boolean) {
   return await supabaseAdmin
@@ -17,13 +23,10 @@ async function updateSaleDisabled(user_id: string, disabled: boolean) {
     .eq("user_id", user_id);
 }
 
-async function updateSaleAdministrator(
-  user_id: string,
-  administrator: boolean,
-) {
+async function updateSaleRole(user_id: string, role: StaffRole) {
   const { data: sales, error: salesError } = await supabaseAdmin
     .from("sales")
-    .update({ administrator })
+    .update({ role, administrator: role === "admin" })
     .eq("user_id", user_id)
     .select("*");
 
@@ -38,16 +41,15 @@ async function createSale(
   user_id: string,
   data: {
     email: string;
-    password: string;
     first_name: string;
     last_name: string;
     disabled: boolean;
-    administrator: boolean;
+    role: StaffRole;
   },
 ) {
   const { data: sales, error: salesError } = await supabaseAdmin
     .from("sales")
-    .insert({ ...data, user_id })
+    .insert({ ...data, administrator: data.role === "admin", user_id })
     .select("*");
 
   if (!sales?.length || salesError) {
@@ -127,11 +129,26 @@ async function updateSaleAvatar(user_id: string, avatar: string) {
 }
 
 async function inviteUser(req: Request, currentUserSale: any) {
-  const { email, password, first_name, last_name, disabled, administrator } =
-    await req.json();
+  const {
+    email,
+    password,
+    first_name,
+    last_name,
+    disabled,
+    role: roleValue,
+  } = await req.json();
 
-  if (!currentUserSale.administrator) {
+  if (!isAdministrator(currentUserSale)) {
     return createErrorResponse(401, "Not Authorized");
+  }
+
+  let role: StaffRole;
+  try {
+    role = requireStaffRole(roleValue);
+  } catch (error) {
+    return createErrorResponse(400, (error as Error).message, {
+      code: "invalid_staff_role",
+    });
   }
 
   const takenEmail = await findEmailUsedByAnotherSale(
@@ -187,11 +204,10 @@ async function inviteUser(req: Request, currentUserSale: any) {
 
       const sale = await createSale(user.id, {
         email,
-        password,
         first_name,
         last_name,
         disabled,
-        administrator,
+        role,
       });
 
       return new Response(
@@ -233,7 +249,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
 
   try {
     await updateSaleDisabled(user.id, disabled);
-    const sale = await updateSaleAdministrator(user.id, administrator);
+    const sale = await updateSaleRole(user.id, role);
 
     return new Response(
       JSON.stringify({
@@ -257,7 +273,7 @@ async function patchUser(req: Request, currentUserSale: any) {
     first_name,
     last_name,
     avatar,
-    administrator,
+    role: roleValue,
     disabled,
   } = await req.json();
   const { data: sale } = await supabaseAdmin
@@ -270,8 +286,23 @@ async function patchUser(req: Request, currentUserSale: any) {
     return createErrorResponse(404, "Not Found");
   }
 
+  if (
+    wouldLockOutSelfAdministrator({
+      currentSale: currentUserSale,
+      targetSale: sale,
+      nextRole: roleValue,
+      disabled,
+    })
+  ) {
+    return createErrorResponse(
+      400,
+      "Administrators cannot disable or demote their own active account",
+      { code: "self_admin_lockout" },
+    );
+  }
+
   // Users can only update their own profile unless they are an administrator
-  if (!currentUserSale.administrator && currentUserSale.id !== sale.id) {
+  if (!isAdministrator(currentUserSale) && currentUserSale.id !== sale.id) {
     return createErrorResponse(401, "Not Authorized");
   }
 
@@ -367,7 +398,7 @@ async function patchUser(req: Request, currentUserSale: any) {
   }
 
   // Only administrators can update the administrator and disabled status
-  if (!currentUserSale.administrator) {
+  if (!isAdministrator(currentUserSale)) {
     const { data: new_sale } = await supabaseAdmin
       .from("sales")
       .select("*")
@@ -386,9 +417,20 @@ async function patchUser(req: Request, currentUserSale: any) {
     );
   }
 
+  let role: StaffRole;
+  try {
+    role = requireStaffRole(
+      roleValue ?? sale.role ?? (sale.administrator ? "admin" : "sales"),
+    );
+  } catch (error) {
+    return createErrorResponse(400, (error as Error).message, {
+      code: "invalid_staff_role",
+    });
+  }
+
   try {
     await updateSaleDisabled(data.user.id, disabled);
-    const sale = await updateSaleAdministrator(data.user.id, administrator);
+    const sale = await updateSaleRole(data.user.id, role);
     return new Response(
       JSON.stringify({
         data: sale,

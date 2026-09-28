@@ -1,3 +1,5 @@
+import type { StaffRole } from "./staffRoles";
+
 // FIXME: This should be exported from the ra-core package
 type CanAccessParams<
   RecordType extends Record<string, any> = Record<string, any>,
@@ -7,25 +9,107 @@ type CanAccessParams<
   record?: RecordType;
 };
 
+const READ_ACTIONS = new Set(["list", "show", "getList", "getOne", "export"]);
+
+const CORE_RESOURCES = new Set([
+  "contacts",
+  "companies",
+  "deals",
+  "contact_notes",
+  "deal_notes",
+  "tasks",
+  "tags",
+]);
+
+const PROJECT_RESOURCES = new Set([
+  "projects",
+  "project_cost_items",
+  "procurement_commitments",
+]);
+
+const FINANCE_RESOURCES = new Set([
+  "financial_receivables",
+  "financial_payables",
+  "financial_transactions",
+]);
+
+const INVENTORY_RESOURCES = new Set([
+  "inventory_locations",
+  "inventory_items",
+  "inventory_movements",
+]);
+
+const BUSINESS_RESOURCES = new Set([
+  ...CORE_RESOURCES,
+  ...PROJECT_RESOURCES,
+  ...FINANCE_RESOURCES,
+  ...INVENTORY_RESOURCES,
+]);
+
+const isRead = (action: string) => READ_ACTIONS.has(action);
+
 export const canAccess = <
   RecordType extends Record<string, any> = Record<string, any>,
 >(
-  role: string,
+  role: StaffRole,
   params: CanAccessParams<RecordType>,
 ) => {
   if (role === "admin") {
     return true;
   }
 
-  // Non admins can't access the sales resource
-  if (params.resource === "sales") {
+  const { action, resource } = params;
+
+  if (resource === "configuration") {
     return false;
   }
 
-  // Non admins can't access the configuration resource
-  if (params.resource === "configuration") {
+  if (resource === "sales") {
+    return role === "manager" && isRead(action);
+  }
+
+  if (!BUSINESS_RESOURCES.has(resource)) {
     return false;
   }
 
-  return true;
+  if (role === "manager") return true;
+  if (role === "viewer") return isRead(action);
+
+  if (role === "sales") {
+    return (
+      CORE_RESOURCES.has(resource) ||
+      (PROJECT_RESOURCES.has(resource) && isRead(action))
+    );
+  }
+
+  if (role === "project") {
+    if (PROJECT_RESOURCES.has(resource)) return true;
+    return (
+      (CORE_RESOURCES.has(resource) || INVENTORY_RESOURCES.has(resource)) &&
+      isRead(action)
+    );
+  }
+
+  if (role === "finance") {
+    if (FINANCE_RESOURCES.has(resource)) return true;
+    return (
+      (CORE_RESOURCES.has(resource) || PROJECT_RESOURCES.has(resource)) &&
+      isRead(action)
+    );
+  }
+
+  if (role === "inventory") {
+    if (
+      INVENTORY_RESOURCES.has(resource) ||
+      resource === "procurement_commitments"
+    ) {
+      return true;
+    }
+    return (
+      (CORE_RESOURCES.has(resource) || PROJECT_RESOURCES.has(resource)) &&
+      isRead(action)
+    );
+  }
+
+  return false;
 };

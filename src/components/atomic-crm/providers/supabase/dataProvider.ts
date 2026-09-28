@@ -147,7 +147,7 @@ const getDataProviderWithCustomMethods = () => {
         secondary_emails,
         first_name,
         last_name,
-        administrator,
+        role,
         avatar,
         disabled,
       } = data;
@@ -163,7 +163,7 @@ const getDataProviderWithCustomMethods = () => {
             secondary_emails,
             first_name,
             last_name,
-            administrator,
+            role,
             disabled,
             avatar,
           },

@@ -49,6 +49,10 @@ grant all on function public.handle_update_user() to anon;
 grant all on function public.handle_update_user() to authenticated;
 grant all on function public.handle_update_user() to service_role;
 
+grant all on function public.current_staff_role() to anon;
+grant all on function public.current_staff_role() to authenticated;
+grant all on function public.current_staff_role() to service_role;
+
 grant all on function public.is_admin() to anon;
 grant all on function public.is_admin() to authenticated;
 grant all on function public.is_admin() to service_role;

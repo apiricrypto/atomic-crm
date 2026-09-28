@@ -8,6 +8,7 @@ import type {
   DEAL_CREATED,
   DEAL_NOTE_CREATED,
 } from "./consts";
+import type { StaffRole } from "./providers/commons/staffRoles";
 
 export type SignUpData = {
   email: string;
@@ -23,7 +24,8 @@ export type SalesFormData = {
   password?: string;
   first_name: string;
   last_name: string;
-  administrator: boolean;
+  role: StaffRole;
+  administrator?: boolean;
   disabled: boolean;
 };
 
@@ -31,6 +33,7 @@ export type Sale = {
   first_name: string;
   last_name: string;
   administrator: boolean;
+  role?: StaffRole;
   avatar?: RAFile;
   disabled?: boolean;
   user_id: string;

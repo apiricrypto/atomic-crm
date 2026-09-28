@@ -161,6 +161,7 @@ export const useImportFromJson = (): [
           email: dataToImport.email.trim(),
           first_name: dataToImport.first_name.trim(),
           last_name: dataToImport.last_name.trim(),
+          role: "sales",
           administrator: false,
           disabled: false,
         });
