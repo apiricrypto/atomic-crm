@@ -31,6 +31,8 @@ const Header = () => {
     currentPath = "/companies";
   } else if (matchPath("/deals/*", location.pathname)) {
     currentPath = "/deals";
+  } else if (matchPath("/lead_inbox/*", location.pathname)) {
+    currentPath = "/lead_inbox";
   } else if (matchPath("/projects/*", location.pathname)) {
     currentPath = "/projects";
   } else if (matchPath("/tasks/*", location.pathname)) {
@@ -89,6 +91,15 @@ const Header = () => {
                     to="/deals"
                     isActive={currentPath === "/deals"}
                   />
+                  <CanAccess resource="lead_inbox" action="list">
+                    <NavigationTab
+                      label={translate("resources.lead_inbox.name", {
+                        smart_count: 2,
+                      })}
+                      to="/lead_inbox"
+                      isActive={currentPath === "/lead_inbox"}
+                    />
+                  </CanAccess>
                   <NavigationTab
                     label={translate("resources.projects.name", {
                       smart_count: 2,

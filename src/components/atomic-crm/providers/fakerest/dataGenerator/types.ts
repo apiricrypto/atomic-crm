@@ -11,6 +11,8 @@ import type {
   InventoryItem,
   InventoryLocation,
   InventoryMovement,
+  LeadConversion,
+  LeadInboxRecord,
   Project,
   ProjectCostItem,
   ProcurementCommitment,
@@ -33,6 +35,8 @@ export interface Db {
   inventory_items: InventoryItem[];
   inventory_locations: InventoryLocation[];
   inventory_movements: InventoryMovement[];
+  lead_conversions: LeadConversion[];
+  lead_inbox: LeadInboxRecord[];
   projects: Project[];
   project_cost_items: ProjectCostItem[];
   procurement_commitments: ProcurementCommitment[];

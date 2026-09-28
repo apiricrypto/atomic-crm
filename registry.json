@@ -298,6 +298,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/leadInbox.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/inventory.ts",
           "type": "registry:component"
         },
@@ -583,6 +587,22 @@
         },
         {
           "path": "src/components/atomic-crm/login/ConfirmationRequired.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/leadInbox/triage.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/leadInbox/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/leadInbox/conversion.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/leadInbox/LeadInboxList.tsx",
           "type": "registry:component"
         },
         {

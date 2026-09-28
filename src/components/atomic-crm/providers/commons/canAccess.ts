@@ -39,6 +39,8 @@ const INVENTORY_RESOURCES = new Set([
   "inventory_movements",
 ]);
 
+const LEAD_RESOURCES = new Set(["lead_inbox", "lead_conversions"]);
+
 const BUSINESS_RESOURCES = new Set([
   ...CORE_RESOURCES,
   ...PROJECT_RESOURCES,
@@ -75,6 +77,12 @@ export const canAccess = <
 
   if (resource === "sales") {
     return role === "manager" && isRead(action);
+  }
+
+  if (LEAD_RESOURCES.has(resource)) {
+    if (role !== "manager" && role !== "sales") return false;
+    if (resource === "lead_conversions") return isRead(action);
+    return isRead(action) || action === "edit";
   }
 
   if (!BUSINESS_RESOURCES.has(resource)) {

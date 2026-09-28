@@ -10,6 +10,8 @@ import type {
   ContactNote,
   Deal,
   DealNote,
+  LeadConversionInput,
+  LeadConversionResult,
   RAFile,
   Sale,
   SalesFormData,
@@ -230,6 +232,30 @@ const getDataProviderWithCustomMethods = () => {
           }),
         ),
       );
+    },
+    async convertLead(
+      input: LeadConversionInput,
+    ): Promise<LeadConversionResult> {
+      const { data, error } = await (getSupabaseClient() as any).rpc(
+        "convert_lead_to_deal",
+        {
+          p_company_name: input.company_name,
+          p_contact_email: input.contact_email ?? null,
+          p_contact_first_name: input.contact_first_name ?? null,
+          p_contact_last_name: input.contact_last_name ?? null,
+          p_contact_phone: input.contact_phone ?? null,
+          p_deal_amount: input.deal_amount ?? null,
+          p_deal_description: input.deal_description ?? null,
+          p_deal_name: input.deal_name,
+          p_expected_closing_date: input.expected_closing_date ?? null,
+          p_lead_id: input.lead_id,
+        },
+      );
+
+      if (error) throw new Error(error.message || "Failed to convert lead");
+      const result = Array.isArray(data) ? data[0] : data;
+      if (!result) throw new Error("Lead conversion returned no result");
+      return result as LeadConversionResult;
     },
     async isInitialized() {
       return getIsInitialized();

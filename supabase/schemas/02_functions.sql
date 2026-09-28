@@ -476,3 +476,195 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION "private"."prevent_converted_lead_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$
+BEGIN
+  IF OLD.status = 'converted' THEN
+    RAISE EXCEPTION 'Converted leads are immutable';
+  END IF;
+  NEW.updated_at := now();
+  RETURN NEW;
+END;
+$$;
+
+-- The only authenticated path from a raw lead into core CRM records. The
+-- function locks the lead, validates ownership and qualification, creates all
+-- target records, writes provenance, and marks the lead converted in one
+-- database transaction. No value is copied from raw_payload or the raw estimate.
+CREATE OR REPLACE FUNCTION "public"."convert_lead_to_deal"(
+    "p_lead_id" bigint,
+    "p_company_name" text,
+    "p_deal_name" text,
+    "p_deal_description" text default null,
+    "p_deal_amount" bigint default null,
+    "p_expected_closing_date" date default null,
+    "p_contact_first_name" text default null,
+    "p_contact_last_name" text default null,
+    "p_contact_email" text default null,
+    "p_contact_phone" text default null
+) RETURNS TABLE (
+    "lead_id" bigint,
+    "company_id" bigint,
+    "contact_id" bigint,
+    "deal_id" bigint,
+    "conversion_id" bigint
+)
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+DECLARE
+  v_actor_id bigint;
+  v_actor_role text;
+  v_lead public.lead_inbox%ROWTYPE;
+  v_company_id bigint;
+  v_contact_id bigint;
+  v_deal_id bigint;
+  v_conversion_id bigint;
+  v_contact_ids bigint[] := ARRAY[]::bigint[];
+BEGIN
+  v_actor_id := public.current_sales_id();
+  v_actor_role := public.current_staff_role();
+
+  IF v_actor_id IS NULL OR v_actor_role NOT IN ('admin', 'manager', 'sales') THEN
+    RAISE EXCEPTION 'Lead conversion is not allowed for this role'
+      USING ERRCODE = '42501';
+  END IF;
+
+  SELECT * INTO v_lead
+  FROM public.lead_inbox
+  WHERE id = p_lead_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Lead not found' USING ERRCODE = 'P0002';
+  END IF;
+  IF v_lead.status <> 'qualified' THEN
+    RAISE EXCEPTION 'Only qualified leads can be converted';
+  END IF;
+  IF v_actor_role = 'sales'
+     AND v_lead.assigned_sales_id IS NOT NULL
+     AND v_lead.assigned_sales_id <> v_actor_id THEN
+    RAISE EXCEPTION 'Lead is assigned to another salesperson'
+      USING ERRCODE = '42501';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM public.lead_conversions AS existing_conversion
+    WHERE existing_conversion.lead_id = p_lead_id
+  ) THEN
+    RAISE EXCEPTION 'Lead has already been converted';
+  END IF;
+  IF length(btrim(coalesce(p_company_name, ''))) = 0 THEN
+    RAISE EXCEPTION 'company_name is required';
+  END IF;
+  IF length(btrim(coalesce(p_deal_name, ''))) = 0 THEN
+    RAISE EXCEPTION 'deal_name is required';
+  END IF;
+  IF p_deal_amount IS NOT NULL AND p_deal_amount < 0 THEN
+    RAISE EXCEPTION 'Deal amount cannot be negative';
+  END IF;
+
+  INSERT INTO public.companies (name, sales_id)
+  VALUES (btrim(p_company_name), v_actor_id)
+  RETURNING id INTO v_company_id;
+
+  IF nullif(btrim(coalesce(p_contact_first_name, '')), '') IS NOT NULL
+     OR nullif(btrim(coalesce(p_contact_last_name, '')), '') IS NOT NULL
+     OR nullif(btrim(coalesce(p_contact_email, '')), '') IS NOT NULL
+     OR nullif(btrim(coalesce(p_contact_phone, '')), '') IS NOT NULL THEN
+    INSERT INTO public.contacts (
+      first_name,
+      last_name,
+      company_id,
+      email_jsonb,
+      phone_jsonb,
+      first_seen,
+      last_seen,
+      has_newsletter,
+      status,
+      tags,
+      sales_id
+    ) VALUES (
+      nullif(btrim(coalesce(p_contact_first_name, '')), ''),
+      nullif(btrim(coalesce(p_contact_last_name, '')), ''),
+      v_company_id,
+      CASE
+        WHEN nullif(btrim(coalesce(p_contact_email, '')), '') IS NULL
+          THEN '[]'::jsonb
+        ELSE jsonb_build_array(jsonb_build_object(
+          'email', btrim(p_contact_email), 'type', 'Work'
+        ))
+      END,
+      CASE
+        WHEN nullif(btrim(coalesce(p_contact_phone, '')), '') IS NULL
+          THEN '[]'::jsonb
+        ELSE jsonb_build_array(jsonb_build_object(
+          'number', btrim(p_contact_phone), 'type', 'Work'
+        ))
+      END,
+      now(),
+      now(),
+      false,
+      'warm',
+      ARRAY[]::bigint[],
+      v_actor_id
+    ) RETURNING id INTO v_contact_id;
+    v_contact_ids := ARRAY[v_contact_id];
+  END IF;
+
+  INSERT INTO public.deals (
+    name,
+    company_id,
+    contact_ids,
+    category,
+    stage,
+    description,
+    amount,
+    expected_closing_date,
+    sales_id,
+    index
+  ) VALUES (
+    btrim(p_deal_name),
+    v_company_id,
+    v_contact_ids,
+    'other',
+    'opportunity',
+    nullif(btrim(coalesce(p_deal_description, '')), ''),
+    coalesce(p_deal_amount, 0),
+    p_expected_closing_date,
+    v_actor_id,
+    0
+  ) RETURNING id INTO v_deal_id;
+
+  INSERT INTO public.lead_conversions (
+    lead_id,
+    company_id,
+    contact_id,
+    deal_id,
+    converted_by_sales_id
+  ) VALUES (
+    p_lead_id,
+    v_company_id,
+    v_contact_id,
+    v_deal_id,
+    v_actor_id
+  ) RETURNING id INTO v_conversion_id;
+
+  UPDATE public.lead_inbox
+  SET
+    status = 'converted',
+    assigned_sales_id = coalesce(assigned_sales_id, v_actor_id),
+    updated_at = now()
+  WHERE id = p_lead_id;
+
+  RETURN QUERY SELECT
+    p_lead_id,
+    v_company_id,
+    v_contact_id,
+    v_deal_id,
+    v_conversion_id;
+END;
+$$;

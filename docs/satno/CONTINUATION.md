@@ -6,6 +6,43 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — quarantined Lead Inbox foundation
+
+Draft PR #28: `satno/lead-inbox-foundation-20260928`, published feature commit
+`ca9296e6303f9de4bee631d6c4f11e978d1e179b`, stacked directly on Draft PR
+#27 at `2d4bff3f6332341487af7690843fc1d795d7aecf`.
+
+- Live reconciliation confirmed PR #27 remained open, Draft, unmerged and
+  mergeable. `main` and `satno-development` remained at `dce557e`; upstream
+  remained `d00fdf3` and the Persian reference remained `85fc400`. No
+  overlapping Lead Inbox/Conversion branch or PR existed.
+- Added a Persian-first responsive Lead Inbox for normalized inbound
+  opportunities. Raw payloads remain quarantined and are never rendered or
+  copied into Companies, Contacts or Deals.
+- Explicit conversion requires a qualified lead and reviewed values. The
+  security-definer RPC locks the lead, creates Company, optional Contact,
+  opportunity-stage Deal and immutable provenance in one transaction. It does
+  not create Projects, finance records or inventory movements.
+- Added assignment-aware RLS, deny-by-default UI RBAC and explicit revokes that
+  neutralize legacy default privileges before applying narrow authenticated
+  grants. Authenticated clients cannot ingest/delete leads or write provenance
+  directly; future connectors remain server-side and idempotent by source key.
+- Validation passed: 34 focused Chromium tests, all 150 Edge Function tests,
+  TypeScript, production build, targeted ESLint and Prettier, registry
+  generation, declarative table-schema parse and `git diff --check`. The full
+  app run reached 879 passing/1 skipped with four unrelated baseline or network
+  failures (stale mobile DataImport assumptions and Gravatar network checks),
+  while its browser project also collected the Node-only backup test.
+- FakeRest tests and fixtures are synthetic evidence only. No real Supabase/RLS
+  run, migration, connector call, production data write, merge, deployment or
+  secret change occurred. The disposable-database acceptance contract is in
+  `docs/satno/LEAD_INBOX_ACCEPTANCE.md`.
+
+Next priority: reconcile PR #28, then define a separate server-side ingestion
+package for Tender Radar and Bale Market. It must authenticate connectors,
+retain stable source IDs, retry idempotently and never expose provider secrets
+or bypass the Lead Inbox quarantine.
+
 ## Latest checkpoint — verified backup portability foundation
 
 Draft PR #27: `satno/backup-portability-foundation-20260928`, published feature

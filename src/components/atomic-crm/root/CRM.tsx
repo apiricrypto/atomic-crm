@@ -66,6 +66,7 @@ import procurement from "../procurement";
 import { FinanceDashboard } from "../finance";
 import { InventoryDashboard } from "../inventory";
 import dailyWorkReports from "../dailyWorkReports";
+import leadInbox from "../leadInbox";
 
 const defaultStore = localStorageStore(undefined, "CRM");
 
@@ -286,6 +287,8 @@ const DesktopAdmin = (
         />
       </CustomRoutes>
       <Resource name="deals" {...deals} />
+      <Resource name="lead_inbox" {...leadInbox} />
+      <Resource name="lead_conversions" />
       <Resource name="projects" {...projects} />
       <Resource name="project_cost_items" />
       <Resource name="procurement_commitments" {...procurement} />
@@ -389,6 +392,8 @@ const MobileAdmin = (
           show={CompanyShow}
         />
         <Resource name="deals" list={DealListMobile} />
+        <Resource name="lead_inbox" {...leadInbox} />
+        <Resource name="lead_conversions" />
         <Resource name="projects" {...projects} />
         <Resource name="project_cost_items" />
         <Resource name="procurement_commitments" {...procurement} />

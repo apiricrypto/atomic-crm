@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "@/components/admin/use-theme";
-import { ChevronRight, ClipboardList, KeyRound } from "lucide-react";
+import { ChevronRight, ClipboardList, Inbox, KeyRound } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Check, Copy, LogOut, Moon, Smartphone, Sun } from "lucide-react";
 import {
+  CanAccess,
   email,
   Form,
   Translate,
@@ -109,6 +110,7 @@ export const SettingsPageMobile = () => {
       <MobileContent>
         <div className="flex flex-col min-h-[calc(100dvh-3.5rem-4.5rem)]">
           <div className="space-y-6">
+            <LeadInboxSection />
             <WorkReportsSection />
             <ProfileSection />
             <PreferencesSection />
@@ -135,6 +137,29 @@ export const SettingsPageMobile = () => {
 };
 
 SettingsPageMobile.path = "/settings";
+
+const LeadInboxSection = () => {
+  const translate = useTranslate();
+  return (
+    <CanAccess resource="lead_inbox" action="list">
+      <div>
+        <SectionLabel>
+          {translate("resources.lead_inbox.name", { smart_count: 2 })}
+        </SectionLabel>
+        <Button
+          asChild
+          variant="outline"
+          className="h-auto w-full justify-start"
+        >
+          <Link to="/lead_inbox">
+            <Inbox className="size-5" />
+            {translate("resources.lead_inbox.open")}
+          </Link>
+        </Button>
+      </div>
+    </CanAccess>
+  );
+};
 
 const WorkReportsSection = () => {
   const translate = useTranslate();
