@@ -268,6 +268,52 @@ export type FinancialTransaction = {
   sales_id?: Identifier;
 } & Pick<RaRecord, "id">;
 
+export type InventoryLocation = {
+  code: string;
+  name: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+export type InventoryItemUnit =
+  | "piece"
+  | "meter"
+  | "kilogram"
+  | "liter"
+  | "set"
+  | "other";
+
+export type InventoryItem = {
+  sku: string;
+  name: string;
+  unit: InventoryItemUnit;
+  reorder_level: number;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+export type InventoryMovementType =
+  | "receipt"
+  | "issue"
+  | "adjustment_in"
+  | "adjustment_out";
+
+export type InventoryMovement = {
+  item_id: Identifier;
+  location_id: Identifier;
+  procurement_commitment_id?: Identifier | null;
+  project_id?: Identifier | null;
+  reference: string;
+  type: InventoryMovementType;
+  quantity: number;
+  occurred_at: string;
+  notes?: string | null;
+  created_at: string;
+  sales_id?: Identifier;
+} & Pick<RaRecord, "id">;
+
 export type Tag = {
   id: number;
   name: string;

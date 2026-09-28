@@ -7,6 +7,9 @@ import type {
   FinancialPayable,
   FinancialReceivable,
   FinancialTransaction,
+  InventoryItem,
+  InventoryLocation,
+  InventoryMovement,
   Project,
   ProjectCostItem,
   ProcurementCommitment,
@@ -25,6 +28,9 @@ export interface Db {
   financial_payables: FinancialPayable[];
   financial_receivables: FinancialReceivable[];
   financial_transactions: FinancialTransaction[];
+  inventory_items: InventoryItem[];
+  inventory_locations: InventoryLocation[];
+  inventory_movements: InventoryMovement[];
   projects: Project[];
   project_cost_items: ProjectCostItem[];
   procurement_commitments: ProcurementCommitment[];

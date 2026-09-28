@@ -59,6 +59,9 @@ describe("ProcurementList", () => {
       .element(screen.getByRole("link", { name: "مدیریت مالی" }))
       .toBeVisible();
     await expect
+      .element(screen.getByRole("link", { name: "مدیریت انبار" }))
+      .toBeVisible();
+    await expect
       .poll(
         () =>
           document.documentElement.scrollWidth <=

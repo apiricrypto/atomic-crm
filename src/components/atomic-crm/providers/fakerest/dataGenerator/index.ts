@@ -8,6 +8,11 @@ import {
   generateFinancialReceivables,
   generateFinancialTransactions,
 } from "./finance";
+import {
+  generateInventoryItems,
+  generateInventoryLocations,
+  generateInventoryMovements,
+} from "./inventory";
 import { generateProjectCostItems, generateProjects } from "./projects";
 import { generateProcurementCommitments } from "./procurementCommitments";
 import { finalize } from "./finalize";
@@ -28,6 +33,9 @@ export default (): Db => {
   db.projects = generateProjects(db);
   db.project_cost_items = generateProjectCostItems(db);
   db.procurement_commitments = generateProcurementCommitments(db);
+  db.inventory_locations = generateInventoryLocations();
+  db.inventory_items = generateInventoryItems();
+  db.inventory_movements = generateInventoryMovements(db);
   db.financial_receivables = generateFinancialReceivables(db);
   db.financial_payables = generateFinancialPayables(db);
   db.financial_transactions = generateFinancialTransactions(db);

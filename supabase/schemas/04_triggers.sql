@@ -48,6 +48,10 @@ create or replace trigger set_financial_transaction_sales_id_trigger
     before insert on public.financial_transactions
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger set_inventory_movement_sales_id_trigger
+    before insert on public.inventory_movements
+    for each row execute function public.set_sales_id_default();
+
 create or replace trigger set_task_sales_id_trigger
     before insert on public.tasks
     for each row execute function public.set_sales_id_default();

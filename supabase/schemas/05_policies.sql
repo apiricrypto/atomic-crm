@@ -15,6 +15,9 @@ alter table public.procurement_commitments enable row level security;
 alter table public.financial_receivables enable row level security;
 alter table public.financial_payables enable row level security;
 alter table public.financial_transactions enable row level security;
+alter table public.inventory_locations enable row level security;
+alter table public.inventory_items enable row level security;
+alter table public.inventory_movements enable row level security;
 alter table public.sales enable row level security;
 alter table public.tags enable row level security;
 alter table public.tasks enable row level security;
@@ -84,6 +87,22 @@ create policy "Enable transaction read for authenticated" on public.financial_tr
 create policy "Enable transaction insert for authenticated" on public.financial_transactions for insert to authenticated with check (true);
 create policy "Enable transaction update for authenticated" on public.financial_transactions for update to authenticated using (true) with check (true);
 create policy "Enable transaction delete for authenticated" on public.financial_transactions for delete to authenticated using (true);
+
+-- Inventory
+create policy "Enable inventory location read for authenticated" on public.inventory_locations for select to authenticated using (true);
+create policy "Enable inventory location insert for authenticated" on public.inventory_locations for insert to authenticated with check (true);
+create policy "Enable inventory location update for authenticated" on public.inventory_locations for update to authenticated using (true) with check (true);
+create policy "Enable inventory location delete for authenticated" on public.inventory_locations for delete to authenticated using (true);
+
+create policy "Enable inventory item read for authenticated" on public.inventory_items for select to authenticated using (true);
+create policy "Enable inventory item insert for authenticated" on public.inventory_items for insert to authenticated with check (true);
+create policy "Enable inventory item update for authenticated" on public.inventory_items for update to authenticated using (true) with check (true);
+create policy "Enable inventory item delete for authenticated" on public.inventory_items for delete to authenticated using (true);
+
+create policy "Enable inventory movement read for authenticated" on public.inventory_movements for select to authenticated using (true);
+create policy "Enable inventory movement insert for authenticated" on public.inventory_movements for insert to authenticated with check (true);
+create policy "Enable inventory movement update for authenticated" on public.inventory_movements for update to authenticated using (true) with check (true);
+create policy "Enable inventory movement delete for authenticated" on public.inventory_movements for delete to authenticated using (true);
 
 -- Sales
 create policy "Enable read access for authenticated users" on public.sales for select to authenticated using (true);
