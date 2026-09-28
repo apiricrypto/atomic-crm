@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { secretsEqual } from "./authentication";
+import tenderRadarFixtures from "./fixtures/tender-radar-v1.json";
 import { createLeadIngestionHandler, type LeadStore } from "./handler";
 
 const tenderToken = "t".repeat(48);
@@ -9,7 +10,8 @@ const baleToken = "b".repeat(48);
 
 const validBody = {
   captured_at: "2026-09-28T07:30:00Z",
-  raw_payload: { original: "provider-only" },
+  deadline: tenderRadarFixtures.cases[0].request.deadline,
+  raw_payload: tenderRadarFixtures.cases[0].request.raw_payload,
   source_record_id: "SETAD-100",
   title: "فرصت نیروگاه خورشیدی",
 };
@@ -117,14 +119,14 @@ describe("lead ingestion handler", () => {
     expect(response.status).toBe(201);
     expect(store.insert).toHaveBeenCalledWith(
       expect.objectContaining({
-        raw_payload: { original: "provider-only" },
+        raw_payload: tenderRadarFixtures.cases[0].request.raw_payload,
         source: "tender_radar",
         source_record_id: "SETAD-100",
         status: "new",
       }),
     );
     const responseText = await response.text();
-    expect(responseText).not.toContain("provider-only");
+    expect(responseText).not.toContain("fixture-only");
     expect(responseText).not.toContain(tenderToken);
     expect(JSON.parse(responseText)).toEqual({
       data: storedLead,

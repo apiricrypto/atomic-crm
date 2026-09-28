@@ -2,18 +2,19 @@
 import { describe, expect, it } from "vitest";
 
 import { LeadValidationError, normalizeLead } from "./contract";
+import tenderRadarFixtures from "./fixtures/tender-radar-v1.json";
 
 const now = new Date("2026-09-28T08:00:00.000Z");
 
 const validLead = {
   captured_at: "2026-09-28T07:30:00+00:00",
   contact_email: " Sales@Example.COM ",
-  deadline: "2026-10-01",
+  deadline: tenderRadarFixtures.cases[0].request.deadline,
   estimated_amount: 1_500_000,
   estimated_currency: "IRR",
   organization_name: " شرکت نمونه ",
   priority: "high",
-  raw_payload: { provider_id: 42, untouched: true },
+  raw_payload: tenderRadarFixtures.cases[0].request.raw_payload,
   source_record_id: " SETAD-42 ",
   source_url: "https://eproc.example.test/item/42",
   title: " استعلام پنل خورشیدی ",
@@ -28,7 +29,7 @@ describe("lead ingestion contract", () => {
       estimated_currency: "IRR",
       organization_name: "شرکت نمونه",
       priority: "high",
-      raw_payload: { provider_id: 42, untouched: true },
+      raw_payload: tenderRadarFixtures.cases[0].request.raw_payload,
       source: "tender_radar",
       source_record_id: "SETAD-42",
       status: "new",
@@ -118,6 +119,16 @@ describe("lead ingestion contract", () => {
         now,
       ),
     ).toThrow(/future/);
+    expect(() =>
+      normalizeLead(
+        {
+          ...validLead,
+          source_url: "https://radar.example.test/item?access_token=private",
+        },
+        "tender_radar",
+        now,
+      ),
+    ).toThrow(/sensitive material: access_token/);
   });
 
   it("limits the quarantined raw payload", () => {
@@ -128,5 +139,23 @@ describe("lead ingestion contract", () => {
         now,
       ),
     ).toThrow(/raw_payload is too large/);
+  });
+
+  it("rejects sensitive material anywhere inside quarantined payloads", () => {
+    expect(() =>
+      normalizeLead(
+        {
+          ...validLead,
+          raw_payload: {
+            ...tenderRadarFixtures.cases[0].request.raw_payload,
+            source_snapshot: {
+              nested: { session_cookie: "must-not-be-stored" },
+            },
+          },
+        },
+        "tender_radar",
+        now,
+      ),
+    ).toThrow(/sensitive key: session_cookie/);
   });
 });

@@ -1,3 +1,9 @@
+import { validateTenderRadarPayload } from "./tenderRadarContract.ts";
+import { LeadValidationError } from "./validationError.ts";
+import { findSensitiveKey, findSensitiveUrlPart } from "./sensitiveData.ts";
+
+export { LeadValidationError } from "./validationError.ts";
+
 export const CONNECTOR_SOURCES = ["tender_radar", "bale_market"] as const;
 
 export type ConnectorSource = (typeof CONNECTOR_SOURCES)[number];
@@ -45,8 +51,6 @@ const ALLOWED_FIELDS = new Set([
 
 const MAX_RAW_PAYLOAD_BYTES = 64 * 1024;
 const textEncoder = new TextEncoder();
-
-export class LeadValidationError extends Error {}
 
 export function isConnectorSource(value: unknown): value is ConnectorSource {
   return (
@@ -100,8 +104,15 @@ function optionalUrl(value: unknown): string | null {
   try {
     const url = new URL(normalized);
     if (url.protocol !== "http:" && url.protocol !== "https:") throw null;
+    const sensitivePart = findSensitiveUrlPart(url);
+    if (sensitivePart) {
+      throw new LeadValidationError(
+        `source_url cannot contain sensitive material: ${sensitivePart}`,
+      );
+    }
     return url.toString();
-  } catch {
+  } catch (error) {
+    if (error instanceof LeadValidationError) throw error;
     throw new LeadValidationError("source_url must use HTTP or HTTPS");
   }
 }
@@ -154,6 +165,12 @@ function capturedAt(value: unknown, now: Date): string {
 
 function rawPayload(value: unknown): Record<string, unknown> {
   const payload = asObject(value, "raw_payload");
+  const sensitiveKey = findSensitiveKey(payload);
+  if (sensitiveKey) {
+    throw new LeadValidationError(
+      `raw_payload cannot contain sensitive key: ${sensitiveKey}`,
+    );
+  }
   const size = textEncoder.encode(JSON.stringify(payload)).byteLength;
   if (size > MAX_RAW_PAYLOAD_BYTES) {
     throw new LeadValidationError("raw_payload is too large");
@@ -210,6 +227,26 @@ export function normalizeLead(
     throw new LeadValidationError(`Unknown field: ${unknownField}`);
   }
   const { amount, currency } = estimate(body);
+  const normalizedSourceRecordId = requiredText(
+    body.source_record_id,
+    "source_record_id",
+    200,
+  );
+  const normalizedDeadline = optionalDate(body.deadline);
+  const normalizedRawPayload = rawPayload(body.raw_payload);
+  if (source === "tender_radar") {
+    const tenderRadarPayload = validateTenderRadarPayload(
+      normalizedRawPayload,
+      normalizedSourceRecordId,
+    );
+    if (
+      normalizedDeadline !== tenderRadarPayload.submission_deadline_candidate
+    ) {
+      throw new LeadValidationError(
+        "Tender Radar deadline must match submission_deadline_candidate",
+      );
+    }
+  }
 
   return {
     captured_at: capturedAt(body.captured_at, now),
@@ -217,7 +254,7 @@ export function normalizeLead(
     contact_email: optionalEmail(body.contact_email),
     contact_name: optionalText(body.contact_name, "contact_name", 300),
     contact_phone: optionalText(body.contact_phone, "contact_phone", 64),
-    deadline: optionalDate(body.deadline),
+    deadline: normalizedDeadline,
     description: optionalText(body.description, "description", 10_000),
     estimated_amount: amount,
     estimated_currency: currency,
@@ -228,13 +265,9 @@ export function normalizeLead(
     ),
     priority: priority(body.priority),
     province: optionalText(body.province, "province", 200),
-    raw_payload: rawPayload(body.raw_payload),
+    raw_payload: normalizedRawPayload,
     source,
-    source_record_id: requiredText(
-      body.source_record_id,
-      "source_record_id",
-      200,
-    ),
+    source_record_id: normalizedSourceRecordId,
     source_url: optionalUrl(body.source_url),
     status: "new",
     title: requiredText(body.title, "title", 500),
