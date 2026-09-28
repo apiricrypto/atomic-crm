@@ -9,7 +9,8 @@ destructive operations without the user's explicit approval.
 ## Latest checkpoint — disposable runtime readiness diagnosis
 
 Feature branch: `satno/tender-disposable-readiness-20260929`, stacked directly
-on Draft PR #40 at `509522e65707a9f6c4f3983fc8fa8ff040377495`.
+on Draft PR #40 at `509522e65707a9f6c4f3983fc8fa8ff040377495`;
+published feature commit `47a1263363a4cefbdc5d2799653334a46057f32b`.
 
 - Live GitHub reconciliation confirmed #40 and #11 remained open, Draft,
   mergeable, and unmerged. `main`/`satno-development` remained identical at
@@ -27,7 +28,8 @@ on Draft PR #40 at `509522e65707a9f6c4f3983fc8fa8ff040377495`.
 - Validation passed: 5 readiness unit tests, all 12 existing concurrency unit
   tests, targeted ESLint/Prettier, and `git diff --check`. Running the command
   in this environment failed closed with stable missing-Docker/CLI blocker
-  codes, as expected.
+  codes, as expected. Published feature tree `d60f4b81` exactly matched the
+  tested local feature tree.
 - A ready diagnostic result proves only local prerequisites. It does not prove
   Supabase startup, RLS, transaction, rollback, concurrency, live Tender Radar,
   or SETAD acceptance. No migration, fixture write, merge, deployment, secret
