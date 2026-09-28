@@ -20,6 +20,7 @@ export type SignUpData = {
 export type SalesFormData = {
   avatar?: string;
   email: string;
+  phone?: string;
   secondary_emails?: string[];
   password?: string;
   first_name: string;
@@ -43,6 +44,9 @@ export type Sale = {
    * DO NOT UPDATE this field directly, it should be updated by the backend
    */
   email: string;
+
+  /** E.164 phone copied from the corresponding Supabase Auth user. */
+  phone?: string | null;
 
   secondary_emails?: string[];
 

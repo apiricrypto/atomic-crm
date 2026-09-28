@@ -234,11 +234,12 @@ begin
   select count(id) into sales_count
   from public.sales;
 
-  insert into public.sales (first_name, last_name, email, user_id, administrator, role)
+  insert into public.sales (first_name, last_name, email, phone, user_id, administrator, role)
   values (
     coalesce(new.raw_user_meta_data ->> 'first_name', new.raw_user_meta_data -> 'custom_claims' ->> 'first_name', 'Pending'),
     coalesce(new.raw_user_meta_data ->> 'last_name', new.raw_user_meta_data -> 'custom_claims' ->> 'last_name', 'Pending'),
     new.email,
+    new.phone,
     new.id,
     case when sales_count > 0 then FALSE else TRUE end,
     case when sales_count > 0 then 'sales' else 'admin' end
@@ -256,7 +257,8 @@ begin
   set
     first_name = coalesce(new.raw_user_meta_data ->> 'first_name', new.raw_user_meta_data -> 'custom_claims' ->> 'first_name', 'Pending'),
     last_name = coalesce(new.raw_user_meta_data ->> 'last_name', new.raw_user_meta_data -> 'custom_claims' ->> 'last_name', 'Pending'),
-    email = new.email
+    email = new.email,
+    phone = new.phone
   where user_id = new.id;
 
   return new;

@@ -9,6 +9,10 @@ const MESSAGE_BY_CODE: Record<string, string> = {
   secondary_email_is_primary: "crm.profile.secondary_email_is_primary",
   invalid_secondary_email: "crm.profile.secondary_email_invalid",
   too_many_secondary_emails: "crm.profile.too_many_secondary_emails",
+  invalid_phone: "crm.auth.phone_invalid",
+  phone_taken: "crm.auth.phone_taken",
+  phone_admin_only: "crm.auth.phone_admin_only",
+  phone_clear_not_supported: "crm.auth.phone_clear_not_supported",
 };
 
 export const getSalesErrorNotification = (

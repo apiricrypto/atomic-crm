@@ -144,6 +144,7 @@ const getDataProviderWithCustomMethods = () => {
     ) {
       const {
         email,
+        phone,
         secondary_emails,
         first_name,
         last_name,
@@ -160,6 +161,7 @@ const getDataProviderWithCustomMethods = () => {
           body: {
             sales_id: id,
             email,
+            phone,
             secondary_emails,
             first_name,
             last_name,

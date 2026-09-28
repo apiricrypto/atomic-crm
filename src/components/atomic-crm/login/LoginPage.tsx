@@ -9,8 +9,10 @@ import { useConfigurationContext } from "@/components/atomic-crm/root/Configurat
 import { SSOAuthButton } from "./SSOAuthButton";
 import {
   disableEmailPasswordAuthentication,
+  enablePhoneOtpAuthentication,
   googleWorkplaceDomain,
 } from "./authConfig";
+import { PhoneOtpLogin } from "./PhoneOtpLogin";
 
 /**
  * Login page displayed when authentication is enabled and the user is not authenticated.
@@ -147,6 +149,9 @@ export const LoginPage = (props: { redirectTo?: string }) => {
                 })}
               </Link>
             )}
+            {enablePhoneOtpAuthentication ? (
+              <PhoneOtpLogin redirectTo={redirectTo} />
+            ) : null}
           </div>
         </div>
       </div>
