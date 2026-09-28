@@ -169,6 +169,23 @@ disposable stack. Then run `supabase test db`; do not point the suite at a
 production or shared project. A separate multi-connection test is still
 required for concurrent official-identifier and fallback-fingerprint races.
 
+### Multi-connection concurrency runner
+
+`scripts/satno-tender-concurrency.mjs` and
+`docs/satno/TENDER_CONCURRENCY_RUNNER.md` define that separate acceptance
+boundary. The runner sends two synchronized PostgREST requests for each of six
+synthetic races: import collisions on Need No, Tender No and fallback
+fingerprint; a same-source Lead retry; and SETAD-verification collisions on
+Need No and Tender No.
+
+It is fail-closed to a credential-free loopback URL, requires the exact
+`DISPOSABLE-ONLY` confirmation, loads fixture IDs from an external manifest,
+and takes the anon key and two user JWTs only from environment variables. It
+never accepts a service-role key, creates fixtures, prints response bodies or
+identifiers, or connects to Tender Radar/SETAD. Unit tests are not evidence of
+a database pass. A real result still requires a reviewed migration/diff,
+synthetic fixtures, and execution against a local disposable Supabase stack.
+
 ## Guarded Radar import function
 
 `import_tender_opportunity(lead_id, review)` is the sole declared write path
