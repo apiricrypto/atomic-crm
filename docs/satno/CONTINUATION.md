@@ -6,6 +6,39 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Daily Work Reports foundation
+
+Draft PR #25: `satno/daily-work-reports-20260928`, published feature commit
+`21ac49999e9a621ecb72da5194d4c25b790ebbe5`, stacked directly on Draft PR #24
+at `2f3a5cd013a7c4dd76be8ae0f005656fd728cbe6`.
+
+- Live reconciliation confirmed PR #24 remained open, Draft and unmerged, with
+  its head exactly descended from PR #23. `main` and `satno-development`
+  remained at `dce557e`; upstream remained `d00fdf3` and the Persian reference
+  remained `85fc400`. No overlapping Daily Work Reports branch or PR existed.
+- Added a Persian-first, responsive Daily Work Reports resource for staff to
+  record one report per work date: achievements, minutes worked, blockers and
+  next steps. Managers and administrators may read team reports, but only the
+  enabled owner may create, edit or delete a report.
+- Added a declarative `daily_work_reports` table, ownership trigger, helper,
+  indexes, grants and RLS policies. The enabled-sales identity is derived
+  server-side; the client access matrix remains navigation/UI enforcement, not
+  the production data-security boundary.
+- Validation passed: 34 focused Chromium tests, all 140 Edge Function tests,
+  TypeScript, production build, targeted ESLint and Prettier, registry
+  generation, declarative table-schema parse and `git diff --check`. Existing
+  FieldTitle circular-chunk, large-bundle and stale Browserslist warnings remain.
+- FakeRest records are demo/test data only. No migration was generated or
+  applied and no real Supabase/RLS E2E was performed because the local
+  Docker/Podman Supabase stack is unavailable. This resource is not payroll and
+  does not post finance, project-cost, procurement or inventory entries. No
+  merge, deployment, secret change or production-data write occurred.
+
+Next priority: reconcile PR #25, then design Phone/SMS OTP as a separate,
+provider-replaceable package with all provider credentials and delivery calls
+kept server-side. Do not weaken the existing email/password login path or claim
+real OTP delivery until an approved provider and real integration test exist.
+
 ## Latest checkpoint — Staff Accounts and RBAC foundation
 
 Draft PR #24: `satno/staff-rbac-foundation-20260928`, published feature commit
