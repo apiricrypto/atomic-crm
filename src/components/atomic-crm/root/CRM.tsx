@@ -62,6 +62,7 @@ import { CompanyShow } from "../companies/CompanyShow.tsx";
 import { CompanyListMobile } from "../companies/CompanyList.tsx";
 import { NoteShowPage } from "../notes/NoteShowPage.tsx";
 import projects from "../projects";
+import procurement from "../procurement";
 
 const defaultStore = localStorageStore(undefined, "CRM");
 
@@ -268,6 +269,7 @@ const DesktopAdmin = (
       <Resource name="deals" {...deals} />
       <Resource name="projects" {...projects} />
       <Resource name="project_cost_items" />
+      <Resource name="procurement_commitments" {...procurement} />
       <Resource name="contacts" {...contacts} />
       <Resource name="companies" {...companies} />
       <Resource name="contact_notes" />
@@ -347,6 +349,7 @@ const MobileAdmin = (
         <Resource name="deals" list={DealListMobile} />
         <Resource name="projects" {...projects} />
         <Resource name="project_cost_items" />
+        <Resource name="procurement_commitments" {...procurement} />
         <Resource name="tasks" list={MobileTasksList} />
       </Admin>
     </PersistQueryClientProvider>

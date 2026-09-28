@@ -246,6 +246,32 @@ export const farsiCrmMessages = {
         cancelled: "لغوشده",
       },
     },
+    procurement_commitments: {
+      name: "تعهد خرید |||| تدارکات پروژه",
+      forcedCaseName: "تعهد خرید",
+      subtitle: "پیگیری سفارش‌ها و تعهدات خرید مرتبط با اقلام هزینه پروژه",
+      empty: "هنوز تعهد خریدی برای پروژه‌ها ثبت نشده است.",
+      mixed_currency: "چندارزی",
+      accounting_notice:
+        "این مبالغ پرداخت یا هزینه واقعی نیستند؛ ثبت پرداخت و هزینه واقعی در گردش‌های مالی جدا انجام می‌شود.",
+      fields: {
+        amount: "مبلغ تعهد",
+        supplier: "تأمین‌کننده",
+        expected_on: "تاریخ مورد انتظار",
+      },
+      summary: {
+        active: "تعهد فعال",
+        received: "تحویل‌شده",
+        draft: "پیش‌نویس",
+      },
+      status: {
+        draft: "پیش‌نویس",
+        approved: "تأییدشده",
+        ordered: "سفارش‌شده",
+        received: "تحویل‌شده",
+        cancelled: "لغوشده",
+      },
+    },
     notes: {
       name: "یادداشت |||| یادداشتها",
       forcedCaseName: "یادداشت",

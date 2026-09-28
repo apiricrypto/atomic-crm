@@ -294,6 +294,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/procurementCommitments.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/index.ts",
           "type": "registry:component"
         },
@@ -371,6 +375,18 @@
         },
         {
           "path": "src/components/atomic-crm/projects/ProjectList.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/procurement/totals.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/procurement/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/procurement/ProcurementList.tsx",
           "type": "registry:component"
         },
         {

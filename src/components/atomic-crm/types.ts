@@ -194,6 +194,35 @@ export type ProjectCostItem = {
   sales_id?: Identifier;
 } & Pick<RaRecord, "id">;
 
+export type ProcurementCommitmentStatus =
+  | "draft"
+  | "approved"
+  | "ordered"
+  | "received"
+  | "cancelled";
+
+/**
+ * A procurement commitment linked to one project cost line.
+ *
+ * This amount is neither an actual project cost nor a payment. Those values
+ * must be recorded by their own workflows to prevent financial double counting.
+ */
+export type ProcurementCommitment = {
+  project_id: Identifier;
+  project_cost_item_id: Identifier;
+  supplier_company_id?: Identifier | null;
+  reference: string;
+  status: ProcurementCommitmentStatus;
+  amount: number;
+  currency: string;
+  expected_on?: string | null;
+  received_on?: string | null;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+  sales_id?: Identifier;
+} & Pick<RaRecord, "id">;
+
 export type Tag = {
   id: number;
   name: string;

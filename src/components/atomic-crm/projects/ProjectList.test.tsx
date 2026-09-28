@@ -47,6 +47,9 @@ describe("ProjectList", () => {
     await expect.element(screen.getByText(/۵۰۰.*هزار/)).toBeVisible();
     await expect.element(screen.getByText(/۴۸۰.*هزار/)).toBeVisible();
     await expect
+      .element(screen.getByRole("link", { name: "تدارکات پروژه" }))
+      .toBeVisible();
+    await expect
       .poll(
         () =>
           document.documentElement.scrollWidth <=
