@@ -6,6 +6,41 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Finance ledger foundation
+
+Draft PR #22: `satno/finance-ledgers-foundation-20260928`, published at
+`6d10e8d9c97293f283a9f606dbedcc4042143144` and stacked on Draft PR #21 at
+`25779d168b4b1683ee452297195c0f857b04c4e0`.
+
+- Live reconciliation confirmed PR #21 remained open, Draft, unmerged and
+  mergeable before this package. `main` and `satno-development` remained at
+  `dce557e`; upstream remained `d00fdf3` and the Persian reference remained
+  `85fc400`. No overlapping Finance branch or PR existed. PR #22 is open,
+  Draft and mergeable; GitHub reports no workflow runs for its feature head.
+- Added separate receivable, payable and transaction ledgers. Composite keys
+  enforce project/source currency provenance, and every transaction settles
+  exactly one receivable (inflow) or payable (outflow). Balances floor at zero,
+  cancelled obligations are excluded, and summaries never combine currencies.
+- Added a Persian-first responsive, read-only Finance dashboard plus a
+  Procurement entry point. Project contract snapshots and procurement
+  commitments never create financial obligations or payments implicitly.
+- Added FakeRest demo records and a separate acceptance contract. These prove
+  deterministic UI behavior only; they are not evidence of real persistence.
+- Validation passed: 38 focused Chromium tests and a final 5-test
+  Finance/Procurement rerun; TypeScript, production build, targeted ESLint and
+  Prettier, registry generation, table-schema parse and `git diff --check`.
+  The full app run passed 272 tests with one skip; two external Gravatar checks
+  and two pre-existing DataImport registration-isolation checks failed outside
+  the changed finance surface. Existing FieldTitle circular-chunk, large-bundle
+  and stale Browserslist warnings remain.
+- No migration was generated or applied. Real Supabase/RLS testing remains
+  blocked by the unavailable Docker/Podman stack, and GitHub Actions has no run.
+  No merge, deployment, secret change or production-data write occurred.
+
+Next priority: reconcile PR #22, then begin an Inventory foundation as a new
+small package. Keep stock receipts/issues distinct from procurement commitments,
+payables, transactions and project actual costs.
+
 ## Latest checkpoint — Procurement commitments UI
 
 Draft PR #21: `satno/procurement-ui-foundation-20260928`, feature commit

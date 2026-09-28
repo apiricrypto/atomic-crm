@@ -10,7 +10,10 @@ import { ListPagination } from "@/components/admin/list-pagination";
 import { ReferenceField } from "@/components/admin/reference-field";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/formatMoney";
+import { WalletCards } from "lucide-react";
+import { Link } from "react-router";
 
 import { getMoneyLocale } from "../root/useFormatMoney";
 import type { ProcurementCommitment } from "../types";
@@ -47,15 +50,23 @@ const ProcurementGrid = () => {
 
   return (
     <section className="w-full px-4 pb-20 md:px-0 md:pb-0">
-      <div className="mb-5">
-        <h1 className="text-2xl font-semibold">
-          {translate("resources.procurement_commitments.name", {
-            smart_count: 2,
-          })}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {translate("resources.procurement_commitments.subtitle")}
-        </p>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">
+            {translate("resources.procurement_commitments.name", {
+              smart_count: 2,
+            })}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {translate("resources.procurement_commitments.subtitle")}
+          </p>
+        </div>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/finance">
+            <WalletCards className="size-4" />
+            {translate("resources.finance.name")}
+          </Link>
+        </Button>
       </div>
 
       {!!data?.length && (

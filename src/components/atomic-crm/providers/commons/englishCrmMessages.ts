@@ -271,6 +271,27 @@ export const englishCrmMessages = {
         cancelled: "Cancelled",
       },
     },
+    finance: {
+      name: "Finance",
+      subtitle:
+        "Receivables, payables, and recorded cash movements by currency",
+      empty: "No financial obligation or transaction has been recorded yet.",
+      accounting_notice:
+        "Project contract values and procurement commitments never create receivables, payables, or payments automatically. Only explicit financial records affect these balances.",
+      recent_transactions: "Recent transactions",
+      summary: {
+        receivable: "Receivable outstanding",
+        payable: "Payable outstanding",
+        net_cash_flow: "Recorded net cash flow",
+        transactions: "Recorded transactions",
+        overdue:
+          "%{smart_count} overdue item |||| %{smart_count} overdue items",
+      },
+      direction: {
+        inflow: "Inflow",
+        outflow: "Outflow",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",

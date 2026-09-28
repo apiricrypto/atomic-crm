@@ -11,6 +11,9 @@ import type {
   Company,
   Contact,
   Deal,
+  FinancialPayable,
+  FinancialReceivable,
+  FinancialTransaction,
   Project,
   ProjectCostItem,
   ProcurementCommitment,
@@ -55,6 +58,9 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
     contacts: [],
     deal_notes: [],
     deals: [],
+    financial_payables: [],
+    financial_receivables: [],
+    financial_transactions: [],
     projects: [],
     project_cost_items: [],
     procurement_commitments: [],
@@ -183,6 +189,63 @@ export const buildProcurementCommitment = (
   status: "approved",
   supplier_company_id: 2,
   updated_at: "2025-01-01T09:00:00.000Z",
+  ...overrides,
+});
+
+export const buildFinancialReceivable = (
+  overrides: Partial<FinancialReceivable> = {},
+): FinancialReceivable => ({
+  amount: 1_000_000,
+  cancelled_at: null,
+  company_id: 1,
+  created_at: "2025-01-01T09:00:00.000Z",
+  currency: "IRR",
+  due_on: "2025-03-01",
+  id: 1,
+  issued_on: "2025-01-01",
+  notes: null,
+  project_id: 1,
+  reference: "SATNO-AR-0001",
+  sales_id: 0,
+  updated_at: "2025-01-01T09:00:00.000Z",
+  ...overrides,
+});
+
+export const buildFinancialPayable = (
+  overrides: Partial<FinancialPayable> = {},
+): FinancialPayable => ({
+  amount: 800_000,
+  cancelled_at: null,
+  company_id: 2,
+  created_at: "2025-01-01T09:00:00.000Z",
+  currency: "IRR",
+  due_on: "2025-03-01",
+  id: 1,
+  issued_on: "2025-01-01",
+  notes: null,
+  procurement_commitment_id: 1,
+  project_id: 1,
+  reference: "SATNO-AP-0001",
+  sales_id: 0,
+  updated_at: "2025-01-01T09:00:00.000Z",
+  ...overrides,
+});
+
+export const buildFinancialTransaction = (
+  overrides: Partial<FinancialTransaction> = {},
+): FinancialTransaction => ({
+  amount: 400_000,
+  created_at: "2025-01-15T09:00:00.000Z",
+  currency: "IRR",
+  direction: "inflow",
+  id: 1,
+  method: "bank",
+  notes: null,
+  occurred_at: "2025-01-15T09:00:00.000Z",
+  payable_id: null,
+  receivable_id: 1,
+  reference: "SATNO-RCPT-0001",
+  sales_id: 0,
   ...overrides,
 });
 

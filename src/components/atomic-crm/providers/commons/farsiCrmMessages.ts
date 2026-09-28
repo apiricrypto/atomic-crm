@@ -272,6 +272,26 @@ export const farsiCrmMessages = {
         cancelled: "لغوشده",
       },
     },
+    finance: {
+      name: "مدیریت مالی",
+      subtitle: "دریافتنی‌ها، پرداختنی‌ها و جریان نقد ثبت‌شده به تفکیک ارز",
+      empty: "هنوز تعهد یا تراکنش مالی ثبت نشده است.",
+      accounting_notice:
+        "ارزش قرارداد پروژه و تعهد خرید هرگز خودکار به دریافتنی، پرداختنی یا پرداخت تبدیل نمی‌شوند؛ فقط اسناد مالی صریح روی این مانده‌ها اثر دارند.",
+      recent_transactions: "تراکنش‌های اخیر",
+      summary: {
+        receivable: "مانده دریافتنی",
+        payable: "مانده پرداختنی",
+        net_cash_flow: "خالص جریان نقد ثبت‌شده",
+        transactions: "تراکنش ثبت‌شده",
+        overdue:
+          "%{smart_count} مورد سررسیدگذشته |||| %{smart_count} مورد سررسیدگذشته",
+      },
+      direction: {
+        inflow: "دریافت",
+        outflow: "پرداخت",
+      },
+    },
     notes: {
       name: "یادداشت |||| یادداشتها",
       forcedCaseName: "یادداشت",

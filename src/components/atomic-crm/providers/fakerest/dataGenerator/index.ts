@@ -3,6 +3,11 @@ import { generateContactNotes } from "./contactNotes";
 import { generateContacts } from "./contacts";
 import { generateDealNotes } from "./dealNotes";
 import { generateDeals } from "./deals";
+import {
+  generateFinancialPayables,
+  generateFinancialReceivables,
+  generateFinancialTransactions,
+} from "./finance";
 import { generateProjectCostItems, generateProjects } from "./projects";
 import { generateProcurementCommitments } from "./procurementCommitments";
 import { finalize } from "./finalize";
@@ -23,6 +28,9 @@ export default (): Db => {
   db.projects = generateProjects(db);
   db.project_cost_items = generateProjectCostItems(db);
   db.procurement_commitments = generateProcurementCommitments(db);
+  db.financial_receivables = generateFinancialReceivables(db);
+  db.financial_payables = generateFinancialPayables(db);
+  db.financial_transactions = generateFinancialTransactions(db);
   db.tasks = generateTasks(db);
   db.configuration = [
     {
