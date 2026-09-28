@@ -20,6 +20,8 @@ import type {
   SalesFormData,
   SignUpData,
   Task,
+  TenderImportResult,
+  TenderOpportunityReview,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { getActivityLog } from "../commons/activity";
@@ -319,6 +321,14 @@ export const createDataProvider = ({
         db,
         input,
       });
+    },
+    importTenderOpportunity: async (
+      _leadId: Identifier,
+      _review: TenderOpportunityReview,
+    ): Promise<TenderImportResult> => {
+      throw new Error(
+        "Tender import is disabled in FakeRest demo mode; no database write occurred",
+      );
     },
     mergeContacts: async (sourceId: Identifier, targetId: Identifier) => {
       return mergeContacts(sourceId, targetId, baseDataProvider);

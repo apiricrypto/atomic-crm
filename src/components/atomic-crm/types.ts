@@ -279,6 +279,41 @@ export type TenderPipelineEntry = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+/**
+ * Allow-listed values reviewed by a person before the guarded Tender import
+ * RPC is called. Quarantined provider payloads are deliberately excluded.
+ */
+export type TenderOpportunityReview = {
+  opportunity_type: TenderOpportunityType;
+  domain: TenderDomain;
+  title: string;
+  description: string | null;
+  organizer: string | null;
+  province: string | null;
+  city: string | null;
+  publish_date: string | null;
+  document_deadline: string | null;
+  submission_deadline: string | null;
+  official_need_no: string | null;
+  official_tender_no: string | null;
+  official_source_url: string | null;
+  trade: string | null;
+  category: string | null;
+  verification_status: TenderVerificationStatus;
+  radar_score: number;
+  radar_grade: Exclude<TenderRadarGrade, "C">;
+  fallback_fingerprint: string;
+  assigned_sales_id?: Identifier | null;
+};
+
+export type TenderImportResult = {
+  opportunity_id: Identifier;
+  pipeline_entry_id: Identifier;
+  lead_id: Identifier;
+  duplicate: boolean;
+  dedup_basis: string;
+};
+
 export type LeadConversionResult = {
   lead_id: Identifier;
   company_id: Identifier;

@@ -6,6 +6,45 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Tender Radar human review/import UI
+
+Draft PR #33: `satno/tender-radar-review-ui-20260928`, published feature
+commit `ee29d12840238e26d1c3912bec44f9667a421f73`, stacked directly on Draft PR
+#32 at `2505d759a683f179a7d9e14e8e6ff907b2c184df`.
+
+- Live GitHub reconciliation confirmed #32 and #11 remained open, Draft,
+  mergeable, and unmerged. #32 had no workflow run or commit status;
+  `main`/`satno-development` remained at `dce557e`, upstream at `64e2163`, and
+  the Persian reference at `85fc400`. No overlapping human-review/import UI
+  branch or PR was found.
+- Added a Persian/RTL review dialog for qualified A/B Radar rows. It maps only
+  versioned allow-listed fields into `import_tender_opportunity`; quarantined
+  `source_snapshot`, arbitrary provider data, scoring internals, and sensitive
+  material never enter the review object.
+- Candidate Need No/Tender No, official URL, organizer, geography, publication
+  date, document deadline, and submission deadline remain separate editable
+  fields. Verification always starts as `pending_setad_verification`; selecting
+  `setad_verified` requires the type-correct official identifier and explicit
+  human confirmation.
+- Qualified Tender Radar leads no longer expose the generic Lead-to-Deal action
+  and instead route to Tender Intelligence. Client RBAC now matches the guarded
+  RPC for active manager/sales roles. FakeRest fails visibly and performs no
+  simulated Tender write.
+- Validation passed: 45 focused Chromium tests, all 182 Edge Function tests,
+  TypeScript, production build, targeted ESLint/Prettier, registry generation,
+  `git diff --check`, and secret-shaped-value scan. The full browser run reached
+  930 passing and one skipped test; the four known Gravatar/DataImport failures
+  and Node-only backup collection issue remain unrelated baseline limitations.
+- This proves the reviewed UI-to-RPC boundary with synthetic fixtures only. No
+  real Radar sender/token/record, network request, Supabase/RLS transaction,
+  migration, production write, SETAD session/CAPTCHA, merge, or deployment
+  occurred.
+
+Next priority: reconcile PR #33, then add a guarded Tender Pipeline transition
+and audit UI for documents, technical review, pricing, participation decision,
+and result. A disposable real Supabase transaction/RLS/concurrency run remains
+mandatory before any migration or live Tender Radar integration claim.
+
 ## Latest checkpoint — Tender Radar sender conformance
 
 Draft PR #32: `satno/tender-radar-conformance-20260928`, published feature

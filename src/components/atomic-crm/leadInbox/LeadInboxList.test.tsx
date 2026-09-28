@@ -36,8 +36,11 @@ describe("LeadInboxList", () => {
       .element(screen.getByText(/سرنخ خام.*شرکت، مخاطب یا معامله نیست/))
       .toBeVisible();
     await expect
-      .element(screen.getByRole("button", { name: "تبدیل به فرصت" }))
+      .element(screen.getByRole("link", { name: "بازبینی در ماژول مناقصات" }))
       .toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "تبدیل به فرصت" }).query(),
+    ).toBeNull();
     expect(document.body.textContent).not.toContain("RAW-MUST-STAY-HIDDEN");
     await expect
       .poll(
