@@ -25,6 +25,8 @@
     "test:backup:satno": "node --test ./scripts/satno-backup.test.mjs",
     "test:tender-concurrency:satno": "node ./scripts/satno-tender-concurrency.mjs",
     "test:tender-concurrency-unit:satno": "node --test ./scripts/satno-tender-concurrency.test.mjs",
+    "check:tender-disposable:satno": "node ./scripts/satno-tender-disposable-readiness.mjs",
+    "test:tender-disposable-unit:satno": "node --test ./scripts/satno-tender-disposable-readiness.test.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepare": "husky",

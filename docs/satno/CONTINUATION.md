@@ -6,6 +6,41 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — disposable runtime readiness diagnosis
+
+Feature branch: `satno/tender-disposable-readiness-20260929`, stacked directly
+on Draft PR #40 at `509522e65707a9f6c4f3983fc8fa8ff040377495`;
+published feature commit `47a1263363a4cefbdc5d2799653334a46057f32b`.
+
+- Live GitHub reconciliation confirmed #40 and #11 remained open, Draft,
+  mergeable, and unmerged. `main`/`satno-development` remained identical at
+  `dce557e`, upstream remained `64e2163`, and the Persian reference remained
+  one commit ahead of its main at `85fc400`. #40 had no workflow run or commit
+  status and no newer overlapping PR existed.
+- Added a read-only local readiness command for the disposable Tender database
+  tests. It checks Docker CLI/Engine availability, Linux-container mode, the
+  architecture of the already-present Supabase Postgres `15.8.1.085` image,
+  and an already-installed Supabase CLI. It identifies an Engine/image
+  architecture mismatch that can cause `exec format error`.
+- The diagnostic accepts no URL, key, JWT, cookie, OTP, CAPTCHA, session, or
+  arbitrary command. It does not pull images, start containers, install a CLI,
+  contact a remote host, or print raw command output.
+- Validation passed: 5 readiness unit tests, all 12 existing concurrency unit
+  tests, targeted ESLint/Prettier, and `git diff --check`. Running the command
+  in this environment failed closed with stable missing-Docker/CLI blocker
+  codes, as expected. Published feature tree `d60f4b81` exactly matched the
+  tested local feature tree.
+- A ready diagnostic result proves only local prerequisites. It does not prove
+  Supabase startup, RLS, transaction, rollback, concurrency, live Tender Radar,
+  or SETAD acceptance. No migration, fixture write, merge, deployment, secret
+  change, login, OTP, CAPTCHA, cookie, or session operation ran.
+
+Next priority: run `npm run check:tender-disposable:satno` on the Windows
+workstation. If it reports an architecture mismatch, repair the Docker
+Desktop/Linux-image platform before retrying the disposable stack. Only after
+the stack is healthy should the reviewed migration/diff, synthetic fixtures,
+rollback-only pgTAP matrix, and six races with state checks run.
+
 ## Latest checkpoint — persisted-state checks for Tender races
 
 Draft PR #40: `satno/tender-concurrency-state-20260928`, published feature
