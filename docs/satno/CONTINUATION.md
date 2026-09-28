@@ -6,6 +6,44 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — guarded Tender Radar import
+
+Draft PR #31: `satno/tender-radar-import-20260928`, published feature commit
+`71f31f3cc71bae1ea53432e36890ad21d7d5299e`, stacked directly on Draft PR #30
+at `b86ea3015672c8e960f83c07a84e66d58a8e1585`.
+
+- Live reconciliation confirmed #30 and #11 remained open, Draft and unmerged;
+  #30 was mergeable and had no Actions run, check run, or status context.
+  `main` and `satno-development` remained at `dce557e`, upstream at `64e2163`,
+  and the Persian reference at `85fc400`. No overlapping import/dedup branch or
+  PR was found.
+- Added the declarative `import_tender_opportunity(lead_id, review)` security-
+  definer RPC. It accepts only an assigned, qualified Tender Radar lead and an
+  allow-listed scalar review object from active admin/manager/sales staff.
+- Only reviewed A/B rows with a paired score are accepted. Official Need No or
+  Tender No is type-checked, official portal URLs must match eproc/etend, and
+  verified status requires the corresponding official identifier.
+- The transaction locks the Lead and all supplied identity dimensions, checks
+  official identifier first, Radar source ID second, and fallback fingerprint
+  last. Same-Lead retries return the original result without overwrite;
+  different-Lead collisions fail for human resolution.
+- Opportunity, initial Pipeline row, and audit event are created atomically.
+  Radar/Lead provenance is trigger-protected, audit rows are append-only even
+  for service-role callers, and an imported tender lead cannot use the generic
+  Lead-to-Deal conversion RPC.
+- Validation passed: 32 focused Tender/Lead/RBAC tests, all 173 Edge Function
+  tests, TypeScript, production build, targeted ESLint/Prettier,
+  `git diff --check`, and secret-pattern scan. Existing FieldTitle, bundle,
+  npm-config, ESLint-ignore and Browserslist warnings remain.
+- This is declarative evidence only. No migration, real Supabase transaction,
+  RLS/grant/concurrency/rollback acceptance, real Tender Radar sender/token,
+  production record, SETAD session, merge, or deployment occurred.
+
+Next priority: reconcile PR #31, then add sender-conformance fixtures for the
+A/B Tender Radar payload-to-review boundary without copying the independent
+Radar codebase or using real tokens/records. After that, run the RPC/RLS/
+concurrency contract in a disposable Supabase environment before activation.
+
 ## Latest checkpoint — Tender & Inquiry Intelligence contract and UI skeleton
 
 Draft PR #30: `satno/tender-intelligence-skeleton-20260928`, published feature
