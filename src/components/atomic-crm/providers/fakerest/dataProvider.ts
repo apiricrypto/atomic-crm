@@ -22,6 +22,8 @@ import type {
   Task,
   TenderImportResult,
   TenderOpportunityReview,
+  TenderPipelineEntry,
+  TenderPipelineTransition,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { getActivityLog } from "../commons/activity";
@@ -328,6 +330,14 @@ export const createDataProvider = ({
     ): Promise<TenderImportResult> => {
       throw new Error(
         "Tender import is disabled in FakeRest demo mode; no database write occurred",
+      );
+    },
+    updateTenderPipeline: async (
+      _opportunityId: Identifier,
+      _transition: TenderPipelineTransition,
+    ): Promise<TenderPipelineEntry> => {
+      throw new Error(
+        "Tender Pipeline updates are disabled in FakeRest demo mode; no database write occurred",
       );
     },
     mergeContacts: async (sourceId: Identifier, targetId: Identifier) => {

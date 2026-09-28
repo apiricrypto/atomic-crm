@@ -279,6 +279,28 @@ export type TenderPipelineEntry = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type TenderPipelineTransition = Partial<
+  Pick<
+    TenderPipelineEntry,
+    | "assigned_sales_id"
+    | "documents_status"
+    | "notes"
+    | "participation_decision"
+    | "pricing_status"
+    | "result_status"
+    | "stage"
+    | "technical_review_status"
+  >
+>;
+
+export type TenderAuditEvent = {
+  opportunity_id: Identifier;
+  event_type: string;
+  actor_sales_id: Identifier;
+  metadata: Record<string, unknown>;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
 /**
  * Allow-listed values reviewed by a person before the guarded Tender import
  * RPC is called. Quarantined provider payloads are deliberately excluded.

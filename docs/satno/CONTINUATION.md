@@ -6,6 +6,49 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — guarded Tender Pipeline transitions and audit UI
+
+Draft PR #34: `satno/tender-pipeline-transitions-20260928`, published feature
+commit `ac560f3f8b62df2bdc4ef5a65bc2cbd1d2c4763c`, stacked directly on Draft PR
+#33 at `b16e45b789c94cc0a3c69389fadaccfe6a9d053b`.
+
+- Live GitHub reconciliation confirmed #33 and #11 remained open, Draft,
+  mergeable, and unmerged. `main`/`satno-development` remained at `dce557e`,
+  upstream at `64e2163`, and the Persian reference at `85fc400`. No overlapping
+  Tender Pipeline transition branch or PR existed; #33 had no workflow run or
+  commit status. GitHub subsequently confirmed #34 is open, Draft, mergeable,
+  and unmerged.
+- Replaced the static Pipeline placeholder with a responsive Persian/RTL board
+  backed by opportunity, pipeline, and append-only audit records. Each card
+  shows its current milestone, SETAD verification state, and latest audit event.
+- Added the guarded `update_tender_pipeline(bigint, jsonb)` security-definer
+  RPC. Direct authenticated table writes remain revoked. The RPC enforces
+  active admin/manager/sales roles, salesperson ownership, row locks,
+  allow-listed scalar input, size limits, active assignment, forward-only
+  stages, and milestone gates before updating state.
+- Every accepted transition appends a redacted `pipeline_transitioned` event in
+  the same transaction. Audit metadata contains status before/after and a
+  `notes_changed` flag; it never copies note text, provider payloads, credentials,
+  cookies, OTP, CAPTCHA, tokens, or session material. The function does not
+  write Contact, Company, Deal, Project, Finance, or Inventory records.
+- The Supabase provider calls the guarded RPC. FakeRest deliberately refuses
+  writes; its synthetic records are used only to verify the board, dialog,
+  audit display, allow-listed request, and 390x844 mobile overflow behavior.
+- Validation passed: 27 focused Chromium tests, TypeScript, production build,
+  targeted ESLint/Prettier, registry generation, and `git diff --check`. The
+  full browser run reached 334 passing and one skipped test; the four known
+  Gravatar/DataImport failures and Node-only backup collection issue remain
+  unrelated baseline limitations.
+- This is static contract and synthetic UI evidence only. No migration, real
+  Supabase transaction/RLS/concurrency run, Tender Radar sender/request,
+  production write, SETAD session/CAPTCHA, merge, or deployment occurred.
+
+Next priority: reconcile PR #34 and run the guarded import/transition/RLS/
+rollback/concurrency matrix against a disposable Supabase environment. If that
+environment is unavailable, implement Saved Searches through a separate guarded
+RPC/UI package; keep SETAD automation deferred to a human-controlled real
+browser session and never claim live integration without official data.
+
 ## Latest checkpoint — Tender Radar human review/import UI
 
 Draft PR #33: `satno/tender-radar-review-ui-20260928`, published feature

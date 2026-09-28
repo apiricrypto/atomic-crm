@@ -19,6 +19,9 @@ import type {
   Sale,
   Tag,
   Task,
+  TenderAuditEvent,
+  TenderOpportunity,
+  TenderPipelineEntry,
 } from "../../../types";
 import type { ConfigurationContextValue } from "../../../root/ConfigurationContext";
 
@@ -43,5 +46,8 @@ export interface Db {
   sales: Sale[];
   tags: Tag[];
   tasks: Task[];
+  tender_audit_log: TenderAuditEvent[];
+  tender_opportunities: TenderOpportunity[];
+  tender_pipeline_entries: TenderPipelineEntry[];
   configuration: Array<{ id: number; config: ConfigurationContextValue }>;
 }

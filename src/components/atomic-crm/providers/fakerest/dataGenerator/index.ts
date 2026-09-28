@@ -45,6 +45,9 @@ export default (): Db => {
   db.financial_payables = generateFinancialPayables(db);
   db.financial_transactions = generateFinancialTransactions(db);
   db.tasks = generateTasks(db);
+  db.tender_audit_log = [];
+  db.tender_opportunities = [];
+  db.tender_pipeline_entries = [];
   db.configuration = [
     {
       id: 1,

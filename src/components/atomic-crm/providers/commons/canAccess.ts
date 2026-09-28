@@ -97,6 +97,9 @@ export const canAccess = <
     if (resource === "tender_opportunities" && action === "create") {
       return true;
     }
+    if (resource === "tender_pipeline_entries" && action === "edit") {
+      return true;
+    }
     return isRead(action);
   }
 

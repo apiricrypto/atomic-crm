@@ -24,6 +24,9 @@ import type {
   ProjectCostItem,
   ProcurementCommitment,
   Sale,
+  TenderAuditEvent,
+  TenderOpportunity,
+  TenderPipelineEntry,
 } from "@/components/atomic-crm/types";
 import { DataImportProvider } from "@/components/atomic-crm/dataImport/DataImportProvider";
 import { CRM } from "@/components/atomic-crm/root/CRM";
@@ -80,6 +83,9 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
     sales: [baseSale],
     tags: [],
     tasks: [],
+    tender_audit_log: [],
+    tender_opportunities: [],
+    tender_pipeline_entries: [],
     ...overrides,
   }) as Db;
 
@@ -358,6 +364,64 @@ export const buildLeadConversion = (
   deal_id: 1,
   id: 1,
   lead_id: 1,
+  ...overrides,
+});
+
+export const buildTenderOpportunity = (
+  overrides: Partial<TenderOpportunity> = {},
+): TenderOpportunity => ({
+  aggregator_record_id: "RADAR-SYNTHETIC-1",
+  assigned_sales_id: 0,
+  city: "اهواز",
+  created_at: "2026-09-28T08:00:00.000Z",
+  description: "رکورد ساختگی برای آزمون رابط خط لوله",
+  domain: "renewable_energy",
+  fallback_fingerprint: "synthetic-fingerprint-1",
+  id: 51,
+  lead_id: 41,
+  opportunity_type: "inquiry",
+  organizer: "سازمان نمونه خوزستان",
+  province: "خوزستان",
+  radar_grade: "A",
+  radar_score: 91,
+  source: "tender_radar",
+  title: "استعلام ساختگی تجهیزات خورشیدی",
+  updated_at: "2026-09-28T08:00:00.000Z",
+  verification_status: "pending_setad_verification",
+  ...overrides,
+});
+
+export const buildTenderPipelineEntry = (
+  overrides: Partial<TenderPipelineEntry> = {},
+): TenderPipelineEntry => ({
+  assigned_sales_id: 0,
+  created_at: "2026-09-28T08:00:00.000Z",
+  documents_status: "not_started",
+  id: 61,
+  notes: null,
+  opportunity_id: 51,
+  participation_decision: "undecided",
+  pricing_status: "not_started",
+  result_status: "pending",
+  stage: "documents",
+  technical_review_status: "not_started",
+  updated_at: "2026-09-28T08:00:00.000Z",
+  ...overrides,
+});
+
+export const buildTenderAuditEvent = (
+  overrides: Partial<TenderAuditEvent> = {},
+): TenderAuditEvent => ({
+  actor_sales_id: 0,
+  created_at: "2026-09-28T08:30:00.000Z",
+  event_type: "pipeline_transitioned",
+  id: 71,
+  metadata: {
+    after: { documents_status: "requested", stage: "documents" },
+    before: { documents_status: "not_started", stage: "documents" },
+    notes_changed: false,
+  },
+  opportunity_id: 51,
   ...overrides,
 });
 
