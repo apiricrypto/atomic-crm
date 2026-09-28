@@ -7,6 +7,7 @@ import {
   buildTenderAuditEvent,
   buildTenderOpportunity,
   buildTenderPipelineEntry,
+  buildTenderSavedSearch,
   StoryWrapper,
 } from "@/test/StoryWrapper";
 import { i18nProvider } from "../providers/commons/i18nProvider";
@@ -223,5 +224,47 @@ describe("TenderIntelligencePage", () => {
           document.documentElement.clientWidth,
       )
       .toBe(true);
+  });
+
+  it("creates a custom Saved Search through the guarded adapter", async () => {
+    const saveTenderSearch = vi
+      .fn()
+      .mockResolvedValue(buildTenderSavedSearch());
+    const screen = await render(
+      <StoryWrapper
+        data={{ tender_saved_searches: [buildTenderSavedSearch()] }}
+        dataProvider={{ saveTenderSearch }}
+        i18nProvider={i18nProvider}
+        initialEntries={["/tenders"]}
+      >
+        <div />
+      </StoryWrapper>,
+    );
+
+    await screen.getByRole("tab", { name: "جست‌وجوهای ذخیره‌شده" }).click();
+    await expect.element(screen.getByText("خورشیدی خوزستان")).toBeVisible();
+    await screen.getByRole("button", { name: /UPS چهار استان هدف/ }).click();
+    await expect
+      .element(screen.getByRole("dialog", { name: "جست‌وجوی ذخیره‌شدهٔ جدید" }))
+      .toBeVisible();
+    await expect
+      .element(screen.getByLabelText("استان‌ها"))
+      .toHaveValue("خوزستان، چهارمحال و بختیاری، ایلام، لرستان");
+    await screen.getByRole("button", { name: "ذخیره پروفایل" }).click();
+
+    await expect.poll(() => saveTenderSearch.mock.calls.length).toBe(1);
+    expect(saveTenderSearch).toHaveBeenCalledWith(
+      null,
+      expect.objectContaining({
+        domain: "security_systems",
+        keywords: ["UPS"],
+        name: "UPS چهار استان هدف",
+        provinces: ["خوزستان", "چهارمحال و بختیاری", "ایلام", "لرستان"],
+      }),
+    );
+    const request = saveTenderSearch.mock.calls[0][1];
+    expect(request).not.toHaveProperty("captcha");
+    expect(request).not.toHaveProperty("cookie");
+    expect(request).not.toHaveProperty("session");
   });
 });

@@ -22,21 +22,7 @@ import { getSetadPortalUrl, type TenderOpportunityType } from "./contract";
 import { buildTenderRadarReviewCandidate } from "./reviewAdapter";
 import { TenderRadarReviewDialog } from "./TenderRadarReviewDialog";
 import { TenderPipelineBoard } from "./TenderPipelineBoard";
-
-const SAVED_SEARCH_EXAMPLES = [
-  {
-    name: "خورشیدی خوزستان",
-    detail: "انرژی‌های نو • خوزستان • استعلام و مناقصه",
-  },
-  {
-    name: "UPS چهار استان هدف",
-    detail: "سیستم‌های امنیتی • چهار استان منتخب • UPS",
-  },
-  {
-    name: "CCTV خوزستان و ایلام",
-    detail: "سیستم‌های امنیتی • خوزستان و ایلام • دوربین مداربسته",
-  },
-] as const;
+import { TenderSavedSearches } from "./TenderSavedSearches";
 
 export const TenderIntelligencePage = () => {
   const translate = useTranslate();
@@ -80,7 +66,7 @@ export const TenderIntelligencePage = () => {
           <TenderPipelineBoard />
         </TabsContent>
         <TabsContent value="saved_searches">
-          <SavedSearchesSkeleton />
+          <TenderSavedSearches />
         </TabsContent>
       </Tabs>
     </section>
@@ -315,35 +301,3 @@ const SearchSelect = ({
     </Select>
   </div>
 );
-
-const SavedSearchesSkeleton = () => {
-  const translate = useTranslate();
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {translate("resources.tender_intelligence.saved_searches.title")}
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {translate("resources.tender_intelligence.saved_searches.notice")}
-        </p>
-      </CardHeader>
-      <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        {SAVED_SEARCH_EXAMPLES.map((search) => (
-          <div className="rounded-lg border p-4" key={search.name}>
-            <h2 className="font-semibold">{search.name}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {search.detail}
-            </p>
-            <Badge className="mt-3" variant="secondary">
-              {translate(
-                "resources.tender_intelligence.saved_searches.example",
-              )}
-            </Badge>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
-};

@@ -121,8 +121,8 @@ create policy "Authorized staff can read visible lead conversions" on public.lea
 
 -- Tender records remain separate from core CRM. Managers can read all records;
 -- sales staff can read unassigned work or work explicitly assigned to them.
--- Creation/import and audit writes stay server-side until guarded functions are
--- implemented and accepted against a real database.
+-- Creation/import, pipeline, saved-search and audit writes stay behind guarded
+-- server functions until accepted against a real database.
 create policy "Authorized staff can read visible tender opportunities" on public.tender_opportunities
     for select to authenticated
     using (
@@ -163,10 +163,16 @@ create policy "Authorized staff can read tender audit events" on public.tender_a
         public.current_staff_role() in ('admin', 'manager')
         or (
             public.current_staff_role() = 'sales'
-            and exists (
-                select 1
-                from public.tender_opportunities
-                where public.tender_opportunities.id = public.tender_audit_log.opportunity_id
+            and (
+                (
+                    opportunity_id is null
+                    and actor_sales_id = public.current_sales_id()
+                )
+                or exists (
+                    select 1
+                    from public.tender_opportunities
+                    where public.tender_opportunities.id = public.tender_audit_log.opportunity_id
+                )
             )
         )
     );

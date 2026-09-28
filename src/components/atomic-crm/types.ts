@@ -301,6 +301,32 @@ export type TenderAuditEvent = {
   created_at: string;
 } & Pick<RaRecord, "id">;
 
+export type TenderSavedSearch = {
+  name: string;
+  domain: TenderDomain;
+  opportunity_type?: TenderOpportunityType | null;
+  provinces: string[];
+  cities: string[];
+  keywords: string[];
+  trade?: string | null;
+  category?: string | null;
+  organizer?: string | null;
+  publish_from?: string | null;
+  publish_to?: string | null;
+  deadline_from?: string | null;
+  deadline_to?: string | null;
+  statuses: TenderVerificationStatus[];
+  active: boolean;
+  owner_sales_id: Identifier;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+export type TenderSavedSearchInput = Omit<
+  TenderSavedSearch,
+  "created_at" | "id" | "owner_sales_id" | "updated_at"
+>;
+
 /**
  * Allow-listed values reviewed by a person before the guarded Tender import
  * RPC is called. Quarantined provider payloads are deliberately excluded.

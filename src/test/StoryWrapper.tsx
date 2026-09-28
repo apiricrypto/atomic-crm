@@ -27,6 +27,7 @@ import type {
   TenderAuditEvent,
   TenderOpportunity,
   TenderPipelineEntry,
+  TenderSavedSearch,
 } from "@/components/atomic-crm/types";
 import { DataImportProvider } from "@/components/atomic-crm/dataImport/DataImportProvider";
 import { CRM } from "@/components/atomic-crm/root/CRM";
@@ -86,6 +87,7 @@ export const createCrmDb = (overrides: Partial<Db> = {}): Db =>
     tender_audit_log: [],
     tender_opportunities: [],
     tender_pipeline_entries: [],
+    tender_saved_searches: [],
     ...overrides,
   }) as Db;
 
@@ -422,6 +424,31 @@ export const buildTenderAuditEvent = (
     notes_changed: false,
   },
   opportunity_id: 51,
+  ...overrides,
+});
+
+export const buildTenderSavedSearch = (
+  overrides: Partial<TenderSavedSearch> = {},
+): TenderSavedSearch => ({
+  active: true,
+  category: null,
+  cities: [],
+  created_at: "2026-09-28T09:00:00.000Z",
+  deadline_from: null,
+  deadline_to: null,
+  domain: "renewable_energy",
+  id: 81,
+  keywords: ["خورشیدی"],
+  name: "خورشیدی خوزستان",
+  opportunity_type: null,
+  organizer: null,
+  owner_sales_id: 0,
+  provinces: ["خوزستان"],
+  publish_from: null,
+  publish_to: null,
+  statuses: ["pending_setad_verification"],
+  trade: null,
+  updated_at: "2026-09-28T09:00:00.000Z",
   ...overrides,
 });
 

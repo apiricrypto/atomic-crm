@@ -22,6 +22,7 @@ import type {
   TenderAuditEvent,
   TenderOpportunity,
   TenderPipelineEntry,
+  TenderSavedSearch,
 } from "../../../types";
 import type { ConfigurationContextValue } from "../../../root/ConfigurationContext";
 
@@ -49,5 +50,6 @@ export interface Db {
   tender_audit_log: TenderAuditEvent[];
   tender_opportunities: TenderOpportunity[];
   tender_pipeline_entries: TenderPipelineEntry[];
+  tender_saved_searches: TenderSavedSearch[];
   configuration: Array<{ id: number; config: ConfigurationContextValue }>;
 }

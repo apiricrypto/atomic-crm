@@ -196,4 +196,43 @@ describe("Tender & Inquiry Intelligence SQL contract", () => {
       /grant\s+(?:all|insert|update|delete)\s+on\s+table\s+public\.tender_pipeline_entries\s+to\s+authenticated/i,
     );
   });
+
+  it("saves and deletes owner-scoped search profiles through guarded RPCs", () => {
+    const saveStart = functionsSql.indexOf(
+      'CREATE OR REPLACE FUNCTION "public"."save_tender_search"',
+    );
+    const saveBody = functionsSql
+      .slice(saveStart)
+      .match(/AS \$\$([\s\S]+?)\$\$;/)?.[1];
+    const deleteStart = functionsSql.indexOf(
+      'CREATE OR REPLACE FUNCTION "public"."delete_tender_search"',
+    );
+    const deleteBody = functionsSql
+      .slice(deleteStart)
+      .match(/AS \$\$([\s\S]+?)\$\$;/)?.[1];
+
+    expect(saveStart).toBeGreaterThan(-1);
+    expect(deleteStart).toBeGreaterThan(-1);
+    expect(saveBody).toMatch(/current_staff_role/);
+    expect(saveBody).toMatch(/v_allowed_keys constant text\[\]/);
+    expect(saveBody).toMatch(/search contains an unsupported field/);
+    expect(saveBody).toMatch(/owner_sales_id[\s\S]+v_actor_id/);
+    expect(saveBody).toMatch(/INSERT INTO public\.tender_saved_searches/);
+    expect(saveBody).toMatch(/UPDATE public\.tender_saved_searches/);
+    expect(saveBody).toMatch(/saved_search_created/);
+    expect(saveBody).toMatch(/saved_search_updated/);
+    expect(deleteBody).toMatch(/FOR UPDATE/);
+    expect(deleteBody).toMatch(/saved_search_deleted/);
+    expect(deleteBody).toMatch(/DELETE FROM public\.tender_saved_searches/);
+    expect(saveBody).not.toMatch(
+      /password|credential|cookie|captcha|otp|token|session|raw_payload/i,
+    );
+    expect(tablesSql).toMatch(/tender_saved_searches_owner_name_key/);
+    expect(grantsSql).toMatch(
+      /grant execute on function public\.save_tender_search\(bigint, jsonb\) to authenticated/i,
+    );
+    expect(grantsSql).toMatch(
+      /grant execute on function public\.delete_tender_search\(bigint\) to authenticated/i,
+    );
+  });
 });

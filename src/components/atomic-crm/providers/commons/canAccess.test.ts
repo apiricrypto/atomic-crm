@@ -93,6 +93,18 @@ describe("staff access matrix", () => {
     ).toBe(false);
     expect(
       canAccess("sales", {
+        action: "create",
+        resource: "tender_saved_searches",
+      }),
+    ).toBe(true);
+    expect(
+      canAccess("sales", {
+        action: "delete",
+        resource: "tender_saved_searches",
+      }),
+    ).toBe(true);
+    expect(
+      canAccess("sales", {
         action: "edit",
         resource: "tender_pipeline_entries",
       }),
