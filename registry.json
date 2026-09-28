@@ -42,11 +42,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/tenderIntelligence/reviewAdapter.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/tenderIntelligence/index.ts",
           "type": "registry:component"
         },
         {
           "path": "src/components/atomic-crm/tenderIntelligence/contract.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/tenderIntelligence/TenderRadarReviewDialog.tsx",
           "type": "registry:component"
         },
         {

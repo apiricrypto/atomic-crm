@@ -32,8 +32,9 @@ The four product areas are:
   `(source, aggregator_record_id)` pair, then a reviewed deterministic
   fingerprint. A retry must not overwrite reviewed data.
 - A raw Lead Inbox row never becomes a Company, Contact, Deal, Project, finance
-  record, or inventory record. Import into `tender_opportunities` is a future
-  explicit server-side operation with immutable provenance.
+  record, or inventory record. Import into `tender_opportunities` is an explicit
+  guarded server-side operation with immutable provenance; it remains
+  declarative and unexecuted against a real database.
 
 ## Tender Radar A/B contract
 
@@ -46,6 +47,28 @@ The four product areas are:
 - Connector tokens remain source-specific server secrets. No token may use a
   `VITE_` prefix or enter Git, browser storage, logs, screenshots, chat, request
   bodies, or database rows.
+
+## Human review UI adapter
+
+- The Radar Inbox recognizes only the versioned
+  `satno.tender-radar.lead.v1` envelope and exposes an import action only for
+  qualified A/B rows. C or malformed rows remain outside the import queue.
+- The adapter copies only the RPC allow-list into an editable review draft.
+  `source_snapshot`, scoring internals, arbitrary provider fields, and raw
+  payload are never rendered or sent to the RPC.
+- Grade and score are read-only sender assertions. Need No/Tender No candidates,
+  the official URL, organizer, geography, publication date, document deadline,
+  and submission deadline remain distinct review fields.
+- Verification always starts as `pending_setad_verification`. Selecting
+  `setad_verified` requires the type-correct official identifier, and the user
+  must explicitly confirm the reviewed submission.
+- The official eproc/etend page opens in the user's browser for manual review;
+  the adapter never reads or stores the official session, login, OTP, cookie,
+  or CAPTCHA.
+- The Supabase provider calls only `import_tender_opportunity`. FakeRest throws
+  a visible demo-mode error and never simulates a successful database write.
+- Qualified Tender Radar leads no longer expose the generic Lead-to-Deal action
+  in the Lead Inbox UI; they route to the Tender review workspace instead.
 
 ## SETAD human-in-the-loop boundary
 

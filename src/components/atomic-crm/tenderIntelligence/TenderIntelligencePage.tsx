@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useGetList, useTranslate } from "ra-core";
+import { CanAccess, useGetList, useTranslate } from "ra-core";
 import { ExternalLink, ShieldAlert } from "lucide-react";
+import { Link } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import type { LeadInboxRecord } from "../types";
 import { getSetadPortalUrl, type TenderOpportunityType } from "./contract";
+import { buildTenderRadarReviewCandidate } from "./reviewAdapter";
+import { TenderRadarReviewDialog } from "./TenderRadarReviewDialog";
 
 const PIPELINE_STAGES = [
   "documents",
@@ -112,27 +115,10 @@ const RadarInboxSkeleton = () => {
       <CardContent className="space-y-3">
         {isPending ? null : data.length ? (
           data.map((lead) => (
-            <div
-              className="rounded-lg border p-4"
+            <TenderRadarCard
               key={`${lead.source}:${lead.source_record_id}`}
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h2 className="font-semibold">{lead.title}</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {lead.organization_name || "—"}
-                  </p>
-                </div>
-                <Badge variant="outline">
-                  {translate(
-                    "resources.tender_intelligence.verification.pending_setad_verification",
-                  )}
-                </Badge>
-              </div>
-              <p className="mt-3 text-xs text-muted-foreground">
-                {translate("resources.tender_intelligence.radar.quarantine")}
-              </p>
-            </div>
+              lead={lead}
+            />
           ))
         ) : (
           <p className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">
@@ -141,6 +127,70 @@ const RadarInboxSkeleton = () => {
         )}
       </CardContent>
     </Card>
+  );
+};
+
+const TenderRadarCard = ({ lead }: { lead: LeadInboxRecord }) => {
+  const translate = useTranslate();
+  const candidate = buildTenderRadarReviewCandidate(lead);
+  const [reviewOpen, setReviewOpen] = useState(false);
+
+  return (
+    <div className="rounded-lg border p-4">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h2 className="font-semibold">{lead.title}</h2>
+          <p className="text-sm text-muted-foreground">
+            {lead.organization_name || "—"}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {candidate ? (
+            <Badge variant="secondary">
+              {translate("resources.tender_intelligence.radar.grade_score", {
+                grade: candidate.grade,
+                score: candidate.score.toLocaleString("fa-IR"),
+              })}
+            </Badge>
+          ) : null}
+          <Badge variant="outline">
+            {translate(
+              "resources.tender_intelligence.verification.pending_setad_verification",
+            )}
+          </Badge>
+        </div>
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        {translate("resources.tender_intelligence.radar.quarantine")}
+      </p>
+      <div className="mt-4 flex flex-wrap justify-end gap-2 border-t pt-3">
+        {candidate && lead.status === "qualified" ? (
+          <CanAccess resource="tender_opportunities" action="create">
+            <Button size="sm" onClick={() => setReviewOpen(true)}>
+              {translate("resources.tender_intelligence.radar.review_import")}
+            </Button>
+          </CanAccess>
+        ) : candidate ? (
+          <Button asChild size="sm" variant="outline">
+            <Link to="/lead_inbox">
+              {translate("resources.tender_intelligence.radar.qualify_first")}
+            </Link>
+          </Button>
+        ) : (
+          <Badge variant="outline">
+            {translate("resources.tender_intelligence.radar.not_importable")}
+          </Badge>
+        )}
+      </div>
+      {candidate ? (
+        <TenderRadarReviewDialog
+          candidate={candidate}
+          lead={lead}
+          onOpenChange={setReviewOpen}
+          open={reviewOpen}
+        />
+      ) : null}
+    </div>
   );
 };
 

@@ -94,6 +94,9 @@ export const canAccess = <
 
   if (TENDER_RESOURCES.has(resource)) {
     if (role !== "manager" && role !== "sales") return false;
+    if (resource === "tender_opportunities" && action === "create") {
+      return true;
+    }
     return isRead(action);
   }
 

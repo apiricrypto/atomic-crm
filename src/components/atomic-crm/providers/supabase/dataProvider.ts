@@ -16,6 +16,8 @@ import type {
   Sale,
   SalesFormData,
   SignUpData,
+  TenderImportResult,
+  TenderOpportunityReview,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { ATTACHMENTS_BUCKET } from "../commons/attachments";
@@ -256,6 +258,25 @@ const getDataProviderWithCustomMethods = () => {
       const result = Array.isArray(data) ? data[0] : data;
       if (!result) throw new Error("Lead conversion returned no result");
       return result as LeadConversionResult;
+    },
+    async importTenderOpportunity(
+      leadId: Identifier,
+      review: TenderOpportunityReview,
+    ): Promise<TenderImportResult> {
+      const { data, error } = await (getSupabaseClient() as any).rpc(
+        "import_tender_opportunity",
+        {
+          p_lead_id: leadId,
+          p_review: review,
+        },
+      );
+
+      if (error) {
+        throw new Error(error.message || "Failed to import tender opportunity");
+      }
+      const result = Array.isArray(data) ? data[0] : data;
+      if (!result) throw new Error("Tender import returned no result");
+      return result as TenderImportResult;
     },
     async isInitialized() {
       return getIsInitialized();

@@ -273,6 +273,7 @@ export const farsiCrmMessages = {
       },
       action: {
         convert: "تبدیل به فرصت",
+        review_tender: "بازبینی در ماژول مناقصات",
       },
       conversion: {
         title: "تبدیل سرنخ به فرصت",
@@ -306,6 +307,14 @@ export const farsiCrmMessages = {
         domain: "حوزه",
         type: "نوع فرصت",
       },
+      type: {
+        inquiry: "استعلام",
+        tender: "مناقصه",
+      },
+      domain: {
+        renewable_energy: "انرژی‌های نو",
+        security_systems: "سیستم‌های امنیتی",
+      },
       verification: {
         setad_verified: "تأییدشده در ستاد",
         pending_setad_verification: "در انتظار راستی‌آزمایی ستاد",
@@ -318,6 +327,44 @@ export const farsiCrmMessages = {
         quarantine:
           "این رکورد هنوز سرنخ قرنطینه‌شده است و شرکت، مخاطب یا معامله محسوب نمی‌شود.",
         empty: "هنوز موردی از Tender Radar وارد نشده است.",
+        grade_score: "رتبه %{grade} • امتیاز %{score}",
+        review_import: "بازبینی و ورود به خط لوله",
+        qualify_first: "ابتدا در صندوق سرنخ تأیید شود",
+        not_importable: "خارج از صف ورود A/B",
+        imported: "فرصت مناقصه با حفظ منشأ وارد شد",
+        already_imported: "این سرنخ قبلاً بدون بازنویسی وارد شده است",
+      },
+      review: {
+        title: "بازبینی انسانی پیش از ورود",
+        description:
+          "فقط فیلدهای مجاز زیر به مسیر محافظت‌شده ارسال می‌شوند؛ داده خام و snapshot منبع از قرنطینه خارج نمی‌شود.",
+        pending_notice:
+          "پیشنهادهای رادار به‌طور پیش‌فرض تأییدنشده‌اند. وضعیت تأیید ستاد فقط پس از بررسی دستی صفحه رسمی انتخاب شود.",
+        radar_record_id: "شناسه تجمیع‌کننده رادار",
+        grade: "رتبه رادار",
+        score: "امتیاز رادار",
+        open_setad: "بازکردن صفحه رسمی ستاد",
+        verified_identifier_required:
+          "برای وضعیت تأییدشده در ستاد، شماره رسمی متناسب با نوع فرصت الزامی است.",
+        confirm:
+          "فیلدها را بازبینی کردم و ورود کنترل‌شده به Tender Pipeline را تأیید می‌کنم. این اقدام Company، Contact، Deal یا Project ایجاد نمی‌کند.",
+        import: "ورود به Tender Pipeline",
+        fields: {
+          title: "عنوان بازبینی‌شده",
+          description: "شرح بازبینی‌شده",
+          organizer: "دستگاه برگزارکننده",
+          province: "استان",
+          city: "شهر",
+          need_no: "شماره نیاز رسمی (Need No)",
+          tender_no: "شماره مناقصه رسمی (Tender No)",
+          publish_date: "تاریخ انتشار رسمی",
+          document_deadline: "مهلت دریافت اسناد",
+          submission_deadline: "مهلت ارسال پیشنهاد",
+          verification: "وضعیت راستی‌آزمایی",
+          official_url: "نشانی رسمی ستاد",
+          trade: "رسته",
+          category: "دسته",
+        },
       },
       setad: {
         title: "جست‌وجوی رسمی ستاد با حضور کاربر",

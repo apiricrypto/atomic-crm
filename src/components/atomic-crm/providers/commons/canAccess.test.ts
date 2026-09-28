@@ -71,6 +71,18 @@ describe("staff access matrix", () => {
       canAccess("sales", { action: "list", resource: "tender_opportunities" }),
     ).toBe(true);
     expect(
+      canAccess("sales", {
+        action: "create",
+        resource: "tender_opportunities",
+      }),
+    ).toBe(true);
+    expect(
+      canAccess("manager", {
+        action: "create",
+        resource: "tender_opportunities",
+      }),
+    ).toBe(true);
+    expect(
       canAccess("manager", {
         action: "edit",
         resource: "tender_pipeline_entries",

@@ -229,7 +229,15 @@ const LeadCard = ({ lead }: { lead: LeadInboxRecord }) => {
                 </a>
               </Button>
             ) : null}
-            {lead.status === "qualified" ? (
+            {lead.status === "qualified" && lead.source === "tender_radar" ? (
+              <CanAccess resource="tender_opportunities" action="create">
+                <Button asChild size="sm">
+                  <Link to="/tenders">
+                    {translate("resources.lead_inbox.action.review_tender")}
+                  </Link>
+                </Button>
+              </CanAccess>
+            ) : lead.status === "qualified" ? (
               <CanAccess resource="lead_inbox" action="edit">
                 <Button size="sm" onClick={() => setConversionOpen(true)}>
                   {translate("resources.lead_inbox.action.convert")}

@@ -272,6 +272,7 @@ export const englishCrmMessages = {
       },
       action: {
         convert: "Convert to opportunity",
+        review_tender: "Review in Tender Intelligence",
       },
       conversion: {
         title: "Convert lead to opportunity",
@@ -305,6 +306,14 @@ export const englishCrmMessages = {
         domain: "Domain",
         type: "Opportunity type",
       },
+      type: {
+        inquiry: "Inquiry",
+        tender: "Tender",
+      },
+      domain: {
+        renewable_energy: "Renewable energy",
+        security_systems: "Security systems",
+      },
       verification: {
         setad_verified: "SETAD Verified",
         pending_setad_verification: "Pending SETAD Verification",
@@ -317,6 +326,44 @@ export const englishCrmMessages = {
         quarantine:
           "This is still a quarantined lead, not a Company, Contact, or Deal.",
         empty: "No Tender Radar record has arrived yet.",
+        grade_score: "Grade %{grade} • score %{score}",
+        review_import: "Review and import",
+        qualify_first: "Qualify in Lead Inbox first",
+        not_importable: "Outside the A/B import queue",
+        imported: "Tender opportunity imported with provenance preserved",
+        already_imported: "This lead was already imported without overwrite",
+      },
+      review: {
+        title: "Human review before import",
+        description:
+          "Only the allow-listed fields below reach the guarded import path; raw provider data and source snapshots remain quarantined.",
+        pending_notice:
+          "Radar assertions default to unverified. Select SETAD Verified only after manually checking the official page.",
+        radar_record_id: "Radar aggregator record ID",
+        grade: "Radar grade",
+        score: "Radar score",
+        open_setad: "Open official SETAD page",
+        verified_identifier_required:
+          "SETAD Verified requires the official identifier matching the opportunity type.",
+        confirm:
+          "I reviewed these fields and approve guarded import into Tender Pipeline. This does not create a Company, Contact, Deal, or Project.",
+        import: "Import to Tender Pipeline",
+        fields: {
+          title: "Reviewed title",
+          description: "Reviewed description",
+          organizer: "Organizer",
+          province: "Province",
+          city: "City",
+          need_no: "Official Need No",
+          tender_no: "Official Tender No",
+          publish_date: "Official publication date",
+          document_deadline: "Document deadline",
+          submission_deadline: "Submission deadline",
+          verification: "Verification status",
+          official_url: "Official SETAD URL",
+          trade: "Trade",
+          category: "Category",
+        },
       },
       setad: {
         title: "Human-assisted official SETAD search",
