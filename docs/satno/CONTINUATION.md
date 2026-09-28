@@ -6,6 +6,40 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Inventory foundation
+
+Draft PR #23: `satno/inventory-foundation-20260928`, feature commit
+`c1843c3a76296e72ba88d1f551ae3c38078eba37`, stacked on Draft PR #22 at
+`b7cf11712da90673dd0af080475e9e2084e93be3`.
+
+- Live reconciliation confirmed PR #22 remained open, Draft, unmerged and
+  mergeable before this package. `main` and `satno-development` remained at
+  `dce557e`; upstream remained `d00fdf3` and the Persian reference remained
+  `85fc400`. No overlapping Inventory branch or PR existed. PR #23 is open,
+  Draft and mergeable; GitHub reports no workflow runs for its feature head.
+- Added locations, stock items and explicit quantity movements. On-hand stock
+  is derived from receipts, issues and adjustments; there is no mutable copied
+  total. Negative balances remain visible instead of being silently clamped.
+- A receipt may reference one procurement commitment and an issue may reference
+  one project, but one movement cannot reference both. Marking Procurement as
+  received never posts stock automatically. Quantities remain distinct from
+  project actual costs, payables, payments and financial transactions.
+- Added a Persian-first responsive, read-only Inventory dashboard and a
+  Procurement entry point, plus FakeRest demo records and a separate acceptance
+  contract. FakeRest results are not real-database or concurrency evidence.
+- Validation passed: 43 focused Chromium tests across Inventory, Procurement,
+  Finance, Project, Persian/i18n/RTL and money; TypeScript, production build,
+  targeted ESLint and Prettier, registry generation, table-schema parse and
+  `git diff --check`. Existing FieldTitle circular-chunk, large-bundle and stale
+  Browserslist warnings remain.
+- No migration was generated or applied. Real Supabase/RLS and concurrency
+  testing remains blocked by the unavailable Docker/Podman stack, and GitHub
+  Actions has no run. No merge, deployment, secret change or production write.
+
+Next priority: reconcile PR #23, then begin Staff Accounts + RBAC as a separate
+reviewable package. Define roles and acceptance boundaries before adding daily
+work reports, and do not weaken the real Supabase/RLS gate.
+
 ## Latest checkpoint — Finance ledger foundation
 
 Draft PR #22: `satno/finance-ledgers-foundation-20260928`, published at
