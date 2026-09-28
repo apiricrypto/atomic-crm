@@ -6,6 +6,49 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — guarded Tender Saved Searches
+
+Draft PR #35: `satno/tender-saved-searches-20260928`, published feature commit
+`16140b1959b956f673975fc662e03902f1c53988`, stacked directly on Draft PR #34
+at `c0621f9c15cae609aef03a9fe9dbd39faf8acee4`.
+
+- Live GitHub reconciliation confirmed #34 and #11 remained open, Draft,
+  mergeable, and unmerged. `main`/`satno-development` remained at `dce557e`,
+  upstream at `64e2163`, and the Persian reference at `85fc400`. No overlapping
+  Saved Searches implementation existed; #34 and then #35 had no workflow run
+  or commit status. GitHub confirmed #35 is open, Draft, mergeable, and
+  unmerged.
+- Replaced the Saved Searches placeholder with a responsive Persian/RTL
+  create/edit/delete UI. It supports arbitrary domain, opportunity type,
+  province, city, keyword, trade, category, organizer, publication range,
+  deadline range, verification status, and active-state filters.
+- The requested Solar Khuzestan, UPS four target provinces, and CCTV
+  Khuzestan/Ilam examples are editable prefill templates; they are not silently
+  persisted as database records.
+- Added guarded `save_tender_search(bigint, jsonb)` and
+  `delete_tender_search(bigint)` security-definer RPCs. Direct authenticated
+  table writes remain revoked. The RPCs enforce active admin/manager/sales
+  roles, ownership, row locks, a typed JSON allow-list, list/length limits,
+  valid date ranges, and case-insensitive unique names per owner.
+- Accepted creates, updates, and deletes append redacted audit events. Audit
+  metadata excludes names, keywords, geography, credentials, cookies, OTP,
+  CAPTCHA, tokens, sessions, and raw provider material. FakeRest explicitly
+  refuses Saved Search writes, so synthetic UI evidence cannot be confused
+  with a database write.
+- Validation passed: 29 focused Chromium tests, TypeScript, production build,
+  targeted ESLint/Prettier, registry generation, and `git diff --check`.
+- Docker, Podman, and the Supabase CLI were unavailable. This is static SQL
+  contract and synthetic UI evidence only: no migration, real Supabase
+  transaction/RLS/concurrency run, Tender Radar sender/request, SETAD login or
+  CAPTCHA session, production write, merge, or deployment occurred.
+
+Next priority: reconcile PR #35 and run the guarded import, pipeline, Saved
+Search, RLS, rollback, and concurrency matrix against a disposable Supabase
+environment when one is available. The following product package is the
+human-controlled SETAD Interactive Search handoff and verified-data capture;
+CAPTCHA/login stays in the user's browser and is never automated, bypassed, or
+stored.
+
 ## Latest checkpoint — guarded Tender Pipeline transitions and audit UI
 
 Draft PR #34: `satno/tender-pipeline-transitions-20260928`, published feature

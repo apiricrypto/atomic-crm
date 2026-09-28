@@ -24,6 +24,8 @@ import type {
   TenderOpportunityReview,
   TenderPipelineEntry,
   TenderPipelineTransition,
+  TenderSavedSearch,
+  TenderSavedSearchInput,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { getActivityLog } from "../commons/activity";
@@ -338,6 +340,19 @@ export const createDataProvider = ({
     ): Promise<TenderPipelineEntry> => {
       throw new Error(
         "Tender Pipeline updates are disabled in FakeRest demo mode; no database write occurred",
+      );
+    },
+    saveTenderSearch: async (
+      _searchId: Identifier | null,
+      _search: TenderSavedSearchInput,
+    ): Promise<TenderSavedSearch> => {
+      throw new Error(
+        "Tender Saved Search writes are disabled in FakeRest demo mode; no database write occurred",
+      );
+    },
+    deleteTenderSearch: async (_searchId: Identifier): Promise<Identifier> => {
+      throw new Error(
+        "Tender Saved Search deletion is disabled in FakeRest demo mode; no database write occurred",
       );
     },
     mergeContacts: async (sourceId: Identifier, targetId: Identifier) => {

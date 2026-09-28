@@ -758,6 +758,7 @@ create unique index tender_opportunities_fallback_fingerprint_key on public.tend
 create index tender_opportunities_assignment_idx on public.tender_opportunities using btree (assigned_sales_id, verification_status);
 create index tender_pipeline_entries_assignment_idx on public.tender_pipeline_entries using btree (assigned_sales_id, stage);
 create index tender_saved_searches_owner_idx on public.tender_saved_searches using btree (owner_sales_id, active);
+create unique index tender_saved_searches_owner_name_key on public.tender_saved_searches using btree (owner_sales_id, lower(btrim(name)));
 create index tender_audit_log_opportunity_idx on public.tender_audit_log using btree (opportunity_id, created_at desc);
 create index projects_company_id_idx on public.projects using btree (company_id);
 create index projects_sales_id_idx on public.projects using btree (sales_id);

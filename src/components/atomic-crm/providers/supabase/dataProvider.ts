@@ -20,6 +20,8 @@ import type {
   TenderOpportunityReview,
   TenderPipelineEntry,
   TenderPipelineTransition,
+  TenderSavedSearch,
+  TenderSavedSearchInput,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { ATTACHMENTS_BUCKET } from "../commons/attachments";
@@ -298,6 +300,29 @@ const getDataProviderWithCustomMethods = () => {
       const result = Array.isArray(data) ? data[0] : data;
       if (!result) throw new Error("Tender Pipeline update returned no result");
       return result as TenderPipelineEntry;
+    },
+    async saveTenderSearch(
+      searchId: Identifier | null,
+      search: TenderSavedSearchInput,
+    ): Promise<TenderSavedSearch> {
+      const { data, error } = await (getSupabaseClient() as any).rpc(
+        "save_tender_search",
+        { p_search: search, p_search_id: searchId },
+      );
+      if (error)
+        throw new Error(error.message || "Failed to save Tender search");
+      const result = Array.isArray(data) ? data[0] : data;
+      if (!result) throw new Error("Saved Tender search returned no result");
+      return result as TenderSavedSearch;
+    },
+    async deleteTenderSearch(searchId: Identifier): Promise<Identifier> {
+      const { data, error } = await (getSupabaseClient() as any).rpc(
+        "delete_tender_search",
+        { p_search_id: searchId },
+      );
+      if (error)
+        throw new Error(error.message || "Failed to delete Tender search");
+      return data as Identifier;
     },
     async isInitialized() {
       return getIsInitialized();

@@ -1281,3 +1281,307 @@ BEGIN
   RETURN v_after;
 END;
 $$;
+
+-- Owner-scoped, guarded write boundary for reusable Tender/SETAD search
+-- profiles. Direct table writes remain revoked from authenticated clients.
+CREATE OR REPLACE FUNCTION "public"."save_tender_search"(
+    "p_search_id" bigint,
+    "p_search" jsonb
+) RETURNS public.tender_saved_searches
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+DECLARE
+  v_actor_id bigint;
+  v_actor_role text;
+  v_before public.tender_saved_searches%ROWTYPE;
+  v_after public.tender_saved_searches%ROWTYPE;
+  v_name text;
+  v_domain text;
+  v_opportunity_type text;
+  v_provinces text[];
+  v_cities text[];
+  v_keywords text[];
+  v_trade text;
+  v_category text;
+  v_organizer text;
+  v_publish_from date;
+  v_publish_to date;
+  v_deadline_from date;
+  v_deadline_to date;
+  v_statuses text[];
+  v_active boolean;
+  v_allowed_keys constant text[] := ARRAY[
+    'name', 'domain', 'opportunity_type', 'provinces', 'cities',
+    'keywords', 'trade', 'category', 'organizer', 'publish_from',
+    'publish_to', 'deadline_from', 'deadline_to', 'statuses', 'active'
+  ];
+BEGIN
+  v_actor_id := public.current_sales_id();
+  v_actor_role := public.current_staff_role();
+
+  IF v_actor_id IS NULL OR v_actor_role NOT IN ('admin', 'manager', 'sales') THEN
+    RAISE EXCEPTION 'Saving Tender searches is not allowed for this role'
+      USING ERRCODE = '42501';
+  END IF;
+  IF p_search IS NULL OR jsonb_typeof(p_search) <> 'object' THEN
+    RAISE EXCEPTION 'search must be a JSON object';
+  END IF;
+  IF p_search = '{}'::jsonb THEN
+    RAISE EXCEPTION 'search must contain at least one field';
+  END IF;
+  IF pg_catalog.pg_column_size(p_search) > 65536 THEN
+    RAISE EXCEPTION 'search is too large';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_object_keys(p_search) AS supplied(key)
+    WHERE supplied.key <> ALL (v_allowed_keys)
+  ) THEN
+    RAISE EXCEPTION 'search contains an unsupported field';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_each(p_search) AS supplied(key, value)
+    WHERE (
+      supplied.key IN ('provinces', 'cities', 'keywords', 'statuses')
+      AND jsonb_typeof(supplied.value) <> 'array'
+    ) OR (
+      supplied.key NOT IN ('provinces', 'cities', 'keywords', 'statuses')
+      AND supplied.key <> 'active'
+      AND jsonb_typeof(supplied.value) NOT IN ('string', 'null')
+    ) OR (
+      supplied.key = 'active'
+      AND jsonb_typeof(supplied.value) NOT IN ('boolean', 'null')
+    )
+  ) THEN
+    RAISE EXCEPTION 'search fields have an invalid JSON type';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_each(p_search) AS supplied(key, value)
+    CROSS JOIN LATERAL jsonb_array_elements(
+      CASE WHEN jsonb_typeof(supplied.value) = 'array'
+        THEN supplied.value ELSE '[]'::jsonb END
+    ) AS item(value)
+    WHERE supplied.key IN ('provinces', 'cities', 'keywords', 'statuses')
+      AND jsonb_typeof(item.value) <> 'string'
+  ) THEN
+    RAISE EXCEPTION 'search list fields must contain only strings';
+  END IF;
+
+  IF p_search_id IS NOT NULL THEN
+    SELECT * INTO v_before
+    FROM public.tender_saved_searches
+    WHERE id = p_search_id
+    FOR UPDATE;
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Saved Tender search not found' USING ERRCODE = 'P0002';
+    END IF;
+    IF v_before.owner_sales_id <> v_actor_id
+       AND v_actor_role NOT IN ('admin', 'manager') THEN
+      RAISE EXCEPTION 'Saved Tender search belongs to another salesperson'
+        USING ERRCODE = '42501';
+    END IF;
+  END IF;
+
+  v_name := coalesce(
+    nullif(btrim(p_search ->> 'name'), ''),
+    v_before.name
+  );
+  v_domain := coalesce(
+    nullif(btrim(p_search ->> 'domain'), ''),
+    v_before.domain
+  );
+  v_opportunity_type := CASE
+    WHEN p_search ? 'opportunity_type'
+      THEN nullif(btrim(p_search ->> 'opportunity_type'), '')
+    ELSE v_before.opportunity_type
+  END;
+  v_trade := CASE WHEN p_search ? 'trade'
+    THEN nullif(btrim(p_search ->> 'trade'), '') ELSE v_before.trade END;
+  v_category := CASE WHEN p_search ? 'category'
+    THEN nullif(btrim(p_search ->> 'category'), '') ELSE v_before.category END;
+  v_organizer := CASE WHEN p_search ? 'organizer'
+    THEN nullif(btrim(p_search ->> 'organizer'), '') ELSE v_before.organizer END;
+
+  SELECT coalesce(array_agg(btrim(item)) FILTER (WHERE btrim(item) <> ''), '{}')
+  INTO v_provinces
+  FROM jsonb_array_elements_text(
+    CASE WHEN p_search ? 'provinces' THEN p_search -> 'provinces'
+      ELSE to_jsonb(coalesce(v_before.provinces, '{}')) END
+  ) AS item;
+  SELECT coalesce(array_agg(btrim(item)) FILTER (WHERE btrim(item) <> ''), '{}')
+  INTO v_cities
+  FROM jsonb_array_elements_text(
+    CASE WHEN p_search ? 'cities' THEN p_search -> 'cities'
+      ELSE to_jsonb(coalesce(v_before.cities, '{}')) END
+  ) AS item;
+  SELECT coalesce(array_agg(btrim(item)) FILTER (WHERE btrim(item) <> ''), '{}')
+  INTO v_keywords
+  FROM jsonb_array_elements_text(
+    CASE WHEN p_search ? 'keywords' THEN p_search -> 'keywords'
+      ELSE to_jsonb(coalesce(v_before.keywords, '{}')) END
+  ) AS item;
+  SELECT coalesce(array_agg(btrim(item)) FILTER (WHERE btrim(item) <> ''), '{}')
+  INTO v_statuses
+  FROM jsonb_array_elements_text(
+    CASE WHEN p_search ? 'statuses' THEN p_search -> 'statuses'
+      ELSE to_jsonb(coalesce(v_before.statuses, '{}')) END
+  ) AS item;
+
+  BEGIN
+    v_publish_from := CASE WHEN p_search ? 'publish_from'
+      THEN nullif(p_search ->> 'publish_from', '')::date ELSE v_before.publish_from END;
+    v_publish_to := CASE WHEN p_search ? 'publish_to'
+      THEN nullif(p_search ->> 'publish_to', '')::date ELSE v_before.publish_to END;
+    v_deadline_from := CASE WHEN p_search ? 'deadline_from'
+      THEN nullif(p_search ->> 'deadline_from', '')::date ELSE v_before.deadline_from END;
+    v_deadline_to := CASE WHEN p_search ? 'deadline_to'
+      THEN nullif(p_search ->> 'deadline_to', '')::date ELSE v_before.deadline_to END;
+  EXCEPTION WHEN invalid_text_representation OR datetime_field_overflow THEN
+    RAISE EXCEPTION 'search contains an invalid date';
+  END;
+  v_active := CASE WHEN p_search ? 'active'
+    THEN coalesce((p_search ->> 'active')::boolean, true)
+    ELSE coalesce(v_before.active, true) END;
+
+  IF v_name IS NULL OR length(v_name) > 120 THEN
+    RAISE EXCEPTION 'Search name is required and must not exceed 120 characters';
+  END IF;
+  IF v_domain NOT IN ('renewable_energy', 'security_systems') THEN
+    RAISE EXCEPTION 'Invalid Tender search domain';
+  END IF;
+  IF v_opportunity_type IS NOT NULL
+     AND v_opportunity_type NOT IN ('inquiry', 'tender') THEN
+    RAISE EXCEPTION 'Invalid Tender opportunity type';
+  END IF;
+  IF cardinality(v_provinces) > 20 OR cardinality(v_cities) > 50
+     OR cardinality(v_keywords) > 30 OR cardinality(v_statuses) > 3 THEN
+    RAISE EXCEPTION 'Saved Tender search contains too many list values';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM unnest(
+      v_provinces || v_cities || v_keywords || v_statuses
+    ) AS value WHERE length(value) > 100
+  ) THEN
+    RAISE EXCEPTION 'Saved Tender search list value is too long';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM unnest(v_statuses) AS status
+    WHERE status NOT IN (
+      'setad_verified', 'pending_setad_verification', 'data_conflict'
+    )
+  ) THEN
+    RAISE EXCEPTION 'Invalid Tender verification status';
+  END IF;
+  IF v_publish_to IS NOT NULL AND v_publish_from IS NOT NULL
+     AND v_publish_to < v_publish_from THEN
+    RAISE EXCEPTION 'Publication date range is invalid';
+  END IF;
+  IF v_deadline_to IS NOT NULL AND v_deadline_from IS NOT NULL
+     AND v_deadline_to < v_deadline_from THEN
+    RAISE EXCEPTION 'Deadline range is invalid';
+  END IF;
+
+  IF p_search_id IS NULL THEN
+    INSERT INTO public.tender_saved_searches (
+      name, domain, opportunity_type, provinces, cities, keywords, trade,
+      category, organizer, publish_from, publish_to, deadline_from,
+      deadline_to, statuses, active, owner_sales_id
+    ) VALUES (
+      v_name, v_domain, v_opportunity_type, v_provinces, v_cities, v_keywords,
+      v_trade, v_category, v_organizer, v_publish_from, v_publish_to,
+      v_deadline_from, v_deadline_to, v_statuses, v_active, v_actor_id
+    ) RETURNING * INTO v_after;
+  ELSE
+    UPDATE public.tender_saved_searches
+    SET
+      name = v_name,
+      domain = v_domain,
+      opportunity_type = v_opportunity_type,
+      provinces = v_provinces,
+      cities = v_cities,
+      keywords = v_keywords,
+      trade = v_trade,
+      category = v_category,
+      organizer = v_organizer,
+      publish_from = v_publish_from,
+      publish_to = v_publish_to,
+      deadline_from = v_deadline_from,
+      deadline_to = v_deadline_to,
+      statuses = v_statuses,
+      active = v_active,
+      updated_at = now()
+    WHERE id = p_search_id
+    RETURNING * INTO v_after;
+  END IF;
+
+  INSERT INTO public.tender_audit_log (
+    opportunity_id, event_type, actor_sales_id, metadata
+  ) VALUES (
+    null,
+    CASE WHEN p_search_id IS NULL
+      THEN 'saved_search_created' ELSE 'saved_search_updated' END,
+    v_actor_id,
+    jsonb_build_object(
+      'search_id', v_after.id,
+      'owner_sales_id', v_after.owner_sales_id,
+      'domain', v_after.domain,
+      'opportunity_type', v_after.opportunity_type,
+      'active', v_after.active
+    )
+  );
+
+  RETURN v_after;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION "public"."delete_tender_search"(
+    "p_search_id" bigint
+) RETURNS bigint
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+DECLARE
+  v_actor_id bigint;
+  v_actor_role text;
+  v_search public.tender_saved_searches%ROWTYPE;
+BEGIN
+  v_actor_id := public.current_sales_id();
+  v_actor_role := public.current_staff_role();
+  IF v_actor_id IS NULL OR v_actor_role NOT IN ('admin', 'manager', 'sales') THEN
+    RAISE EXCEPTION 'Deleting Tender searches is not allowed for this role'
+      USING ERRCODE = '42501';
+  END IF;
+
+  SELECT * INTO v_search
+  FROM public.tender_saved_searches
+  WHERE id = p_search_id
+  FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Saved Tender search not found' USING ERRCODE = 'P0002';
+  END IF;
+  IF v_search.owner_sales_id <> v_actor_id
+     AND v_actor_role NOT IN ('admin', 'manager') THEN
+    RAISE EXCEPTION 'Saved Tender search belongs to another salesperson'
+      USING ERRCODE = '42501';
+  END IF;
+
+  DELETE FROM public.tender_saved_searches WHERE id = p_search_id;
+  INSERT INTO public.tender_audit_log (
+    opportunity_id, event_type, actor_sales_id, metadata
+  ) VALUES (
+    null,
+    'saved_search_deleted',
+    v_actor_id,
+    jsonb_build_object(
+      'search_id', p_search_id,
+      'owner_sales_id', v_search.owner_sales_id,
+      'domain', v_search.domain
+    )
+  );
+
+  RETURN p_search_id;
+END;
+$$;

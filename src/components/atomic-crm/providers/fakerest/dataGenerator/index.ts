@@ -48,6 +48,7 @@ export default (): Db => {
   db.tender_audit_log = [];
   db.tender_opportunities = [];
   db.tender_pipeline_entries = [];
+  db.tender_saved_searches = [];
   db.configuration = [
     {
       id: 1,

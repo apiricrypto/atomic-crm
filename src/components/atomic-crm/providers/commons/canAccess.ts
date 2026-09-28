@@ -100,6 +100,12 @@ export const canAccess = <
     if (resource === "tender_pipeline_entries" && action === "edit") {
       return true;
     }
+    if (
+      resource === "tender_saved_searches" &&
+      ["create", "edit", "delete"].includes(action)
+    ) {
+      return true;
+    }
     return isRead(action);
   }
 

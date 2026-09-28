@@ -85,6 +85,14 @@ revoke all on function public.update_tender_pipeline(bigint, jsonb) from public,
 grant execute on function public.update_tender_pipeline(bigint, jsonb) to authenticated;
 grant execute on function public.update_tender_pipeline(bigint, jsonb) to service_role;
 
+revoke all on function public.save_tender_search(bigint, jsonb) from public, anon, authenticated;
+grant execute on function public.save_tender_search(bigint, jsonb) to authenticated;
+grant execute on function public.save_tender_search(bigint, jsonb) to service_role;
+
+revoke all on function public.delete_tender_search(bigint) from public, anon, authenticated;
+grant execute on function public.delete_tender_search(bigint) to authenticated;
+grant execute on function public.delete_tender_search(bigint) to service_role;
+
 -- Table grants
 grant all on table public.companies to anon;
 grant all on table public.companies to authenticated;
