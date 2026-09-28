@@ -6,6 +6,50 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — human SETAD handoff and official observation capture
+
+Draft PR #36: `satno/setad-interactive-handoff-20260928`, published feature
+commit `fa6e03e1eb1e19eef1a3955ba30dda6704630b5d`, stacked directly on Draft PR
+#35 at `af556f6692a81469329668979a62342dfcf040a4`.
+
+- Live GitHub reconciliation confirmed #35 and #11 remained open, Draft,
+  mergeable, and unmerged. `main`/`satno-development` remained at `dce557e`,
+  upstream at `64e2163`, and the Persian reference at `85fc400`. No overlapping
+  SETAD branch or PR existed; #35 had no workflow run or commit status.
+- Replaced the SETAD placeholder with a Persian/RTL two-step workflow: a manual
+  filter checklist that opens the type-correct official page in the user's
+  browser, followed by explicit transcription of the authorized official
+  observation. Filters are not injected into SETAD and the CRM does not inspect
+  the opened tab.
+- Added append-only `tender_setad_verifications` observations and the guarded
+  `record_setad_verification(bigint, jsonb)` RPC. It enforces active
+  admin/manager/sales roles, assignment, row and advisory locks, a scalar
+  allow-list, length/date checks, type-correct Need No/Tender No, exact official
+  portal URLs, verified-identifier uniqueness, and idempotent verified retries.
+- A confirmed observation updates only the official identifier, URL, and
+  verification status on the opportunity. A data conflict changes only its
+  routing status; the quarantined Radar assertion and official observation are
+  both preserved without overwrite.
+- Audit metadata contains the verification ID, status transition, and boolean
+  change indicators only. It excludes transcribed text, geography, official
+  identifiers, credentials, cookies, OTP, CAPTCHA, tokens, sessions, and raw
+  provider data. Direct authenticated writes remain revoked and FakeRest
+  explicitly refuses verification writes.
+- Validation passed: 27 focused Chromium tests, TypeScript, production build,
+  targeted ESLint/Prettier, registry generation, and `git diff --check`. The
+  published feature tree `60a8585f` exactly matched the tested local tree.
+- No real SETAD login/session/CAPTCHA or official record was used. Docker,
+  Podman, and Supabase CLI were unavailable, so no real transaction/RLS/
+  concurrency run occurred. No migration, Tender Radar request, production
+  write, merge, or deployment occurred.
+
+Next priority: reconcile PR #36 and run import, pipeline, Saved Search, SETAD
+verification, RLS, rollback, append-only, and concurrent identifier tests in a
+disposable Supabase environment. If unavailable, add a separate read-only
+official-observation history and conflict-resolution queue; never automate or
+bypass SETAD login/CAPTCHA and never claim a live connection without an
+authorized real-session acceptance run.
+
 ## Latest checkpoint — guarded Tender Saved Searches
 
 Draft PR #35: `satno/tender-saved-searches-20260928`, published feature commit

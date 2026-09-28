@@ -41,6 +41,7 @@ describe("Tender & Inquiry Intelligence SQL contract", () => {
       "tender_opportunities",
       "tender_pipeline_entries",
       "tender_saved_searches",
+      "tender_setad_verifications",
       "tender_audit_log",
     ]) {
       expect(policiesSql).toContain(
@@ -233,6 +234,51 @@ describe("Tender & Inquiry Intelligence SQL contract", () => {
     );
     expect(grantsSql).toMatch(
       /grant execute on function public\.delete_tender_search\(bigint\) to authenticated/i,
+    );
+  });
+
+  it("records append-only human SETAD observations through a guarded RPC", () => {
+    const start = functionsSql.indexOf(
+      'CREATE OR REPLACE FUNCTION "public"."record_setad_verification"',
+    );
+    const functionBody = functionsSql
+      .slice(start)
+      .match(/AS \$\$([\s\S]+?)\$\$;/)?.[1];
+
+    expect(start).toBeGreaterThan(-1);
+    expect(functionBody).toBeTruthy();
+    expect(functionsSql.slice(start, start + 500)).toMatch(
+      /SECURITY DEFINER[\s\S]+SET "search_path" TO ''/,
+    );
+    expect(functionBody).toMatch(/current_staff_role/);
+    expect(functionBody).toMatch(/v_allowed_keys constant text\[\]/);
+    expect(functionBody).toMatch(
+      /SETAD verification contains an unsupported field/,
+    );
+    expect(functionBody).toMatch(/FOR UPDATE/);
+    expect(functionBody).toMatch(/pg_advisory_xact_lock/);
+    expect(functionBody).toMatch(/Inquiry verification requires Need No/);
+    expect(functionBody).toMatch(/Tender verification requires Tender No/);
+    expect(functionBody).toMatch(
+      /INSERT INTO public\.tender_setad_verifications/,
+    );
+    expect(functionBody).toMatch(/verification_status = 'data_conflict'/);
+    expect(functionBody).toMatch(/INSERT INTO public\.tender_audit_log/);
+    expect(functionBody).toMatch(/official_identifier_changed/);
+    expect(functionBody).not.toMatch(
+      /public\.companies|public\.contacts|public\.deals|public\.projects|financial_|inventory_|raw_payload/,
+    );
+    expect(triggersSql).toMatch(
+      /before update or delete on public\.tender_setad_verifications/,
+    );
+    expect(policiesSql).toMatch(
+      /Authorized staff can read SETAD verifications/,
+    );
+    expect(grantsSql).toMatch(
+      /grant execute on function public\.record_setad_verification\(bigint, jsonb\) to authenticated/i,
+    );
+    expect(grantsSql).not.toMatch(
+      /grant\s+(?:all|insert|update|delete)\s+on\s+table\s+public\.tender_setad_verifications\s+to\s+authenticated/i,
     );
   });
 });

@@ -513,6 +513,15 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION "private"."prevent_setad_verification_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$
+BEGIN
+  RAISE EXCEPTION 'SETAD verification observations are append-only';
+END;
+$$;
+
 -- The only authenticated path from a raw lead into core CRM records. The
 -- function locks the lead, validates ownership and qualification, creates all
 -- target records, writes provenance, and marks the lead converted in one
@@ -1583,5 +1592,236 @@ BEGIN
   );
 
   RETURN p_search_id;
+END;
+$$;
+
+-- Human-in-the-loop SETAD verification boundary. The official observation is
+-- appended separately so a conflict never overwrites the Radar assertion.
+-- Authentication, OTP and CAPTCHA remain entirely inside the user's browser.
+CREATE OR REPLACE FUNCTION "public"."record_setad_verification"(
+    "p_opportunity_id" bigint,
+    "p_verification" jsonb
+) RETURNS public.tender_setad_verifications
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+DECLARE
+  v_actor_id bigint;
+  v_actor_role text;
+  v_allowed_keys constant text[] := array[
+    'verification_status', 'official_need_no', 'official_tender_no',
+    'title', 'description', 'organizer', 'province', 'city',
+    'publish_date', 'document_deadline', 'submission_deadline',
+    'official_source_url'
+  ];
+  v_key text;
+  v_opportunity public.tender_opportunities%ROWTYPE;
+  v_existing public.tender_setad_verifications%ROWTYPE;
+  v_result public.tender_setad_verifications%ROWTYPE;
+  v_status text;
+  v_need_no text;
+  v_tender_no text;
+  v_title text;
+  v_description text;
+  v_organizer text;
+  v_province text;
+  v_city text;
+  v_official_url text;
+  v_publish_date date;
+  v_document_deadline date;
+  v_submission_deadline date;
+BEGIN
+  v_actor_id := public.current_sales_id();
+  v_actor_role := public.current_staff_role();
+  IF v_actor_id IS NULL OR v_actor_role NOT IN ('admin', 'manager', 'sales') THEN
+    RAISE EXCEPTION 'Recording SETAD verification is not allowed for this role'
+      USING ERRCODE = '42501';
+  END IF;
+  IF p_verification IS NULL OR jsonb_typeof(p_verification) <> 'object' THEN
+    RAISE EXCEPTION 'SETAD verification must be a JSON object';
+  END IF;
+  FOR v_key IN SELECT jsonb_object_keys(p_verification)
+  LOOP
+    IF NOT (v_key = ANY(v_allowed_keys)) THEN
+      RAISE EXCEPTION 'SETAD verification contains an unsupported field: %', v_key;
+    END IF;
+  END LOOP;
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_each(p_verification) supplied
+    WHERE jsonb_typeof(supplied.value) NOT IN ('string', 'null')
+  ) THEN
+    RAISE EXCEPTION 'SETAD verification fields must be scalar strings';
+  END IF;
+
+  SELECT * INTO v_opportunity
+  FROM public.tender_opportunities
+  WHERE id = p_opportunity_id
+  FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Tender opportunity not found' USING ERRCODE = 'P0002';
+  END IF;
+  IF v_actor_role = 'sales'
+     AND v_opportunity.assigned_sales_id IS NOT NULL
+     AND v_opportunity.assigned_sales_id <> v_actor_id THEN
+    RAISE EXCEPTION 'Tender opportunity is assigned to another salesperson'
+      USING ERRCODE = '42501';
+  END IF;
+
+  v_status := nullif(btrim(p_verification ->> 'verification_status'), '');
+  v_need_no := nullif(btrim(p_verification ->> 'official_need_no'), '');
+  v_tender_no := nullif(btrim(p_verification ->> 'official_tender_no'), '');
+  v_title := nullif(btrim(p_verification ->> 'title'), '');
+  v_description := nullif(btrim(p_verification ->> 'description'), '');
+  v_organizer := nullif(btrim(p_verification ->> 'organizer'), '');
+  v_province := nullif(btrim(p_verification ->> 'province'), '');
+  v_city := nullif(btrim(p_verification ->> 'city'), '');
+  v_official_url := nullif(btrim(p_verification ->> 'official_source_url'), '');
+  BEGIN
+    v_publish_date := nullif(p_verification ->> 'publish_date', '')::date;
+    v_document_deadline := nullif(
+      p_verification ->> 'document_deadline', ''
+    )::date;
+    v_submission_deadline := nullif(
+      p_verification ->> 'submission_deadline', ''
+    )::date;
+  EXCEPTION WHEN invalid_text_representation OR datetime_field_overflow THEN
+    RAISE EXCEPTION 'SETAD verification contains an invalid date';
+  END;
+
+  IF v_status NOT IN ('setad_verified', 'data_conflict') THEN
+    RAISE EXCEPTION 'SETAD verification must be verified or data conflict';
+  END IF;
+  IF v_title IS NULL THEN
+    RAISE EXCEPTION 'Official SETAD title is required';
+  END IF;
+  IF length(v_title) > 500
+     OR length(coalesce(v_description, '')) > 5000
+     OR length(coalesce(v_organizer, '')) > 300
+     OR length(coalesce(v_province, '')) > 100
+     OR length(coalesce(v_city, '')) > 100
+     OR length(coalesce(v_need_no, '')) > 120
+     OR length(coalesce(v_tender_no, '')) > 120 THEN
+    RAISE EXCEPTION 'SETAD verification field exceeds its length limit';
+  END IF;
+  IF v_opportunity.opportunity_type = 'inquiry' THEN
+    IF v_need_no IS NULL OR v_tender_no IS NOT NULL THEN
+      RAISE EXCEPTION 'Inquiry verification requires Need No and forbids Tender No';
+    END IF;
+    IF v_official_url <> 'https://eproc.setadiran.ir/eproc/entry.do' THEN
+      RAISE EXCEPTION 'Inquiry verification must use the official eproc URL';
+    END IF;
+  ELSE
+    IF v_tender_no IS NULL OR v_need_no IS NOT NULL THEN
+      RAISE EXCEPTION 'Tender verification requires Tender No and forbids Need No';
+    END IF;
+    IF v_official_url <> 'https://etend.setadiran.ir/etend/index.action' THEN
+      RAISE EXCEPTION 'Tender verification must use the official etend URL';
+    END IF;
+  END IF;
+
+  -- Stable identifier locks make concurrent official confirmations observe the
+  -- same result before either the verification or opportunity row is changed.
+  PERFORM pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(
+      CASE
+        WHEN v_need_no IS NOT NULL THEN 'setad:need:' || v_need_no
+        ELSE 'setad:tender:' || v_tender_no
+      END,
+      0
+    )
+  );
+
+  IF v_status = 'setad_verified' THEN
+    SELECT * INTO v_existing
+    FROM public.tender_setad_verifications existing
+    WHERE existing.verification_status = 'setad_verified'
+      AND existing.opportunity_id = p_opportunity_id
+      AND (
+        (v_need_no IS NOT NULL AND existing.official_need_no = v_need_no)
+        OR
+        (v_tender_no IS NOT NULL AND existing.official_tender_no = v_tender_no)
+      )
+    ORDER BY existing.checked_at DESC
+    LIMIT 1;
+    IF FOUND THEN
+      RETURN v_existing;
+    END IF;
+
+    IF EXISTS (
+      SELECT 1 FROM public.tender_opportunities other
+      WHERE other.id <> p_opportunity_id
+        AND (
+          (v_need_no IS NOT NULL AND other.official_need_no = v_need_no)
+          OR
+          (v_tender_no IS NOT NULL AND other.official_tender_no = v_tender_no)
+        )
+    ) OR EXISTS (
+      SELECT 1 FROM public.tender_setad_verifications other
+      WHERE other.opportunity_id <> p_opportunity_id
+        AND other.verification_status = 'setad_verified'
+        AND (
+          (v_need_no IS NOT NULL AND other.official_need_no = v_need_no)
+          OR
+          (v_tender_no IS NOT NULL AND other.official_tender_no = v_tender_no)
+        )
+    ) THEN
+      RAISE EXCEPTION 'Official SETAD identifier belongs to another opportunity; record a data conflict'
+        USING ERRCODE = '23505';
+    END IF;
+  END IF;
+
+  INSERT INTO public.tender_setad_verifications (
+    opportunity_id, opportunity_type, official_need_no, official_tender_no,
+    title, description, organizer, province, city, publish_date,
+    document_deadline, submission_deadline, official_source_url,
+    verification_status, checked_by_sales_id
+  ) VALUES (
+    p_opportunity_id, v_opportunity.opportunity_type, v_need_no, v_tender_no,
+    v_title, v_description, v_organizer, v_province, v_city, v_publish_date,
+    v_document_deadline, v_submission_deadline, v_official_url,
+    v_status, v_actor_id
+  ) RETURNING * INTO v_result;
+
+  IF v_status = 'setad_verified' THEN
+    UPDATE public.tender_opportunities
+    SET
+      official_need_no = v_need_no,
+      official_tender_no = v_tender_no,
+      official_source_url = v_official_url,
+      verification_status = 'setad_verified',
+      updated_at = now()
+    WHERE id = p_opportunity_id;
+  ELSE
+    -- On conflict, preserve both records exactly as observed. Only the routing
+    -- status changes so a human can resolve the discrepancy later.
+    UPDATE public.tender_opportunities
+    SET verification_status = 'data_conflict', updated_at = now()
+    WHERE id = p_opportunity_id;
+  END IF;
+
+  INSERT INTO public.tender_audit_log (
+    opportunity_id, event_type, actor_sales_id, metadata
+  ) VALUES (
+    p_opportunity_id,
+    'setad_verification_recorded',
+    v_actor_id,
+    jsonb_build_object(
+      'verification_id', v_result.id,
+      'status_before', v_opportunity.verification_status,
+      'status_after', v_status,
+      'official_identifier_changed',
+        coalesce(v_opportunity.official_need_no, v_opportunity.official_tender_no)
+          IS DISTINCT FROM coalesce(v_need_no, v_tender_no),
+      'publication_date_changed',
+        v_opportunity.publish_date IS DISTINCT FROM v_publish_date,
+      'document_deadline_changed',
+        v_opportunity.document_deadline IS DISTINCT FROM v_document_deadline,
+      'submission_deadline_changed',
+        v_opportunity.submission_deadline IS DISTINCT FROM v_submission_deadline
+    )
+  );
+
+  RETURN v_result;
 END;
 $$;

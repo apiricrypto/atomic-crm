@@ -93,6 +93,10 @@ revoke all on function public.delete_tender_search(bigint) from public, anon, au
 grant execute on function public.delete_tender_search(bigint) to authenticated;
 grant execute on function public.delete_tender_search(bigint) to service_role;
 
+revoke all on function public.record_setad_verification(bigint, jsonb) from public, anon, authenticated;
+grant execute on function public.record_setad_verification(bigint, jsonb) to authenticated;
+grant execute on function public.record_setad_verification(bigint, jsonb) to service_role;
+
 -- Table grants
 grant all on table public.companies to anon;
 grant all on table public.companies to authenticated;
@@ -134,6 +138,10 @@ grant all on table public.tender_pipeline_entries to service_role;
 revoke all on table public.tender_saved_searches from public, anon, authenticated;
 grant select on table public.tender_saved_searches to authenticated;
 grant all on table public.tender_saved_searches to service_role;
+
+revoke all on table public.tender_setad_verifications from public, anon, authenticated;
+grant select on table public.tender_setad_verifications to authenticated;
+grant all on table public.tender_setad_verifications to service_role;
 
 revoke all on table public.tender_audit_log from public, anon, authenticated;
 grant select on table public.tender_audit_log to authenticated;
@@ -246,6 +254,8 @@ revoke all on sequence public.tender_pipeline_entries_id_seq from public, anon, 
 grant all on sequence public.tender_pipeline_entries_id_seq to service_role;
 revoke all on sequence public.tender_saved_searches_id_seq from public, anon, authenticated;
 grant all on sequence public.tender_saved_searches_id_seq to service_role;
+revoke all on sequence public.tender_setad_verifications_id_seq from public, anon, authenticated;
+grant all on sequence public.tender_setad_verifications_id_seq to service_role;
 revoke all on sequence public.tender_audit_log_id_seq from public, anon, authenticated;
 grant all on sequence public.tender_audit_log_id_seq to service_role;
 grant all on sequence public.lead_conversions_id_seq to service_role;

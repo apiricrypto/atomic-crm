@@ -23,6 +23,7 @@ import type {
   TenderOpportunity,
   TenderPipelineEntry,
   TenderSavedSearch,
+  TenderSetadVerification,
 } from "../../../types";
 import type { ConfigurationContextValue } from "../../../root/ConfigurationContext";
 
@@ -51,5 +52,6 @@ export interface Db {
   tender_opportunities: TenderOpportunity[];
   tender_pipeline_entries: TenderPipelineEntry[];
   tender_saved_searches: TenderSavedSearch[];
+  tender_setad_verifications: TenderSetadVerification[];
   configuration: Array<{ id: number; config: ConfigurationContextValue }>;
 }
