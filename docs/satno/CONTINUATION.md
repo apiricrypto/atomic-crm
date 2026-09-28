@@ -6,6 +6,44 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — disposable Tender database acceptance matrix
+
+Draft PR #38: `satno/tender-db-acceptance-matrix-20260928`, published feature
+commit `b9e98f0550e2efbd31ae28c65fe60e355e3e4b69`, stacked directly on Draft PR
+#37 at `a5cb7d787c2e8365046972b91c9f11e4939db6c6`.
+
+- Live GitHub reconciliation confirmed #37 and #11 remained open, Draft,
+  mergeable, and unmerged. `main`/`satno-development` remained at `dce557e`,
+  upstream at `64e2163`, and the Persian reference at `85fc400`. The only SETAD
+  branches were the existing #36 and #37 branches; no overlapping database
+  acceptance branch or PR existed. #37 had no workflow run or commit status.
+- Added a rollback-only pgTAP asset with 51 assertions for the five Tender
+  tables/RPCs: RLS/grants, missing-identity denial, manager/sales/viewer access,
+  assignment checks, A/B Radar import, same-lead idempotency, raw-provider
+  quarantine, absence of core CRM/project/finance/inventory side effects,
+  Pipeline gates, Saved Search ownership, append-only audit/SETAD observations,
+  and human-transcribed conflict followed by official verification.
+- The acceptance contract explicitly requires a reviewed declarative-schema
+  migration/diff in a disposable stack before the suite runs. It never targets
+  production and rolls back all synthetic rows. Concurrent identifier races
+  remain a separate multi-connection acceptance requirement.
+- Validation passed: the 51 assertions and 76 statements passed static SQL
+  parsing after only parser-compatibility normalization; 29 focused Chromium
+  tests, TypeScript, production build, targeted ESLint/Prettier, registry
+  generation, secret/domain scanning, and `git diff --check` also passed. The
+  published feature tree `a45094aa` exactly matched the tested local tree.
+- `supabase test db` did not run. Docker, Podman, Supabase CLI, Postgres, and
+  Deno remained unavailable and no disposable Supabase credentials existed.
+  Therefore no real RLS, transaction, rollback, concurrency, Tender Radar, or
+  SETAD acceptance is claimed. No migration, merge, deployment, production
+  write, secret change, login, OTP, CAPTCHA, cookie, or session operation ran.
+
+Next priority: reconcile PR #38 and run the reviewed matrix in a disposable
+Supabase stack. If the runtime remains unavailable, prepare a separate
+environment-gated multi-connection concurrency runner for official identifiers,
+source IDs, and fallback fingerprints; never embed credentials or point it at a
+shared/production project.
+
 ## Latest checkpoint — read-only SETAD history and conflict review
 
 Draft PR #37: `satno/setad-history-conflict-20260928`, published feature commit

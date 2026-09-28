@@ -5,6 +5,7 @@ import functionsSql from "../../../../supabase/schemas/02_functions.sql?raw";
 import triggersSql from "../../../../supabase/schemas/04_triggers.sql?raw";
 import policiesSql from "../../../../supabase/schemas/05_policies.sql?raw";
 import grantsSql from "../../../../supabase/schemas/06_grants.sql?raw";
+import databaseAcceptanceSql from "../../../../supabase/tests/database/tender_intelligence.test.sql?raw";
 
 describe("Tender & Inquiry Intelligence SQL contract", () => {
   it("keeps official identifiers, aggregator identity and dates separate", () => {
@@ -279,6 +280,50 @@ describe("Tender & Inquiry Intelligence SQL contract", () => {
     );
     expect(grantsSql).not.toMatch(
       /grant\s+(?:all|insert|update|delete)\s+on\s+table\s+public\.tender_setad_verifications\s+to\s+authenticated/i,
+    );
+  });
+
+  it("ships a rollback-only disposable database acceptance matrix", () => {
+    expect(databaseAcceptanceSql).toMatch(/^begin;/m);
+    expect(databaseAcceptanceSql).toMatch(/select plan\(51\)/);
+    expect(databaseAcceptanceSql).toMatch(/select \* from finish\(\)/);
+    expect(databaseAcceptanceSql).toMatch(/rollback;\s*$/);
+    expect(databaseAcceptanceSql).toMatch(
+      /authenticated clients have no direct Tender table writes/,
+    );
+    expect(databaseAcceptanceSql).toMatch(
+      /assigned sales user imports one reviewed A-grade Radar lead/,
+    );
+    expect(databaseAcceptanceSql).toMatch(/same-lead retry is idempotent/);
+    expect(databaseAcceptanceSql).toMatch(
+      /does not contaminate core CRM, project, finance or inventory/,
+    );
+    expect(databaseAcceptanceSql).toMatch(
+      /quarantined raw provider material never enters Tender opportunities/,
+    );
+    expect(databaseAcceptanceSql).toMatch(
+      /sales staff cannot read another salesperson assigned Tender opportunity/,
+    );
+    expect(databaseAcceptanceSql).toMatch(
+      /manager can read an assigned Tender opportunity/,
+    );
+    expect(databaseAcceptanceSql).toMatch(
+      /assigned sales user records a forward Pipeline milestone/,
+    );
+    expect(databaseAcceptanceSql).toMatch(
+      /Saved Search ownership is derived from the authenticated user/,
+    );
+    expect(databaseAcceptanceSql).toMatch(
+      /authorized human transcription appends a SETAD conflict observation/,
+    );
+    expect(databaseAcceptanceSql).toMatch(
+      /idempotent retry does not append a duplicate verified observation/,
+    );
+    expect(databaseAcceptanceSql).toMatch(
+      /Tender audit metadata contains no credential or raw-provider keys/,
+    );
+    expect(databaseAcceptanceSql).not.toMatch(
+      /https:\/\/[^\s'"/]*supabase\.co|service_role_key|authorization:\s*bearer/i,
     );
   });
 });

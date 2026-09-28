@@ -152,6 +152,23 @@ prove:
 The SQL in `supabase/schemas` is declarative design input, not an applied
 migration.
 
+### Disposable database test asset
+
+`supabase/tests/database/tender_intelligence.test.sql` is a rollback-only
+pgTAP matrix for a disposable stack. Its 51 assertions cover the five guarded
+RPCs and tables, RLS/grants, denial without an active staff identity,
+assignment-aware import, same-lead idempotency, quarantine of raw provider
+material, absence of core CRM/project/finance/inventory side effects, Pipeline
+gates, Saved Search ownership, append-only audit/SETAD observations, and a
+human-transcribed conflict followed by official verification.
+
+The file is an acceptance asset, not evidence of a successful database run.
+The current repository still keeps the Tender SQL in declarative schema files,
+so a reviewed migration/diff must first be generated and applied only to a
+disposable stack. Then run `supabase test db`; do not point the suite at a
+production or shared project. A separate multi-connection test is still
+required for concurrent official-identifier and fallback-fingerprint races.
+
 ## Guarded Radar import function
 
 `import_tender_opportunity(lead_id, review)` is the sole declared write path
