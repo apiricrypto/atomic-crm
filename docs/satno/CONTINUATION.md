@@ -6,6 +6,41 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — verified backup portability foundation
+
+Draft PR #27: `satno/backup-portability-foundation-20260928`, published feature
+commit `0dcdc7c442736e451fb6ddbf9e620704d2c1ff60`, stacked directly on Draft PR
+#26 at `8c11d95b0d8a5919c3022d865b603702f3a43745`.
+
+- Live reconciliation confirmed PR #26 remained open, Draft, unmerged, clean,
+  and two commits ahead/zero behind PR #25. `main` and `satno-development`
+  remained at `dce557e`; upstream remained `d00fdf3` and the Persian reference
+  remained `85fc400`. No overlapping backup/export/migration PR or branch
+  existed.
+- Added a local, explicit PostgreSQL custom-archive backup command. Output must
+  be an absolute directory outside the repository; the database URL is passed
+  only through the process environment and is never written to arguments,
+  output or the manifest.
+- Creation validates the archive with `pg_restore --list`, records the tool
+  version, byte count and SHA-256, and writes a final `COMPLETE` marker.
+  Verification rejects partial directories, tampering and unexpected manifest
+  archive paths without connecting to a destination database.
+- Validation passed: 6 Node backup tests, plan output, deliberate restore
+  rejection, all 150 Edge Function tests, TypeScript, production build,
+  targeted ESLint and Prettier, Node syntax check, production-secret-pattern
+  scan and `git diff --check`. Existing FieldTitle circular-chunk, large-bundle
+  and stale Browserslist warnings remain.
+- The tests use a stub archive only. No live database connection, real backup,
+  Storage-object export, restore, migration, deployment, secret change or
+  production write occurred. Physical Supabase Storage objects, secrets and
+  platform/provider settings remain explicitly separate. Restore is
+  intentionally unavailable pending explicit approval and a disposable drill.
+
+Next priority: reconcile PR #27, then begin Lead/Opportunity Intelligence and a
+Lead Inbox/Conversion foundation as a separate reviewable package. Raw leads
+must remain quarantined from core Contacts, Companies and Deals until an
+explicit, provenance-preserving conversion succeeds.
+
 ## Latest checkpoint — optional Phone/SMS OTP foundation
 
 Draft PR #26: `satno/phone-otp-foundation-20260928`, published feature commit
