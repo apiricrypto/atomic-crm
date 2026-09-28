@@ -6,6 +6,44 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Tender Radar sender conformance
+
+Draft PR #32: `satno/tender-radar-conformance-20260928`, published feature
+commit `eb10b3b7933a8468504319a06eba53193cfd1f1e`, stacked directly on Draft PR
+#31 at `9d14a9bff7bfbe563f4e1c4dcafa35697af65f1f`.
+
+- Live reconciliation confirmed #31 and #11 remained open, Draft and unmerged;
+  #31 was mergeable, two commits ahead and zero behind #30, with no Actions
+  run, check run, or status context. `main` and `satno-development` remained at
+  `dce557e`, upstream at `64e2163`, and the Persian reference at `85fc400`. No
+  overlapping conformance/sender branch or PR was found.
+- Added the receiver-owned `satno.tender-radar.lead.v1` contract. It requires a
+  sender-owned scoring version, A/B/C grade plus score, type/domain, separate
+  Need/Tender candidate identifiers, three separate source dates, a versioned
+  fallback fingerprint, and a quarantined source snapshot.
+- Added authored synthetic A-inquiry, B-tender, and C-quarantine fixtures. The
+  Radar source ID is enforced separately from official identifier candidates;
+  outer Lead deadline must equal the submission-deadline candidate and can
+  never be substituted with publication date.
+- Only A/B become human-review candidates. C remains a `new` quarantined lead.
+  Sender fields are assertions only and cannot claim SETAD verification or
+  directly create Tender/Core CRM records.
+- Official candidate URLs must use the exact type-matched eproc/etend portal.
+  Credential, authorization, session, secret, cookie, CAPTCHA, OTP, token, and
+  related keys are recursively rejected from payloads and URL parameters.
+- Validation passed: 32 Lead/Tender conformance tests, all 182 Edge Function
+  tests, TypeScript, production build, targeted ESLint/Prettier,
+  `git diff --check`, and secret-pattern scans. Existing FieldTitle, bundle,
+  npm-config, ESLint-ignore, and Browserslist warnings remain.
+- This proves only receiving-contract conformance. No independent Radar code,
+  real record/token/request, network call, Supabase/RLS run, migration,
+  production write, SETAD session, merge, or deployment occurred.
+
+Next priority: reconcile PR #32, then add the explicit human review/import UI
+adapter for A/B Radar rows calling the guarded PR #31 RPC. FakeRest must remain
+demo-only, SETAD candidate data must default to pending verification, and no
+live integration may be claimed before disposable Supabase acceptance.
+
 ## Latest checkpoint — guarded Tender Radar import
 
 Draft PR #31: `satno/tender-radar-import-20260928`, published feature commit
