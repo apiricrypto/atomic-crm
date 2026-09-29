@@ -6,6 +6,46 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — practical core CRM preview
+
+Branch: `satno/core-demo-walkthrough-20260929`, stacked on Draft PR #41 at
+`548b5def4295161e8a51c625a8ede26f9847eac5`.
+
+Ahmad requested a visible workstation preview for 2026-09-30 and clarified that
+company/contact/deal/follow-up workflows come first in that session. Tender
+Intelligence remains the integration priority; its real database gate is unchanged.
+
+- Live reconciliation: #41 and #11 open, Draft, mergeable and unmerged;
+  `main`/`satno-development` at `dce557e`. Read GitHub continuation and fetched
+  the official #41 head; its tree matched the prior local reconstruction.
+  Branch inventory contained no competing core-preview branch. GitHub search
+  returned no issues even for existing PRs, so that empty result was not treated
+  as authoritative. #41 had no reported PR workflow run or commit status.
+- Added `npm run demo:satno`: existing FakeRest app bound to loopback port 5174,
+  strict port selection, automatic browser opening, no Docker or environment
+  file required. Persian preview banner explains synthetic, reset-on-reload data;
+  demo telemetry is disabled. Production App/provider configuration is unchanged.
+- New `docs/satno/CORE_DEMO_FA.md` gives Windows clone/install/start commands for
+  this cumulative branch and a company → contact → solar deal → follow-up tour.
+- Real browser interaction exposed a core task-form defect: rerenders changed
+  the default date in `record`, resetting entered text/date before save. Stabilized
+  defaults per open/contact/actor in AddTask and TaskCreateSheet.
+- Dedicated FakeRest Playwright config and tests cover the core relationship
+  workflow, task visibility in contact/tasks/dashboard, explicit reset on reload,
+  and five mobile routes. This config never loads Supabase credentials and is
+  excluded from Vitest collection. No real database persistence is claimed.
+- Validation: 6/6 Playwright E2E/mobile smoke tests, 2/2 existing task browser
+  tests, TypeScript, demo production build, targeted ESLint/Prettier, registry
+  regeneration and diff checks passed. Build retains existing chunk-size warnings.
+- English seeded names, stage/category labels and default USD configuration remain
+  visible. The preview is not a claim of complete Persian localization or an
+  approved Rial/Toman configuration.
+
+Next: run the Windows guide with Ahmad and collect concrete workflow feedback.
+For integration, obtain a healthy disposable Supabase stack, review generated
+migration/diff, and run pgTAP plus six race/state checks. No live Tender Radar or
+SETAD integration, merge, migration, deployment, or secret change occurred here.
+
 ## Latest checkpoint — disposable runtime readiness diagnosis
 
 Feature branch: `satno/tender-disposable-readiness-20260929`, stacked directly
