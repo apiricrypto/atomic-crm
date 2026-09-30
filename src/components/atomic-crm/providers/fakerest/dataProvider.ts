@@ -24,6 +24,7 @@ import { getActivityLog } from "../commons/activity";
 import { getCompanyAvatar } from "../commons/getCompanyAvatar";
 import { getContactAvatar } from "../commons/getContactAvatar";
 import { mergeContacts } from "../commons/mergeContacts";
+import { isAdministratorRole } from "../commons/staffRoles";
 import type { CrmDataProvider } from "../types";
 import {
   authProvider as defaultAuthProvider,
@@ -235,6 +236,7 @@ export const createDataProvider = ({
       const response = await dataProvider.create("sales", {
         data: {
           ...data,
+          administrator: isAdministratorRole(data.role),
           password: "new_password",
         },
       });
@@ -255,7 +257,12 @@ export const createDataProvider = ({
 
       const { data: sale } = await dataProvider.update<Sale>("sales", {
         id,
-        data,
+        data: {
+          ...data,
+          ...(data.role && {
+            administrator: isAdministratorRole(data.role),
+          }),
+        },
         previousData,
       });
       return { ...sale, user_id: sale.id.toString() };

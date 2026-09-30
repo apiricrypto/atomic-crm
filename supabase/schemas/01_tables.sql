@@ -296,11 +296,14 @@ create table public.sales (
     last_name text not null default 'Pending'::text,
     email extensions.citext not null,
     administrator boolean not null,
+    role text not null default 'sales',
     user_id uuid not null,
     avatar jsonb,
     disabled boolean not null default false,
     secondary_emails jsonb not null default '[]'::jsonb,
-    constraint sales_secondary_emails_is_array check (jsonb_typeof(secondary_emails) = 'array')
+    constraint sales_secondary_emails_is_array check (jsonb_typeof(secondary_emails) = 'array'),
+    constraint sales_role_check check (role in ('admin', 'manager', 'sales', 'project', 'finance', 'inventory', 'viewer')),
+    constraint sales_admin_role_consistent check (administrator = (role = 'admin'))
 );
 
 create unique index uq__sales__user_id on public.sales using btree (user_id);

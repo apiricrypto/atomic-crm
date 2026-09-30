@@ -6,6 +6,41 @@ GitHub refs and code take precedence over historical progress summaries.
 Do not merge into `satno-development` or `main`, deploy, change secrets, or run
 destructive operations without the user's explicit approval.
 
+## Latest checkpoint — Staff Accounts and RBAC foundation
+
+Draft PR #24: `satno/staff-rbac-foundation-20260928`, published feature commit
+`5c7e04767ce5b84fb923c94638017125be1a20ad`, stacked directly on Draft PR #23
+at `b2035e0f5ee8a521a095cd44cdc90a60f312533c`.
+
+- Live reconciliation confirmed PR #23 remained open, Draft, unmerged and
+  mergeable before this package. `main` and `satno-development` remained at
+  `dce557e`; upstream remained `d00fdf3` and the Persian reference remained
+  `85fc400`. No overlapping Staff/RBAC branch or PR existed. PR #24 is open and
+  Draft; GitHub compare reports two commits ahead and zero behind its exact base,
+  while REST mergeability is awaiting recomputation after the documentation
+  commit. Its head has no workflow run or status context.
+- Added seven explicit staff roles: administrator, manager, sales, project,
+  finance, inventory and read-only viewer. The client matrix is deny-by-default,
+  role selection and badges are localized, disabled accounts fail access checks,
+  and Finance/Inventory custom routes now have explicit access gates.
+- The users Edge Function validates roles, derives the legacy `administrator`
+  field from the authoritative role, keeps role-less legacy records compatible,
+  restricts staff mutation to administrators and blocks administrator
+  self-lockout. Declarative schema helpers expose the current enabled staff role.
+- Validation passed: 33 focused Chromium tests, 140 Edge Function tests,
+  TypeScript, production build, targeted ESLint and Prettier, registry
+  generation, declarative table-schema parse and `git diff --check`. Existing
+  FieldTitle circular-chunk, large-bundle and stale Browserslist warnings remain.
+- No migration was generated or applied. Most current resource policies are
+  still broad `authenticated` policies, so this package is not production RLS
+  acceptance. A backfill-first generated migration and the real role/RLS matrix
+  remain blocked by the unavailable Docker/Podman Supabase stack. No merge,
+  deployment, secret change or production-data write occurred.
+
+Next priority: reconcile PR #24, then implement Daily Work Reports as a separate
+package with ownership and manager-visibility rules. Keep resource-level RLS as
+an explicit production gate; do not treat client `canAccess` as data security.
+
 ## Latest checkpoint — Inventory foundation
 
 Draft PR #23: `satno/inventory-foundation-20260928`, feature commit

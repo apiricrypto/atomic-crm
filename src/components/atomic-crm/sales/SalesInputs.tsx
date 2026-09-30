@@ -1,7 +1,9 @@
 import { email, required, useGetIdentity, useRecordContext } from "ra-core";
 import { BooleanInput } from "@/components/admin/boolean-input";
+import { SelectInput } from "@/components/admin/select-input";
 import { TextInput } from "@/components/admin/text-input";
 
+import { STAFF_ROLES, resolveStaffRole } from "../providers/commons/staffRoles";
 import type { Sale } from "../types";
 
 export function SalesInputs() {
@@ -16,8 +18,14 @@ export function SalesInputs() {
         validate={[required(), email()]}
         helperText={false}
       />
-      <BooleanInput
-        source="administrator"
+      <SelectInput
+        source="role"
+        choices={STAFF_ROLES.map((role) => ({
+          id: role,
+          name: `resources.sales.roles.${role}`,
+        }))}
+        format={(value) => value || resolveStaffRole(record ?? {})}
+        translateChoice
         readOnly={record?.id === identity?.id}
         helperText={false}
       />

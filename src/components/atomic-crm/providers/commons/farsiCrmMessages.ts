@@ -385,8 +385,18 @@ export const farsiCrmMessages = {
         email: "ایمیل",
         secondary_email: "ایمیل ثانویه",
         secondary_emails: "ایمیل‌های ثانویه",
+        role: "نقش",
         administrator: "مدیر",
         disabled: "غیرفعال",
+      },
+      roles: {
+        admin: "مدیر سامانه",
+        manager: "مدیر کسب‌وکار",
+        sales: "فروش",
+        project: "پروژه",
+        finance: "مالی",
+        inventory: "انبار",
+        viewer: "فقط مشاهده",
       },
       create: {
         error: "خطا در ایجاد کاربر.",
