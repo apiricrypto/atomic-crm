@@ -7,6 +7,7 @@
 - `frontend-design`
 - `webapp-testing`
 - `mcp-builder`
+- `satno-llm-router`
 
 منبع: `apiricrypto/satno-agent-skills`
 
